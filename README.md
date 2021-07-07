@@ -19,4 +19,4 @@
 <Br>
 
 <p align="center">
-  <img src="https://media.giphy.com/media/aHmquP8GsDCHS/giphy.gif"/>
+  <img src="https://media.giphy.com/media/zqTOkUhWIGC3DaFo4j/giphy.gif"/>
