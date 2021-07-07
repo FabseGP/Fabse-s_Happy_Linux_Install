@@ -5,12 +5,11 @@
 <Br>
 <h1>About this repo! 😎</h1>
 
-- Installations scripts til opsætning af Alpine Linux for RPI4; swap-space, persistent storage, networking, users and locals
-- Opsætning af ZSH med PowerLevel10k-tema
+- Installations scripts til opsætning af Artix Linux for RPI4; btrfs + swap-space, encryption and locals
+- Opsætning af pakker + ZSH med PowerLevel10k-tema
+- Opsætning af opstarts-tema
 - Gendanner KDE Plasma indstillinger + Sway-config fra backup
-- Installation af FireFox-tema
-- Installation af Docker-containers
-  
+- Installation af FireFox- + Spotify-temaer  
 
 <Br>
 <hr>
