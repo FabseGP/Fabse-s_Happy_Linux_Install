@@ -1,15 +1,17 @@
 #!/usr/bin/bash
 
 # Parametres
+VALID_ENTRY = false
+INPUT=""
+OUTPUT=""
 
-WIFI_ID="wifi_xxx_managed_psk"
+WIFI_ID=""
 WiFI_SSID=""
-WIFI_PASSWD="hello"
 
-DRIVE_LABEL="nvme0n1"
-DRIVE_LABEL_boot="nvme0n1p1"
-DRIVE_LABEL_swap="nvme0n1p2"
-DRIVE_LABEL_root="nvme0n1p3"
+DRIVE_LABEL=""
+DRIVE_LABEL_boot=""
+DRIVE_LABEL_swap=""
+DRIVE_LABEL_root=""
 
 BOOT_label="boot"
 ROOT_label="alpine"
@@ -48,27 +50,39 @@ WIFI_ID = sed -n "s/^.*$WIFI_SSID\s*\(\S*\)/\1/p" temp
 rm temp
 connmanctl connect $WIFI_ID
 
+fdisk -l
+VALID_ENTRY = false
+echo "Which drive do you want to partition?"
+until [ $VALID_ENTRY == true ]; do 
+  read DRIVE_LABEL
+  OUTPUT = fdisk -l | sed -n "s/^.*\($DRIVE_LABEL\).*$/\1/p"
+  if [[ "$DRIVE_LABEL" == *"$OUTPUT"* ]]; then 
+    VALID_ENTRY = true
+  else 
+    echo "Invalid drive. Try again."
+  fi
+done 
+DRIVE_LABEL_boot="$DRIVE_LABEL""1"
+DRIVE_LABEL_swap="$DRIVE_LABEL""2"
+DRIVE_LABEL_root="$DRIVE_LABEL""3"
+
 
 # Partitions; 325M boot-, 8GB swap- and then a BTRFS-partition
-fdisk -l | more 
-echo "which drive do you want to partition?"
-
-read DRIVE_LABEL
 
 badblocks -c 10240 -s -w -t random -v /dev/$DRIVE_label
 
 parted /dev/$DRIVE_label
 
-mklabel gpt
-mkpart ESP fat32 1MiB 325MiB
-set 1 boot on
-name 1 $BOOT_label
+  mklabel gpt
+  mkpart ESP fat32 1MiB 325MiB
+  set 1 boot on
+  name 1 $BOOT_label
 
-mkpart primary 325MiB 8325MiB
-name 2 $SWAP_label
+  mkpart primary 325MiB 8325MiB
+  name 2 $SWAP_label
 
-mkpart primary 8325MiB 100%
-name 3 $ROOT_label
+  mkpart primary 8325MiB 100%
+  name 3 $ROOT_label
 
 quit
 
@@ -108,9 +122,9 @@ sync
 
 # Drive-mount
 
-mount /dev/by-label/$BOOT_label /mnt/boot
+mount /dev/$DRIVE_LABEL_boot /mnt/boot
 
-swapon /dev/by-label/$SWAP_label
+swapon /dev/$DRIVE_LABEL_swap
 
 # Base-install
 
