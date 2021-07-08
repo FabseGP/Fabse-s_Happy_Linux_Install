@@ -5,7 +5,7 @@ after customizing the install, then it should be as simple as flashing an ISO to
 
 By default the system will be set up with:
 - A boot drive formatted as FAT32, a swap-partition and a BTRFS-partition, which will fill the whole drive;
-the sizes of these partitions is respectively 325M, 8GB and the rest of the drive
+the sizes of these partitions is adjusted when executing the script
 - LUKS-encryption and subvolumes for the BTRFS-partition
 - A user with your preferred username and password, as well as a custom root-password
 - A costum hostname, your preferred timezone, your preferred language and your preferred keyboard layout 
