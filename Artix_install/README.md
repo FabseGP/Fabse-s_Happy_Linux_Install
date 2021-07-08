@@ -8,5 +8,5 @@ By default the system will be set up with
 the sizes of these partitions must be set beforehand with cfdisk, where the first partition is the boot-, 
 the second is the swap- and the last is the BTRFS-partition
 - LUKS-encryption and subvolumes for the BTRFS-partition
-- An user with following credentials: "runit" as username and "Alpine12345" as password
+- An user with following credentials: "runit" as username and "Alpine12345" as password; the root user has the password "root1234"
 - "localhost" as hostname, UTC as timezone and "dk" as keyboard layout
