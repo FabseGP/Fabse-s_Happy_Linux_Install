@@ -71,9 +71,7 @@
 # Network-configuration
   more network.txt
 
-  if ($WIFI_choice = 2)
-
-  {
+  if [ $WIFI_choice = 2 ] then
 
     echo "You're wifi-card is about to be activated"
 
@@ -91,8 +89,8 @@
     rm wifi_list
 
     connmanctl connect $WIFI_ID
-
-  }
+    
+  done
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -162,9 +160,7 @@
 
   more encryptions.txt
 
-  if ($ENCRYPTION_choice = 2)
-
-  {
+  if [ $ENCRYPTION_choice = 2 ] then
 
     echo "Please have your encryption-password ready"
 
@@ -172,7 +168,7 @@
 
     cryptsetup open /dev/DRIVE_LABEL_root cryptroot
 
-  }
+  done
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -194,9 +190,7 @@
 
   more subvolumes.txt
 
-  if ($SUBVOLUMES_choice = 2)
-
-  {
+ if [ $SUBVOLUMES_choice = 2 ] then
 
     mount -o noatime,compress=lz4,discard,ssd,defaults /dev/mapper/cryptroot /mnt
     cd /mnt
@@ -216,7 +210,7 @@
 
     sync
 
-  }
+  done
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -242,15 +236,13 @@
 
   echo "If unsure / want to do a double check, enter "yes"; if not, enter "no""
 
-  read FSTAB_double
+  read FSTAB_double_check
 
-  if ($FSTAB_double = yes)
-
-  {
+ if [ $FSTAB_double_check = 2 ] then
   
     fdisk -l
 
-  }
+ done
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -285,9 +277,7 @@
 
   read LANGUAGE_how_many
 
-  if [ $LANGUAGE_how_many = 0 ] || [ $LANGUAGE_how_many > 3 ]
-
-  {
+  if [ $LANGUAGE_how_many = 0 ] || [ $LANGUAGE_how_many > 3 ] then
 
      echo "Please try again; I don't have time for this!
 
@@ -295,11 +285,9 @@
 
      read LANGUAGE_how_many
 
-  }
+  done
 
-  if ($LANGUAGE_how_many = 1)
-
-  {
+  if [ $LANGUAGE_how_many = 1 ] then
 
     echo "What language do you wish to generate?
   
@@ -309,11 +297,9 @@
 
     sed -i 's/^# *\($LANGUAGE_GEN1\)/\1/' /etc/locale.gen
 
-  }
+  done
 
-  if ($LANGUAGE_how_many = 2)
-
-  { 
+  if [ $LANGUAGE_how_many = 2 ] then
 
     echo "What languages do you wish to generate?
   
@@ -328,11 +314,9 @@
     sed -i 's/^# *\($LANGUAGE_GEN1\)/\1/' /etc/locale.gen
     sed -i 's/^# *\($LANGUAGE_GEN2\)/\1/' /etc/locale.gen
 
-  }
+ done
 
-  if ($LANGUAGE_how_many = 3)
-
-  {
+  if [ $LANGUAGE_how_many = 3 ] then
 
     echo "What languages do you wish to generate?
   
@@ -352,7 +336,7 @@
     sed -i 's/^# *\($LANGUAGE_GEN2\)/\1/' /etc/locale.gen
     sed -i 's/^# *\($LANGUAGE_GEN3\)/\1/' /etc/locale.gen
 
-  }
+ done
 
   locale.gen
 
