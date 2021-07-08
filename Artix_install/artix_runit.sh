@@ -1,30 +1,28 @@
 #!/usr/bin/bash
 
-
-# Parametres
-VALID_ENTRY = false
-INPUT=""
-OUTPUT=""
-WIFI_ID=""
-
-
-DRIVE_LABEL=""
-DRIVE_LABEL_boot=""
-DRIVE_LABEL_swap=""
-DRIVE_LABEL_root=""
 # Parameters
 
+  VALID_ENTRY = false
+  INPUT=""
+  OUTPUT=""
+  
   SWAP_choice = ""
   ENCRYPTION_choice = ""
   SUBVOLUMES_choice = ""
   WIFI_choice = ""
 
   WIFI_SSID = ""
+  WIFI_ID=""
 
   BOOT_size = ""
   SWAP_size = ""
 
   DRIVE_label = ""
+
+  DRIVE_LABEL=""
+  DRIVE_LABEL_boot=""
+  DRIVE_LABEL_swap=""
+  DRIVE_LABEL_root=""
 
   BOOT_label = ""
   ROOT_label = ""
