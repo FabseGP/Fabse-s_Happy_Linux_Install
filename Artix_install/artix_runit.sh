@@ -17,8 +17,6 @@
   BOOT_size = ""
   SWAP_size = ""
 
-  DRIVE_label = ""
-
   DRIVE_LABEL=""
   DRIVE_LABEL_boot=""
   DRIVE_LABEL_swap=""
@@ -104,25 +102,21 @@
 
   fdisk -l
 
-  fdisk -l
-VALID_ENTRY = false
-echo "Which drive do you want to partition?"
-until [ $VALID_ENTRY == true ]; do 
-  read DRIVE_LABEL
-  OUTPUT = fdisk -l | sed -n "s/^.*\($DRIVE_LABEL\).*$/\1/p"
-    if [[ "$DRIVE_LABEL" == *"$OUTPUT"* ]]; then 
-      VALID_ENTRY = true
-    else 
-     echo "Invalid drive. Try again."
-   fi
-  done 
+  VALID_ENTRY = false
+  echo "Which drive do you want to partition?"
+  until [ $VALID_ENTRY == true ]; do 
+    read DRIVE_LABEL
+    OUTPUT = fdisk -l | sed -n "s/^.*\($DRIVE_LABEL\).*$/\1/p"
+      if [[ "$DRIVE_LABEL" == *"$OUTPUT"* ]]; then 
+        VALID_ENTRY = true
+      else 
+       echo "Invalid drive. Try again."
+     fi
+    done 
+    
   DRIVE_LABEL_boot="$DRIVE_LABEL""1"
   DRIVE_LABEL_swap="$DRIVE_LABEL""2"
   DRIVE_LABEL_root="$DRIVE_LABEL""3"
-
-  DRIVE_boot = "$DRIVE_label1"
-  DRIVE_swap = "$DRIVE_label2"
-  DRIVE_root = "$DRIVE_label3"
 
   badblocks -c 10240 -s -w -t random -v /dev/$DRIVE_label
 
