@@ -34,6 +34,9 @@
   KEYMAP = ""
 
   LANGUAGE_how_many = ""
+  LANGUAGE_GEN1 = ""
+  LANGUAGE_GEN2 = ""
+  LANGUAGE_GEN3 = ""  
 
   ROOT_passwd = ""
   USERNAME = ""
@@ -281,7 +284,7 @@
 
      echo "Please try again; I don't have time for this!
 
-     echo "How many languages do you plan to use? No wrong answers, unless it is above 3!"
+     echo "How many languages are you needing? No wrong answers, unless it is above 3!"
 
      read LANGUAGE_how_many
 
@@ -294,7 +297,7 @@
     echo "Example: da_DK.UTF-8"
 
     read LANGUAGE_GEN1
-
+    
     sed -i 's/^# *\($LANGUAGE_GEN1\)/\1/' /etc/locale.gen
 
   done
