@@ -71,7 +71,7 @@
 # Network-configuration
   more network.txt
 
-  if (WIFI_choice = 2)
+  if ($WIFI_choice = 2)
 
   {
 
@@ -162,7 +162,7 @@
 
   more encryptions.txt
 
-  if (ENCRYPTION_choice = 2)
+  if ($ENCRYPTION_choice = 2)
 
   {
 
@@ -194,7 +194,7 @@
 
   more subvolumes.txt
 
-  if (SUBVOLUMES_choice = 2)
+  if ($SUBVOLUMES_choice = 2)
 
   {
 
@@ -285,7 +285,7 @@
 
   read LANGUAGE_how_many
 
-  if ((LANGUAGE_how_many = 0) or (LANGUAGE_how_many > 3))
+  if [ $LANGUAGE_how_many = 0 ] || [ $LANGUAGE_how_many > 3 ]
 
   {
 
@@ -297,7 +297,7 @@
 
   }
 
-  if (LANGUAGE_how_many = 1)
+  if ($LANGUAGE_how_many = 1)
 
   {
 
@@ -311,7 +311,7 @@
 
   }
 
-  if (LANGUAGE_how_many = 2)
+  if ($LANGUAGE_how_many = 2)
 
   { 
 
@@ -330,7 +330,7 @@
 
   }
 
-  if (LANGUAGE_how_many = 3)
+  if ($LANGUAGE_how_many = 3)
 
   {
 
