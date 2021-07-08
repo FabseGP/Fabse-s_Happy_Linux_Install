@@ -1,4 +1,4 @@
-# Alpine Raspberry PI
+# Artix Linux with runit as init
 
 System-installation of Artix Linux, which can be customized by editing the script; 
 after customizing the install, then it should be as simple as flashing an ISO to an USB-drive and executing the script within the live Artix-system :)
