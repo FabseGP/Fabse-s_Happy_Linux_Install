@@ -5,11 +5,10 @@
 <Br>
 <h1>About this repo! 😎</h1>
 
-- Installations scripts til opsætning af Artix Linux for RPI4; btrfs + swap-space, encryption and locals
-- Opsætning af pakker + ZSH med PowerLevel10k-tema
-- Opsætning af opstarts-tema
-- Gendanner KDE Plasma indstillinger + Sway-config fra backup
-- Installation af FireFox- + Spotify-temaer  
+- Script to install Artix Linux with Runit, including btrfs-partition with encryption, 8GB swap-partition and locals for DK
+- Installaton of certain packages + ZSH with PowerLevel10k-theme + GRUB-theme
+- Recovering KDE Plasma settings + Sway-config from backup
+- Setting Firefox- and Spotify-themes  
 
 <Br>
 <hr>
