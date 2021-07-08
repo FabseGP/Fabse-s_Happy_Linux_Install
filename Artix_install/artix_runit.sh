@@ -3,6 +3,7 @@
 # Parametres
 
 WIFI_ID="wifi_xxx_managed_psk"
+WiFI_SSID=""
 WIFI_PASSWD="hello"
 
 DRIVE_LABEL="nvme0n1"
@@ -35,16 +36,24 @@ BOOTLOADER_label="alpine_runit"
 # Network-configuration
 
 rfkill unblock wifi
-connmanctl
-  enable wifi
-  scan wifi
-  services
-  agent on
-  connect $WIFI_ID
-  $WIFI_PASSWD
-  exit
+connmanctl enable wifi
+connmanctl scan wifi
+connmanctl services
+connmanctl services > temp
+connmanctl agent on
+echo "select wifi name"
+read WIFI_SSID
+# Find wifi id ud fra navn
+WIFI_ID = sed -n "s/^.*$WIFI_SSID\s*\(\S*\)/\1/p" temp
+rm temp
+connmanctl connect $WIFI_ID
+
 
 # Partitions; 325M boot-, 8GB swap- and then a BTRFS-partition
+fdisk -l | more 
+echo "which drive do you want to partition?"
+
+read DRIVE_LABEL
 
 badblocks -c 10240 -s -w -t random -v /dev/$DRIVE_label
 
@@ -99,9 +108,9 @@ sync
 
 # Drive-mount
 
-mount /dev/$DRIVE_LABEL_boot /mnt/boot
+mount /dev/by-label/$BOOT_label /mnt/boot
 
-swapon /dev/$DRIVE_LABEL_swap
+swapon /dev/by-label/$SWAP_label
 
 # Base-install
 
