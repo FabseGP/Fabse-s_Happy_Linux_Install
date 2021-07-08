@@ -254,7 +254,11 @@
   {
 
      echo "Please try again; I don't have time for this!
-  
+
+     echo "How many languages do you plan to use? No wrong answers, unless it is above 3!"
+
+     read LANGUAGE_how_many
+
   }
 
   if (LANGUAGE_how_many = 1)
