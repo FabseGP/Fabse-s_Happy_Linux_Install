@@ -244,7 +244,7 @@
 
   read FSTAB_double
 
-  if (FSTAB_double = yes)
+  if ($FSTAB_double = yes)
 
   {
   
