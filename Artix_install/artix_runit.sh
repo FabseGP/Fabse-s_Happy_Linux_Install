@@ -62,6 +62,8 @@
 
 # Network-configuration
 
+  more network.txt
+
   if (WIFI_choice = 2)
 
   {
@@ -89,7 +91,9 @@
 
 # Partitions
 
-  lsblk
+  more partitions.txt
+
+  fdisk -l
 
   echo "What is your drive profile name from the list above?"
 
@@ -140,6 +144,8 @@
 
 # ROOT-encryption
 
+  more encryptions.txt
+
   if (ENCRYPTION_choice = 2)
 
   {
@@ -156,6 +162,8 @@
 
 # Drive-formatting
 
+  more formatting.txt
+
   echo "A favourite filesystem for the root-drive? BTRFS of course!"
 
   mkfs.vfat -F32 /dev/$DRIVE_LABEL_boot
@@ -167,6 +175,8 @@
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # BTRFS-subvolumes
+
+  more subvolumes.txt
 
   if (SUBVOLUMES_choice = 2)
 
@@ -210,6 +220,8 @@
 
 # fstab-generation with UUID; it can be a good idea to do a double check with "fdisk -l"
 
+  more fstab.txt
+
   fstabgen -U /mnt >> /mnt/etc/fstab
 
   echo "If unsure / want to do a double check, enter "yes"; if not, enter "no""
@@ -236,6 +248,8 @@
 
 # Setting up time
 
+  more time.txt
+
   echo "Do you know your local timezone?"
 
   echo "Example: Europe/Copenhagen"
@@ -248,6 +262,8 @@
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Setting up locals
+
+  more locals.txt
 
   echo "How many languages do you plan to use? No wrong answers, unless it is above 3!"
 
@@ -344,12 +360,16 @@
 
 # Regenerating initramfs with encrypt-hook
 
+  more initramfs.txt
+
   sed -i 's/HOOKS=(base\ udev\ autodetect\ modconf\ block\ filesystems\ keyboard\ fsck)/HOOKS="base\ udev\ autodetect\ modconf\ block\ encrypt\ filesystems\ keyboard\ fsck"/' /etc/mkinitcpio.conf
   mkinitcpio -p linux
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Setting up GRUB
+
+  more GRUB.txt
 
   echo "Any fitting name for the bootloader?"
 
@@ -364,6 +384,8 @@
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Setting root-password + creating personal user
+
+  more users.txt
 
   echo "Any thoughts on a root-password"?
 
@@ -387,6 +409,8 @@
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Setting up hostname
+
+  more hostname.txt
 
   echo "Is there a name that you want to host?"
 
@@ -415,6 +439,8 @@
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Farewell
+
+  more farewell.txt
 
   exit
   exit
