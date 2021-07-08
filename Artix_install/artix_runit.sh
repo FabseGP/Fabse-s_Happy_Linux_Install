@@ -247,9 +247,9 @@
 
   echo "How many languages do you plan to use? No wrong answers, unless it is above 3!"
 
-  read LANGUAGE_size
+  read LANGUAGE_how_many
 
-  if ((LANGUAGE_size = 0) or (LANGUAGE_size > 3))
+  if ((LANGUAGE_how_many = 0) or (LANGUAGE_how_many > 3))
 
   {
 
@@ -257,7 +257,7 @@
   
   }
 
-  if (LANGUAGE_size = 1)
+  if (LANGUAGE_how_many = 1)
 
   {
 
@@ -271,7 +271,7 @@
 
   }
 
-  if (LANGUAGE_size = 2)
+  if (LANGUAGE_how_many = 2)
 
   { 
 
@@ -290,7 +290,7 @@
 
   }
 
-  if (LANGUAGE_size = 3)
+  if (LANGUAGE_how_many = 3)
 
   {
 
