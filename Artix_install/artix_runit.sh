@@ -39,24 +39,22 @@
 
 # Introduction
 
-  echo "Welcome"
+  more welcome.txt # Prints the content of the file
 
-  echo "You are about to install Artix Linux with Runit as init"
-
-  echo "Are you using ethernet now? If yes, then you probably don't need to set up WiFi"
-  echo "and can simply type "no". If no or if you want to use WiFi, then type "yes""
+  echo "Are you using ethernet now? If yes, then you probably don't need to set up WiFi."
+  echo "Typing "1" skips setting up WiFi, while typing "2" will make it to set up WiFi"
 
   read WIFI_choice
 
-  echo "Any thoughts on encryption? Type "yes" for setting encryption, "no" for not setting encryption"
+  echo "Any thoughts on encryption? Type "1" for skipping encryption, "2" for setting encryption"
 
   read ENCRYPTION_choice
 
-  echo "Any thoughts on a swap-partition? Type "yes" for having a swap-partition, "no" for not having a swap-partition"
+  echo "Any thoughts on a swap-partition? Type "1" to skip creating a swap-partition, "2" to create a swap-partition"
 
   read SWAP_choice
 
-  echo "Any thoughts on subvolumes for BTRFS? Type "yes" for having subvolumes, "no" for not having subvolumes
+  echo "Any thoughts on subvolumes for BTRFS? Type "1" to not have subvolumes, "2" to have subvolumes
 
   read SUBVOLUMES_choice
 
@@ -64,7 +62,7 @@
 
 # Network-configuration
 
-  if (WIFI_choice = yes)
+  if (WIFI_choice = 2)
 
   {
 
@@ -142,7 +140,7 @@
 
 # ROOT-encryption
 
-  if (ENCRYPTION_choice = yes)
+  if (ENCRYPTION_choice = 2)
 
   {
 
@@ -170,23 +168,29 @@
 
 # BTRFS-subvolumes
 
-  mount -o noatime,compress=lz4,discard,ssd,defaults /dev/mapper/cryptroot /mnt
-  cd /mnt
-    btrfs subvolume create @
-    btrfs subvolume create @home
-    btrfs subvolume create @pkg
-    btrfs subvolume create @snapshots
-  cd /
+  if (SUBVOLUMES_choice = 2)
 
-  umount /mnt
+  {
 
-  mount -o noatime,nodiratime,compress=lz4,space_cache,ssd,subvol=@ /dev/mapper/cryptroot /mnt
-  mkdir -p /mnt/{boot,home,var/cache/pacman/pkg,.snapshots}
-  mount -o noatime,nodiratime,compress=lz4,space_cache,ssd,subvol=@home /dev/mapper/cryptroot /mnt/home
-  mount -o noatime,nodiratime,compress=lz4,space_cache,ssd,subvol=@pkg /dev/mapper/cryptroot /mnt/var/cache/pacman/pkg
-  mount -o noatime,nodiratime,compress=lz4,space_cache,ssd,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots
+    mount -o noatime,compress=lz4,discard,ssd,defaults /dev/mapper/cryptroot /mnt
+    cd /mnt
+      btrfs subvolume create @
+      btrfs subvolume create @home
+      btrfs subvolume create @pkg
+      btrfs subvolume create @snapshots
+    cd /
 
-  sync
+    umount /mnt
+
+    mount -o noatime,nodiratime,compress=lz4,space_cache,ssd,subvol=@ /dev/mapper/cryptroot /mnt
+    mkdir -p /mnt/{boot,home,var/cache/pacman/pkg,.snapshots}
+    mount -o noatime,nodiratime,compress=lz4,space_cache,ssd,subvol=@home /dev/mapper/cryptroot /mnt/home
+    mount -o noatime,nodiratime,compress=lz4,space_cache,ssd,subvol=@pkg /dev/mapper/cryptroot /mnt/var/cache/pacman/pkg
+    mount -o noatime,nodiratime,compress=lz4,space_cache,ssd,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots
+
+    sync
+
+  }
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
