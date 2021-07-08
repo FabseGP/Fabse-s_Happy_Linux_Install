@@ -1,5 +1,17 @@
 #!/usr/bin/bash
 
+
+# Parametres
+VALID_ENTRY = false
+INPUT=""
+OUTPUT=""
+WIFI_ID=""
+
+
+DRIVE_LABEL=""
+DRIVE_LABEL_boot=""
+DRIVE_LABEL_swap=""
+DRIVE_LABEL_root=""
 # Parameters
 
   SWAP_choice = ""
@@ -61,7 +73,6 @@
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Network-configuration
-
   more network.txt
 
   if (WIFI_choice = 2)
@@ -95,9 +106,21 @@
 
   fdisk -l
 
-  echo "What is your drive profile name from the list above?"
-
-  read DRIVE_label
+  fdisk -l
+VALID_ENTRY = false
+echo "Which drive do you want to partition?"
+until [ $VALID_ENTRY == true ]; do 
+  read DRIVE_LABEL
+  OUTPUT = fdisk -l | sed -n "s/^.*\($DRIVE_LABEL\).*$/\1/p"
+    if [[ "$DRIVE_LABEL" == *"$OUTPUT"* ]]; then 
+      VALID_ENTRY = true
+    else 
+     echo "Invalid drive. Try again."
+   fi
+  done 
+  DRIVE_LABEL_boot="$DRIVE_LABEL""1"
+  DRIVE_LABEL_swap="$DRIVE_LABEL""2"
+  DRIVE_LABEL_root="$DRIVE_LABEL""3"
 
   DRIVE_boot = "$DRIVE_label1"
   DRIVE_swap = "$DRIVE_label2"
@@ -116,6 +139,7 @@
   read BOOT_label
 
   mklabel gpt
+
   mkpart ESP fat32 1MiB $BOOT_sizeMiB
   set 1 boot on
   name 1 $BOOT_label
