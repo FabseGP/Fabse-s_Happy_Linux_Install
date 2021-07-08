@@ -66,7 +66,7 @@ DRIVE_LABEL_root=""
 
   read SWAP_choice
 
-  echo "Any thoughts on subvolumes for BTRFS? Type "1" to not have subvolumes, "2" to have subvolumes
+  echo "Any thoughts on subvolumes for BTRFS? Type "1" to not have subvolumes, "2" to have subvolumes"
 
   read SUBVOLUMES_choice
 
