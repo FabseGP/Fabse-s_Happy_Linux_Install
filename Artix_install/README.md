@@ -9,4 +9,4 @@ the sizes of these partitions must be set beforehand with cfdisk, where the firs
 the second is the swap- and the last is the BTRFS-partition
 - LUKS-encryption and subvolumes for the BTRFS-partition
 - An user with following credentials: "runit" as username and "Alpine12345" as password; the root user has the password "root1234"
-- "localhost" as hostname, UTC as timezone and "dk" as keyboard layout
+- "localhost" as hostname, UTC as timezone, "da_DK.UTF-8" as language and "dk-winkeys" as keyboard layout
