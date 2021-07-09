@@ -8,4 +8,4 @@ By default the system will be set up with:
 the sizes of these partitions is adjusted when executing the script
 - LUKS-encryption and subvolumes for the BTRFS-partition
 - A user with your preferred username and password, as well as a custom root-password
-- A costum hostname, your preferred timezone, your preferred language and your preferred keyboard layout 
+- A custom hostname, your preferred timezone, your preferred language and your preferred keyboard layout 
