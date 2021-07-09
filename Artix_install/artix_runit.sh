@@ -93,6 +93,8 @@
 
     connmanctl connect $WIFI_ID
     
+    fi
+    
   done
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -171,6 +173,8 @@
 
     cryptsetup open /dev/DRIVE_LABEL_root cryptroot
 
+  fi
+
   done
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -213,6 +217,8 @@
 
     sync
 
+  fi
+
   done
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -244,6 +250,8 @@
  if [ $FSTAB_double_check = 2 ] then
   
     fdisk -l
+
+ fi
 
  done
 
@@ -288,6 +296,8 @@
 
      read LANGUAGE_how_many
 
+  fi
+
   done
 
   if [ $LANGUAGE_how_many = 1 ] then
@@ -299,6 +309,8 @@
     read LANGUAGE_GEN1
     
     sed -i 's/^# *\($LANGUAGE_GEN1\)/\1/' /etc/locale.gen
+
+  fi
 
   done
 
@@ -317,29 +329,33 @@
     sed -i 's/^# *\($LANGUAGE_GEN1\)/\1/' /etc/locale.gen
     sed -i 's/^# *\($LANGUAGE_GEN2\)/\1/' /etc/locale.gen
 
- done
+  fi
 
-  if [ $LANGUAGE_how_many = 3 ] then
+  done
 
-    echo "What languages do you wish to generate?
+   if [ $LANGUAGE_how_many = 3 ] then
+
+     echo "What languages do you wish to generate?
   
-    echo "Example: da_DK.UTF-8"
+     echo "Example: da_DK.UTF-8"
 
-    read LANGUAGE_GEN1
+     read LANGUAGE_GEN1
 
-    echo "Second language"
+     echo "Second language"
 
-    read LANGUAGE_GEN2
+     read LANGUAGE_GEN2
 
-    echo "Third language"
+     echo "Third language"
 
-    read LANGUAGE_GEN3
+     read LANGUAGE_GEN3
 
-    sed -i 's/^# *\($LANGUAGE_GEN1\)/\1/' /etc/locale.gen
-    sed -i 's/^# *\($LANGUAGE_GEN2\)/\1/' /etc/locale.gen
-    sed -i 's/^# *\($LANGUAGE_GEN3\)/\1/' /etc/locale.gen
+     sed -i 's/^# *\($LANGUAGE_GEN1\)/\1/' /etc/locale.gen
+     sed -i 's/^# *\($LANGUAGE_GEN2\)/\1/' /etc/locale.gen
+     sed -i 's/^# *\($LANGUAGE_GEN3\)/\1/' /etc/locale.gen
 
- done
+  fi
+
+  done
 
   locale.gen
 
