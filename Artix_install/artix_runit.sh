@@ -148,16 +148,20 @@
     connmanctl services > wifi_list
     connmanctl agent on
 
-    echo "Please select wifi name"
-    read WIFI_SSID
-
+    read -p "Please type the WIFI-name from the list above, which you wish to connect to: " WIFI_SSID
+    
+    echo
+  
+    echo "You have chosen $WIFI_SSID"
+    
+    echo
+    
     WIFI_ID = sed -n "s //^.*$WIFI_SSID\s*\(\S*\)/\1/p" wifi_list
     rm wifi_list
 
     connmanctl connect $WIFI_ID  
     
   fi
-  done
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -187,13 +191,21 @@
 
   parted /dev/$DRIVE_label
 
-  echo "Any favourite size for the boot-partition in MB?"
+  read -p "Any favourite size for the boot-partition in MB? " BOOT_size
 
-  read BOOT_size
+  echo
+  
+  echo "The boot-partition is set to be $BOOT_size"
+    
+  echo
 
-  echo "A special name for the boot-partition?"
+  read -p "A special name for the boot-partition? " BOOT_label
 
-  read BOOT_label
+  echo
+  
+  echo "The boot-partition will be named $BOOT_label"
+    
+  echo
 
   mklabel gpt
 
@@ -201,20 +213,32 @@
   set 1 boot on
   name 1 $BOOT_label
 
-  echo "Any favourite size for the swap-partition in MB?"
+  read -p "Any favourite size for the SWAP-partition in MB? " SWAP_size
 
-  read SWAP_size
+  echo
+  
+  echo "The SWAP-partition is set to be $SWAP_size"
+    
+  echo
 
-  echo "A special name for the swap-partition?"
+  read -p "A special name for the SWAP-partition? " SWAP_label
 
-  read SWAP_label
+  echo
+  
+  echo "The SWAP-partition will be named $SWAP_label"
+    
+  echo
 
   mkpart primary $BOOT_sizeMiB $SWAP_sizeMiB
   name 2 $SWAP_label
 
-  echo "A special name for the root-partition?"
+  read -p "A special name for the primary partition? " ROOT_label
 
-  read ROOT_label
+  echo
+  
+  echo "The primary partition will be named $ROOT_label"
+
+  echo
 
   mkpart primary $SWAP_sizeMiB 100%
   name 3 $ROOT_label
@@ -236,8 +260,6 @@
     cryptsetup open /dev/DRIVE_LABEL_root cryptroot
     
   fi
-
-  done
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -281,8 +303,6 @@
 
   fi
 
-  done
-
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Drive-mount
@@ -305,9 +325,9 @@
 
   fstabgen -U /mnt >> /mnt/etc/fstab
 
-  echo "If unsure / want to do a double check, enter "yes"; if not, enter "no""
+  read -p "If unsure / want to do a double check, enter "1"; if not, enter "2": " FSTAB_double_check
 
-  read FSTAB_double_check
+  echo
 
   if [[ $FSTAB_double_check == 2 ]]; then
   
@@ -346,17 +366,25 @@
 
   more locals.txt
 
-  echo "How many languages do you plan to use? No wrong answers, unless it is above 3!"
+  read -p "How many languages do you plan to use? No wrong answers, unless it is above 3!: " LANGUAGE_how_many
 
-  read LANGUAGE_how_many
+  echo
+  
+  echo "$LANGUAGE_how_many languages will be generated"
 
+  echo
+  
   if [[ $LANGUAGE_how_many == 0 ] || [ $LANGUAGE_how_many > 3 ]]; then
 
-     echo "Please try again; I don't have time for this!
+    echo "Please try again; I don't have time for this!"
 
-     echo "How many languages are you needing? No wrong answers, unless it is above 3!"
+    read -p "How many languages do you plan to use? No wrong answers, unless it is above 3!: " LANGUAGE_how_many
 
-     read LANGUAGE_how_many
+    echo
+  
+    echo "$LANGUAGE_how_many languages will be generated"
+
+    echo
 
   fi
 
@@ -364,7 +392,7 @@
 
   if [[ $LANGUAGE_how_many == 1 ]]; then
 
-    echo "What language do you wish to generate?
+    echo "What language do you wish to generate?"
   
     echo "Example: da_DK.UTF-8"
 
@@ -378,7 +406,7 @@
 
   if [[ $LANGUAGE_how_many == 2 ]]; then
 
-    echo "What languages do you wish to generate?
+    echo "Which languages do you wish to generate?"
   
     echo "Example: da_DK.UTF-8"
 
@@ -397,7 +425,7 @@
 
    if [[ $LANGUAGE_how_many == 3 ]]; then
 
-     echo "What languages do you wish to generate?
+     echo "Which languages do you wish to generate?"
   
      echo "Example: da_DK.UTF-8"
 
@@ -452,9 +480,13 @@
 
   more GRUB.txt
 
-  echo "Any fitting name for the bootloader?"
+  read -p "Any fitting name for the bootloader? " BOOTLOADER_label
 
-  read BOOTLOADER_label
+  echo
+  
+  echo "The bootloader will be viewed as $BOOTLOADER_label in the BIOS"
+
+  echo
 
   grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=$BOOTLOADER_label --recheck
 
