@@ -51,23 +51,86 @@
 # Introduction
 
   more welcome.txt # Prints the content of the file
+   
+  read -p "Are you using ethernet now? If yes, then you probably don't need to set up WiFi. Typing "1" skips setting up WiFi, while typing "2" will make it to set up WiFi: " WIFI_choice
 
-  echo "Are you using ethernet now? If yes, then you probably don't need to set up WiFi."
-  echo "Typing "1" skips setting up WiFi, while typing "2" will make it to set up WiFi"
+  if [[ $WIFI_choice == "1" ]]; then
+  
+    echo
+  
+    echo "WiFi will therefore not be initialised"
+    
+    echo
+  
+  elif [[ $WIFI_choice = "2" ]]; then
 
-  read WIFI_choice
+    echo
 
-  echo "Any thoughts on encryption? Type "1" for skipping encryption, "2" for setting encryption"
+    echo "WiFi will therefore be initialised"
+    
+    echo
 
-  read ENCRYPTION_choice
+  fi
+  
+  read -p "Any thoughts on encryption? Type "1" for skipping encryption, "2" for setting encryption: " ENCRYPTION_choice
 
-  echo "Any thoughts on a swap-partition? Type "1" to skip creating a swap-partition, "2" to create a swap-partition"
+  if [[ $ENCRYPTION_choice == "1" ]]; then
+  
+    echo
+  
+    echo "The main partition will not be encrypted"
+    
+    echo
+  
+  elif [[ $ENCRYPTION_choice = "2" ]]; then
 
-  read SWAP_choice
+    echo
 
-  echo "Any thoughts on subvolumes for BTRFS? Type "1" to not have subvolumes, "2" to have subvolumes"
+    echo "The main partition will be encrypted"
+    
+    echo
 
-  read SUBVOLUMES_choice
+  fi
+
+  read -p "Any thoughts on a swap-partition? Type "1" to skip creating a swap-partition, "2" to create a swap-partition: " SWAP_choice
+
+  if [[ $SWAP_choice == "1" ]]; then
+  
+    echo
+  
+    echo "No SWAP-partition will be created"
+    
+    echo
+  
+  elif [[ $SWAP_choice = "2" ]]; then
+
+    echo
+
+    echo "The size of the SWAP-partition will be set later on"
+    
+    echo
+
+  fi
+  
+  read -p "Any thoughts on subvolumes for BTRFS? Type "1" to not have subvolumes, "2" to have subvolumes: " SUBVOLUMES_choice
+
+  if [[ $SUBVOLUMES_choice == "1" ]]; then
+  
+    echo
+  
+    echo "A BTRFS-partition will be created without subvolumes"
+    
+    echo
+  
+  elif [[ $SUBVOLUMES_choice = "2" ]]; then
+
+    echo
+
+    echo "The BTRFS-partition will consists of subvolumes"
+    
+    echo
+
+  fi
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
