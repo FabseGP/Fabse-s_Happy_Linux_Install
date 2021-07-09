@@ -44,7 +44,7 @@
 
   BOOTLOADER_label=""
 
-  PACKAGE_choice = ""
+  PACKAGE_choice=""
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@
 
   more welcome.txt # Prints the content of the file
    
-  read -p "Are you using ethernet now? If yes, then you probably don't need to set up WiFi. Typing "1" skips setting up WiFi, while typing "2" will make it to set up WiFi: " WIFI_choice
+  read -rp "Are you using ethernet now? If yes, then you probably don't need to set up WiFi. Typing "1" skips setting up WiFi, while typing "2" will make it to set up WiFi: " WIFI_choice
 
   if [[ $WIFI_choice == "1" ]]; then
   
@@ -72,7 +72,7 @@
 
   fi
   
-  read -p "Any thoughts on encryption? Type "1" for skipping encryption, "2" for setting encryption: " ENCRYPTION_choice
+  read -rp "Any thoughts on encryption? Type "1" for skipping encryption, "2" for setting encryption: " ENCRYPTION_choice
 
   if [[ $ENCRYPTION_choice == "1" ]]; then
   
@@ -92,7 +92,7 @@
 
   fi
 
-  read -p "Any thoughts on a swap-partition? Type "1" to skip creating a swap-partition, "2" to create a swap-partition: " SWAP_choice
+  read -rp "Any thoughts on a swap-partition? Type "1" to skip creating a swap-partition, "2" to create a swap-partition: " SWAP_choice
 
   if [[ $SWAP_choice == "1" ]]; then
   
@@ -112,7 +112,7 @@
 
   fi
   
-  read -p "Any thoughts on subvolumes for BTRFS? Type "1" to not have subvolumes, "2" to have subvolumes: " SUBVOLUMES_choice
+  read -rp "Any thoughts on subvolumes for BTRFS? Type "1" to not have subvolumes, "2" to have subvolumes: " SUBVOLUMES_choice
 
   if [[ $SUBVOLUMES_choice == "1" ]]; then
   
@@ -156,10 +156,10 @@
     
     echo
     
-    WIFI_ID = sed -n "s //^.*$WIFI_SSID\s*\(\S*\)/\1/p" wifi_list
+    WIFI_ID=sed -n "s //^.*$WIFI_SSID\s*\(\S*\)/\1/p" wifi_list
     rm wifi_list
 
-    connmanctl connect $WIFI_ID  
+    connmanctl connect "$WIFI_ID" 
     
   fi
 
@@ -171,13 +171,13 @@
 
   fdisk -l
 
-  VALID_ENTRY = false
+  VALID_ENTRY=false
   echo "Which drive do you want to partition?"
   until [ $VALID_ENTRY == true ]; do 
     read DRIVE_LABEL
     OUTPUT = fdisk -l | sed -n "s/^.*\($DRIVE_LABEL\).*$/\1/p"
       if [[ "$DRIVE_LABEL" == *"$OUTPUT"* ]]; then 
-        VALID_ENTRY = true
+        VALID_ENTRY=true
       else 
        echo "Invalid drive. Try again."
      fi
@@ -187,11 +187,11 @@
   DRIVE_LABEL_swap="$DRIVE_LABEL""2"
   DRIVE_LABEL_root="$DRIVE_LABEL""3"
 
-  badblocks -c 10240 -s -w -t random -v /dev/$DRIVE_label
+  badblocks -c 10240 -s -w -t random -v /dev/"$DRIVE_LABEL"
 
-  parted /dev/$DRIVE_label
+  parted /dev/"$DRIVE_LABEL"
 
-  read -p "Any favourite size for the boot-partition in MB? " BOOT_size
+  read -rp "Any favourite size for the boot-partition in MB? " BOOT_size
 
   echo
   
@@ -199,7 +199,7 @@
     
   echo
 
-  read -p "A special name for the boot-partition? " BOOT_label
+  read -rp "A special name for the boot-partition? " BOOT_label
 
   echo
   
@@ -209,11 +209,11 @@
 
   mklabel gpt
 
-  mkpart ESP fat32 1MiB $BOOT_sizeMiB
+  mkpart ESP fat32 1MiB "$BOOT_size"MiB
   set 1 boot on
-  name 1 $BOOT_label
+  name 1 "$BOOT_label"
 
-  read -p "Any favourite size for the SWAP-partition in MB? " SWAP_size
+  read -rp "Any favourite size for the SWAP-partition in MB? " SWAP_size
 
   echo
   
@@ -221,7 +221,7 @@
     
   echo
 
-  read -p "A special name for the SWAP-partition? " SWAP_label
+  read -rp "A special name for the SWAP-partition? " SWAP_label
 
   echo
   
@@ -229,10 +229,10 @@
     
   echo
 
-  mkpart primary $BOOT_sizeMiB $SWAP_sizeMiB
-  name 2 $SWAP_label
+  mkpart primary "$SWAP_size"MiB
+  name 2 "$SWAP_label"
 
-  read -p "A special name for the primary partition? " ROOT_label
+  read -rp "A special name for the primary partition? " ROOT_label
 
   echo
   
@@ -240,8 +240,8 @@
 
   echo
 
-  mkpart primary $SWAP_sizeMiB 100%
-  name 3 $ROOT_label
+  mkpart primary "$SWAP_size"MiB 100%
+  name 3 "$ROOT_label"
 
   quit
 
@@ -255,7 +255,7 @@
 
     echo "Please have your encryption-password ready"
 
-    cryptsetup luksFormat --type luks1 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random /dev/$DRIVE_label
+    cryptsetup luksFormat --type luks1 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random /dev/"$DRIVE_LABEL"
 
     cryptsetup open /dev/DRIVE_LABEL_root cryptroot
     
@@ -269,11 +269,11 @@
 
   echo "A favourite filesystem for the root-drive? BTRFS of course!"
 
-  mkfs.vfat -F32 /dev/$DRIVE_LABEL_boot
+  mkfs.vfat -F32 /dev/"$DRIVE_LABEL_boot"
 
-  mkswap -L $SWAP_label /dev/$DRIVE_LABEL_swap
+  mkswap -L "$SWAP_label" /dev/"$DRIVE_LABEL_swap"
 
-  mkfs.btrfs -l $ROOT_label /dev/mapper/cryptroot
+  mkfs.btrfs -l "$ROOT_label" /dev/mapper/cryptroot
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -284,7 +284,7 @@
  if [[ $SUBVOLUMES_choice == 2 ]]; then
 
     mount -o noatime,compress=lz4,discard,ssd,defaults /dev/mapper/cryptroot /mnt
-    cd /mnt
+    cd /mnt || return
       btrfs subvolume create @
       btrfs subvolume create @home
       btrfs subvolume create @pkg
@@ -307,9 +307,9 @@
 
 # Drive-mount
 
-  mount /dev/$DRIVE_LABEL_boot /mnt/boot
+  mount /dev/"$DRIVE_LABEL_boot" /mnt/boot
 
-  swapon /dev/$DRIVE_LABEL_swap
+  swapon /dev/"$DRIVE_LABEL_swap"
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -325,7 +325,7 @@
 
   fstabgen -U /mnt >> /mnt/etc/fstab
 
-  read -p "If unsure / want to do a double check, enter "1"; if not, enter "2": " FSTAB_double_check
+  read -rp "If unsure / want to do a double check, enter "1"; if not, enter "2": " FSTAB_double_check
 
   echo
 
@@ -334,8 +334,6 @@
      fdisk -l
 
   fi
-
-  done
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -355,9 +353,9 @@
 
   echo "Example: Europe/Copenhagen"
 
-  read TIMEZONE
+  read -r TIMEZONE
 
-  ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
+  ln -sf /usr/share/zoneinfo/"$TIMEZONE" /etc/localtime
   hwclock --systoch
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -366,7 +364,7 @@
 
   more locals.txt
 
-  read -p "How many languages do you plan to use? No wrong answers, unless it is above 3!: " LANGUAGE_how_many
+  read -rp "How many languages do you plan to use? No wrong answers, unless it is above 3!: " LANGUAGE_how_many
 
   echo
   
@@ -374,11 +372,11 @@
 
   echo
   
-  if [[ $LANGUAGE_how_many == 0 ] || [ $LANGUAGE_how_many > 3 ]]; then
+  if [[ "$LANGUAGE_how_many" == 0 ]] || [[ "$LANGUAGE_how_many" -gt 3 ]]; then
 
     echo "Please try again; I don't have time for this!"
 
-    read -p "How many languages do you plan to use? No wrong answers, unless it is above 3!: " LANGUAGE_how_many
+    read -rp "How many languages do you plan to use? No wrong answers, unless it is above 3!: " LANGUAGE_how_many
 
     echo
   
@@ -388,21 +386,18 @@
 
   fi
 
-  done
-
   if [[ $LANGUAGE_how_many == 1 ]]; then
 
     echo "What language do you wish to generate?"
   
     echo "Example: da_DK.UTF-8"
 
-    read LANGUAGE_GEN1
+    read -r LANGUAGE_GEN1
     
     sed -i 's/^# *\($LANGUAGE_GEN1\)/\1/' /etc/locale.gen
 
   fi
 
-  done
 
   if [[ $LANGUAGE_how_many == 2 ]]; then
 
@@ -410,18 +405,16 @@
   
     echo "Example: da_DK.UTF-8"
 
-    read LANGUAGE_GEN1
+    read -r LANGUAGE_GEN1
 
     echo "Second language"
 
-    read LANGUAGE_GEN2
+    read -r LANGUAGE_GEN2
 
     sed -i 's/^# *\($LANGUAGE_GEN1\)/\1/' /etc/locale.gen
     sed -i 's/^# *\($LANGUAGE_GEN2\)/\1/' /etc/locale.gen
 
   fi
-
-  done
 
    if [[ $LANGUAGE_how_many == 3 ]]; then
 
@@ -429,23 +422,21 @@
   
      echo "Example: da_DK.UTF-8"
 
-     read LANGUAGE_GEN1
+     read -r LANGUAGE_GEN1
 
      echo "Second language"
 
-     read LANGUAGE_GEN2
+     read -r LANGUAGE_GEN2
 
      echo "Third language"
 
-     read LANGUAGE_GEN3
+     read -r LANGUAGE_GEN3
 
      sed -i 's/^# *\($LANGUAGE_GEN1\)/\1/' /etc/locale.gen
      sed -i 's/^# *\($LANGUAGE_GEN2\)/\1/' /etc/locale.gen
      sed -i 's/^# *\($LANGUAGE_GEN3\)/\1/' /etc/locale.gen
 
   fi
-
-  done
 
   locale.gen
 
@@ -534,7 +525,7 @@
   cat >> /etc/hosts<< EOF
   127.0.0.1 localhost
   ::1 localhost
-  127.0.1.1 $HOSTNAME.localdomain $HOSTNAME
+  127.0.1.1 $HOSTNAME.localdomain $HOSTNAME     
   EOF
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -559,3 +550,4 @@
   exit
   umount -R /mnt
   reboot
+  
