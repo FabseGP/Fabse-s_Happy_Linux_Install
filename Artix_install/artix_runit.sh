@@ -74,7 +74,7 @@
 # Network-configuration
   more network.txt
 
-  if [ $WIFI_choice == 2 ] then
+  if [[ $WIFI_choice == 2 ]]; then
 
     echo "You're wifi-card is about to be activated"
 
@@ -91,9 +91,9 @@
     WIFI_ID = sed -n "s //^.*$WIFI_SSID\s*\(\S*\)/\1/p" wifi_list
     rm wifi_list
 
-    connmanctl connect $WIFI_ID
+    connmanctl connect $WIFI_ID  
     
-    fi
+  fi
     
   done
 
@@ -165,14 +165,14 @@
 
   more encryptions.txt
 
-  if [ $ENCRYPTION_choice == 2 ]; then
+  if [[ $ENCRYPTION_choice == 2 ]]; then
 
     echo "Please have your encryption-password ready"
 
     cryptsetup luksFormat --type luks1 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random /dev/$DRIVE_label
 
     cryptsetup open /dev/DRIVE_LABEL_root cryptroot
-
+    
   fi
 
   done
@@ -197,7 +197,7 @@
 
   more subvolumes.txt
 
- if [ $SUBVOLUMES_choice == 2 ]; then
+ if [[ $SUBVOLUMES_choice == 2 ]]; then
 
     mount -o noatime,compress=lz4,discard,ssd,defaults /dev/mapper/cryptroot /mnt
     cd /mnt
@@ -247,7 +247,7 @@
 
   read FSTAB_double_check
 
-  if [ $FSTAB_double_check == 2 ]; then
+  if [[ $FSTAB_double_check == 2 ]]; then
   
      fdisk -l
 
@@ -288,7 +288,7 @@
 
   read LANGUAGE_how_many
 
-  if [ $LANGUAGE_how_many == 0 ] || [ $LANGUAGE_how_many > 3 ]; then
+  if [[ $LANGUAGE_how_many == 0 ] || [ $LANGUAGE_how_many > 3 ]]; then
 
      echo "Please try again; I don't have time for this!
 
@@ -300,7 +300,7 @@
 
   done
 
-  if [ $LANGUAGE_how_many == 1 ]; then
+  if [[ $LANGUAGE_how_many == 1 ]]; then
 
     echo "What language do you wish to generate?
   
@@ -314,7 +314,7 @@
 
   done
 
-  if [ $LANGUAGE_how_many == 2 ]; then
+  if [[ $LANGUAGE_how_many == 2 ]]; then
 
     echo "What languages do you wish to generate?
   
@@ -333,7 +333,7 @@
 
   done
 
-   if [ $LANGUAGE_how_many == 3 ]; then
+   if [[ $LANGUAGE_how_many == 3 ]]; then
 
      echo "What languages do you wish to generate?
   
