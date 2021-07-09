@@ -177,10 +177,10 @@
 
   VALID_ENTRY=false
   echo "Which drive do you want to partition?"
-  until [ $VALID_ENTRY == true ]; do 
+  until [ $VALID_ENTRY == "true" ]; do 
     read DRIVE_LABEL
-    OUTPUT="fdisk -l | sed -n "s//^.*\($DRIVE_LABEL\).*$/\1/p""
-      if [[ "$DRIVE_LABEL" == "$OUTPUT" ]]; then 
+    OUTPUT="fdisk -l | sed -n "s//^.*\("$DRIVE_LABEL"\).*$/\1/p""
+      if [[ $DRIVE_LABEL == "$OUTPUT" ]]; then 
         VALID_ENTRY=true
       else 
        echo "Invalid drive. Try again."
