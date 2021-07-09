@@ -27,6 +27,7 @@
   SWAP_label=""
 
   FSTAB_double_check=""
+  FSTAB_confirm=""
 
   TIMEZONE=""
   HOSTNAME=""
@@ -135,9 +136,10 @@
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Network-configuration
-  more network.txt
 
   if [[ $WIFI_choice == 2 ]]; then
+
+    more network.txt
 
     echo "You're wifi-card is about to be activated"
 
@@ -249,9 +251,9 @@
 
 # ROOT-encryption
 
-  more encryptions.txt
-
   if [[ $ENCRYPTION_choice == 2 ]]; then
+
+    more encryptions.txt
 
     echo "Please have your encryption-password ready"
 
@@ -279,9 +281,9 @@
 
 # BTRFS-subvolumes
 
-  more subvolumes.txt
-
  if [[ $SUBVOLUMES_choice == 2 ]]; then
+
+    more subvolumes.txt
 
     mount -o noatime,compress=lz4,discard,ssd,defaults /dev/mapper/cryptroot /mnt
     cd /mnt || return
@@ -331,7 +333,19 @@
 
   if [[ $FSTAB_double_check == 2 ]]; then
   
-     fdisk -l
+    fdisk -l
+    
+    more /mnt/etc/fstab
+
+    read -rp "Does everything seems right? Type "1" for no, "2" for yes: " FSTAB_confirm
+    
+    echo
+    
+    if [[ $FSTAB_confirm == 2 ]]; then
+
+      echo "Sorry, you have to execute the scipt again :("
+      
+      exit 1
 
   fi
 
