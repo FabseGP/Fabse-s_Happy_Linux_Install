@@ -2,47 +2,47 @@
 
 # Parameters
 
-  VALID_ENTRY = false
+  VALID_ENTRY=false
   INPUT=""
   OUTPUT=""
   
-  SWAP_choice = ""
-  ENCRYPTION_choice = ""
-  SUBVOLUMES_choice = ""
-  WIFI_choice = ""
+  SWAP_choice=""
+  ENCRYPTION_choice=""
+  SUBVOLUMES_choice=""
+  WIFI_choice=""
 
-  WIFI_SSID = ""
+  WIFI_SSID=""
   WIFI_ID=""
 
-  BOOT_size = ""
-  SWAP_size = ""
+  BOOT_size=""
+  SWAP_size=""
 
   DRIVE_LABEL=""
   DRIVE_LABEL_boot=""
   DRIVE_LABEL_swap=""
   DRIVE_LABEL_root=""
 
-  BOOT_label = ""
-  ROOT_label = ""
-  SWAP_label = ""
+  BOOT_label=""
+  ROOT_label=""
+  SWAP_label=""
 
-  FSTAB_double_check = ""
+  FSTAB_double_check=""
 
-  TIMEZONE = ""
-  HOSTNAME = ""
-  LANGUAGE = ""
-  KEYMAP = ""
+  TIMEZONE=""
+  HOSTNAME=""
+  LANGUAGE=""
+  KEYMAP=""
 
-  LANGUAGE_how_many = ""
-  LANGUAGE_GEN1 = ""
-  LANGUAGE_GEN2 = ""
-  LANGUAGE_GEN3 = ""  
+  LANGUAGE_how_many=""
+  LANGUAGE_GEN1=""
+  LANGUAGE_GEN2=""
+  LANGUAGE_GEN3=""  
 
-  ROOT_passwd = ""
-  USERNAME = ""
-  USERNAME_passwd = ""
+  ROOT_passwd=""
+  USERNAME=""
+  USERNAME_passwd=""
 
-  BOOTLOADER_label = ""
+  BOOTLOADER_label=""
 
   PACKAGE_choice = ""
 
@@ -94,7 +94,6 @@
     connmanctl connect $WIFI_ID  
     
   fi
-    
   done
 
 #----------------------------------------------------------------------------------------------------------------------------------
