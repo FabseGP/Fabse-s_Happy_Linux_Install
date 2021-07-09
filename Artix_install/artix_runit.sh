@@ -184,68 +184,116 @@
        echo "Invalid drive. Try again."
      fi
     done 
-    
-  DRIVE_LABEL_boot="$DRIVE_LABEL""1"
-  DRIVE_LABEL_swap="$DRIVE_LABEL""2"
-  DRIVE_LABEL_root="$DRIVE_LABEL""3"
+ 
+  if [[ $SWAP_choice == "1" ]]; then
 
-  badblocks -c 10240 -s -w -t random -v /dev/"$DRIVE_LABEL"
+    DRIVE_LABEL_boot="$DRIVE_LABEL""1"
+    DRIVE_LABEL_root="$DRIVE_LABEL""2"
 
-  parted /dev/"$DRIVE_LABEL"
+    badblocks -c 10240 -s -w -t random -v /dev/"$DRIVE_LABEL"
 
-  read -rp "Any favourite size for the boot-partition in MB? " BOOT_size
+    read -rp "Any favourite size for the boot-partition in MB? Though minimum 256MB; only type the size without units: " BOOT_size
 
-  echo
+    echo
   
-  echo "The boot-partition is set to be $BOOT_size"
+    echo "The boot-partition is set to be $BOOT_size"
     
-  echo
+    echo
 
-  read -rp "A special name for the boot-partition? " BOOT_label
+    read -rp "A special name for the boot-partition? " BOOT_label
 
-  echo
+    echo
   
-  echo "The boot-partition will be named $BOOT_label"
+    echo "The boot-partition will be named $BOOT_label"
     
-  echo
+    echo
 
-  mklabel gpt
+    read -rp "A special name for the primary partition? " ROOT_label
 
-  mkpart ESP fat32 1MiB "$BOOT_size"MiB
-  set 1 boot on
-  name 1 "$BOOT_label"
-
-  read -rp "Any favourite size for the SWAP-partition in MB? " SWAP_size
-
-  echo
+    echo
   
-  echo "The SWAP-partition is set to be $SWAP_size"
+    echo "The primary partition will be named $ROOT_label"
+
+    echo
+
+    parted /dev/"$DRIVE_LABEL"
+
+    mklabel gpt
+
+    mkpart ESP fat32 1MiB "$BOOT_size"MiB
+    set 1 boot on
+    name 1 "$BOOT_label"
+
+    mkpart primary "$BOOT_size"MiB 100%
+    name 2 "$ROOT_label"
+
+    quit
+
+  elif [[ $SWAP_choice == "2" ]]; then
+
+    DRIVE_LABEL_boot="$DRIVE_LABEL""1"
+    DRIVE_LABEL_swap="$DRIVE_LABEL""2"
+    DRIVE_LABEL_root="$DRIVE_LABEL""3"
+
+    badblocks -c 10240 -s -w -t random -v /dev/"$DRIVE_LABEL"
+
+    read -rp "Any favourite size for the boot-partition in MB? Though minimum 256MB; only type the size without units: " BOOT_size
+
+    echo
+  
+    echo "The boot-partition is set to be $BOOT_size"
     
-  echo
+    echo
 
-  read -rp "A special name for the SWAP-partition? " SWAP_label
+    read -rp "A special name for the boot-partition? " BOOT_label
 
-  echo
+    echo
   
-  echo "The SWAP-partition will be named $SWAP_label"
+    echo "The boot-partition will be named $BOOT_label"
     
-  echo
+    echo
 
-  mkpart primary "$SWAP_size"MiB
-  name 2 "$SWAP_label"
+    read -rp "Any favourite size for the SWAP-partition in MB? " SWAP_size
 
-  read -rp "A special name for the primary partition? " ROOT_label
-
-  echo
+    echo
   
-  echo "The primary partition will be named $ROOT_label"
+    echo "The SWAP-partition is set to be $SWAP_size"
+    
+    echo
 
-  echo
+    read -rp "A special name for the SWAP-partition? " SWAP_label
 
-  mkpart primary "$SWAP_size"MiB 100%
-  name 3 "$ROOT_label"
+    echo
+  
+    echo "The SWAP-partition will be named $SWAP_label"
+    
+    echo
 
-  quit
+    read -rp "A special name for the primary partition? " ROOT_label
+
+    echo
+  
+    echo "The primary partition will be named $ROOT_label"
+
+    echo
+
+    parted /dev/"$DRIVE_LABEL"
+
+    mklabel gpt
+
+    mkpart ESP fat32 1MiB "$BOOT_size"MiB
+    set 1 boot on
+    name 1 "$BOOT_label"
+
+    mkpart primary "$BOOT_size"MiB "$SWAP_size"MiB
+    name 2 "$SWAP_label"
+
+    mkpart primary "$SWAP_size"MiB 100%
+    name 3 "$ROOT_label"
+
+    quit
+
+  fi
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -566,4 +614,4 @@
   exit
   umount -R /mnt
   reboot
-  
+ 
