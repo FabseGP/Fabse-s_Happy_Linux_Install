@@ -74,7 +74,7 @@
 # Network-configuration
   more network.txt
 
-  if [ $WIFI_choice = 2 ] then
+  if [ $WIFI_choice == 2 ] then
 
     echo "You're wifi-card is about to be activated"
 
@@ -165,7 +165,7 @@
 
   more encryptions.txt
 
-  if [ $ENCRYPTION_choice = 2 ] then
+  if [ $ENCRYPTION_choice == 2 ] then
 
     echo "Please have your encryption-password ready"
 
@@ -197,7 +197,7 @@
 
   more subvolumes.txt
 
- if [ $SUBVOLUMES_choice = 2 ] then
+ if [ $SUBVOLUMES_choice == 2 ] then
 
     mount -o noatime,compress=lz4,discard,ssd,defaults /dev/mapper/cryptroot /mnt
     cd /mnt
@@ -247,13 +247,13 @@
 
   read FSTAB_double_check
 
- if [ $FSTAB_double_check = 2 ] then
+  if [ $FSTAB_double_check == 2 ] then
   
-    fdisk -l
+     fdisk -l
 
- fi
+  fi
 
- done
+  done
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -288,7 +288,7 @@
 
   read LANGUAGE_how_many
 
-  if [ $LANGUAGE_how_many = 0 ] || [ $LANGUAGE_how_many > 3 ] then
+  if [ $LANGUAGE_how_many == 0 ] || [ $LANGUAGE_how_many > 3 ] then
 
      echo "Please try again; I don't have time for this!
 
@@ -300,7 +300,7 @@
 
   done
 
-  if [ $LANGUAGE_how_many = 1 ] then
+  if [ $LANGUAGE_how_many == 1 ] then
 
     echo "What language do you wish to generate?
   
@@ -314,7 +314,7 @@
 
   done
 
-  if [ $LANGUAGE_how_many = 2 ] then
+  if [ $LANGUAGE_how_many == 2 ] then
 
     echo "What languages do you wish to generate?
   
@@ -333,7 +333,7 @@
 
   done
 
-   if [ $LANGUAGE_how_many = 3 ] then
+   if [ $LANGUAGE_how_many == 3 ] then
 
      echo "What languages do you wish to generate?
   
