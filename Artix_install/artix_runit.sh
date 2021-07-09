@@ -18,6 +18,8 @@
   SWAP_size=""
 
   DRIVE_LABEL=""
+  DRIVE_check=""
+
   DRIVE_LABEL_boot=""
   DRIVE_LABEL_swap=""
   DRIVE_LABEL_root=""
@@ -177,14 +179,24 @@
   echo "Which drive do you want to partition?"
   until [ $VALID_ENTRY == true ]; do 
     read DRIVE_LABEL
-    OUTPUT=fdisk -l | sed -n "s//^.*\($DRIVE_LABEL\).*$/\1/p"
-      if [[ "$DRIVE_LABEL" == *"$OUTPUT"* ]]; then 
+    OUTPUT="fdisk -l | sed -n "s//^.*\($DRIVE_LABEL\).*$/\1/p""
+      if [[ "$DRIVE_LABEL" == "$OUTPUT" ]]; then 
         VALID_ENTRY=true
       else 
        echo "Invalid drive. Try again."
      fi
     done 
  
+  read -rp "You have chosen "$DRIVE_LABEL" - is that the correct drive? Type "1" for no, "2" for yes: " DRIVE_check
+
+  if [[ $DRIVE_check == "1" ]]; then
+
+    echo "Sorry, you have to execute the scipt again :("
+      
+    exit 1
+
+  fi
+
   if [[ $SWAP_choice == "1" ]]; then
 
     DRIVE_LABEL_boot="$DRIVE_LABEL""1"
