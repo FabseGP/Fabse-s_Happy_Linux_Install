@@ -177,7 +177,7 @@
   echo "Which drive do you want to partition?"
   until [ $VALID_ENTRY == true ]; do 
     read DRIVE_LABEL
-    OUTPUT = fdisk -l | sed -n "s/^.*\($DRIVE_LABEL\).*$/\1/p"
+    OUTPUT=fdisk -l | sed -n "s//^.*\($DRIVE_LABEL\).*$/\1/p"
       if [[ "$DRIVE_LABEL" == *"$OUTPUT"* ]]; then 
         VALID_ENTRY=true
       else 
@@ -190,7 +190,7 @@
     DRIVE_LABEL_boot="$DRIVE_LABEL""1"
     DRIVE_LABEL_root="$DRIVE_LABEL""2"
 
-    badblocks -c 10240 -s -w -t random -v /dev/"$DRIVE_LABEL"
+    badblocks -c 10240 -s -w -t random -v "$DRIVE_LABEL"
 
     read -rp "Any favourite size for the boot-partition in MB? Though minimum 256MB; only type the size without units: " BOOT_size
 
@@ -216,7 +216,7 @@
 
     echo
 
-    parted /dev/"$DRIVE_LABEL"
+    parted "$DRIVE_LABEL"
 
     mklabel gpt
 
@@ -235,7 +235,7 @@
     DRIVE_LABEL_swap="$DRIVE_LABEL""2"
     DRIVE_LABEL_root="$DRIVE_LABEL""3"
 
-    badblocks -c 10240 -s -w -t random -v /dev/"$DRIVE_LABEL"
+    badblocks -c 10240 -s -w -t random -v "$DRIVE_LABEL"
 
     read -rp "Any favourite size for the boot-partition in MB? Though minimum 256MB; only type the size without units: " BOOT_size
 
@@ -277,7 +277,7 @@
 
     echo
 
-    parted /dev/"$DRIVE_LABEL"
+    parted "$DRIVE_LABEL"
 
     mklabel gpt
 
@@ -305,7 +305,7 @@
 
     echo "Please have your encryption-password ready"
 
-    cryptsetup luksFormat --type luks1 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random /dev/"$DRIVE_LABEL"
+    cryptsetup luksFormat --type luks1 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL"
 
     cryptsetup open /dev/DRIVE_LABEL_root cryptroot
     
@@ -319,9 +319,9 @@
 
   echo "A favourite filesystem for the root-drive? BTRFS of course!"
 
-  mkfs.vfat -F32 /dev/"$DRIVE_LABEL_boot"
+  mkfs.vfat -F32 "$DRIVE_LABEL_boot"
 
-  mkswap -L "$SWAP_label" /dev/"$DRIVE_LABEL_swap"
+  mkswap -L "$SWAP_label" "$DRIVE_LABEL_swap"
 
   mkfs.btrfs -l "$ROOT_label" /dev/mapper/cryptroot
 
@@ -357,9 +357,9 @@
 
 # Drive-mount
 
-  mount /dev/"$DRIVE_LABEL_boot" /mnt/boot
+  mount "$DRIVE_LABEL_boot" /mnt/boot
 
-  swapon /dev/"$DRIVE_LABEL_swap"
+  swapon /"$DRIVE_LABEL_swap"
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
