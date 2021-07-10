@@ -21,6 +21,8 @@
   WIFI_choice=""
 
   WIFI_SSID=""
+  WIFI_check=""
+  WIFI_proceed=""
   WIFI_ID=""
 
   BOOT_size=""
@@ -317,11 +319,33 @@
 
     echo
 
-    read -rp "Please type the WIFI-name from the list above, which you wish to connect to: " WIFI_SSID
+    until [ "$WIFI_proceed" == "true" ]; do 
+
+      read -rp "Please type the WIFI-name from the list above, which you wish to connect to: " WIFI_SSID
     
-    echo
+      echo
   
-    echo "You have chosen $WIFI_SSID"
+      read -rp "You have chosen $WIFI_SSID. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " WIFI_check
+
+      echo
+
+      if [[ $WIFI_check == "YES" ]]; then
+
+        echo "You'll get a new prompt"
+
+        WIFI_SSID=""
+
+        WIFI_proceed=false
+
+        echo
+
+      else
+        
+        WIFI_proceed=true
+
+      fi
+
+    done
     
     echo
     
@@ -330,7 +354,7 @@
 
     connmanctl connect "$WIFI_ID" 
 
-  echo
+    echo
     
   fi
 
