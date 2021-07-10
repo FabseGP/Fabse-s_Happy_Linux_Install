@@ -3,6 +3,11 @@
 # Parameters
 
   VALID_ENTRY_intro=false
+  VALID_ENTRY_wifi=false
+  VALID_ENTRY_swap=false
+  VALID_ENTRY_encryption=false
+  VALID_ENTRY_subvolumes=false
+
   INTRO_choices=""
 
   VALID_ENTRY_drive=false
@@ -56,7 +61,7 @@
 
 # Insure that the script is run as root-user
 
-  if [ "$USER" != 'root' ]; then
+  if [ "$USER" = 'root' ]; then
 
     echo "Sorry, this script must be run as root"
     exit 1
@@ -69,104 +74,196 @@
 
   more welcome.txt # Prints the content of the file
    
+  echo
+
   echo "To tailor the installation to your needs, you have the following choices: "
+
+  echo
+
   until [ $VALID_ENTRY_intro == "true" ]; do 
 
-    read -rp "Are you using ethernet now? If yes, then you probably don't need to set up WiFi. Typing "1" skips setting up WiFi, while typing "2" will make it to set up WiFi: " WIFI_choice
+    until [ $VALID_ENTRY_wifi == "true" ]; do 
 
-    if [[ $WIFI_choice == "1" ]]; then
+      read -rp "Do you plan to use WiFi (unnesscary if using ethernet)? If no, please type "1" - if yes, please type "2": " WIFI_choice
+
+      if [[ $WIFI_choice == "1" ]]; then
   
-      echo
+        echo
   
-      echo "WiFi will therefore not be initialised"
+        echo "WiFi will therefore not be initialised"
     
-      echo
-  
-    elif [[ $WIFI_choice = "2" ]]; then
+        echo
 
-      echo
+        VALID_ENTRY_wifi=true
 
-      echo "WiFi will therefore be initialised"
+      elif [[ $WIFI_choice = "2" ]]; then
+
+        echo
+
+        echo "WiFi will therefore be initialised"
     
-      echo
+        echo
 
-    fi
-  
-    read -rp "Any thoughts on encryption? Type "1" for skipping encryption, "2" for setting encryption: " ENCRYPTION_choice
+        VALID_ENTRY_wifi=true
 
-    if [[ $ENCRYPTION_choice == "1" ]]; then
+      fi
+
+      if [[ $WIFI_choice -ne 1 ]] || [[ $WIFI_choice -ne 2 ]]; then 
+
+        VALID_ENTRY_wifi=false
+        
+        echo 
+
+        echo "Invalid answer. Please try again"
+
+        echo
+     
+      fi
+      done
+ 
+    echo
+
+    until [ $VALID_ENTRY_encryption == "true" ]; do 
+
+      read -rp "Any thoughts on encryption? Type "1" for skipping encryption, "2" for setting encryption: " ENCRYPTION_choice
+
+      if [[ $ENCRYPTION_choice == "1" ]]; then
   
-      echo
+        echo
   
-      echo "The main partition will not be encrypted"
+        echo "The main partition will not be encrypted"
     
-      echo
+        echo
   
-    elif [[ $ENCRYPTION_choice = "2" ]]; then
+        VALID_ENTRY_encryption=true
 
-      echo
+      elif [[ $ENCRYPTION_choice = "2" ]]; then
 
-      echo "The main partition will be encrypted"
+        echo
+
+        echo "The main partition will be encrypted"
     
-      echo
+        echo
 
-    fi
+        VALID_ENTRY_encryption=true
 
-    read -rp "Any thoughts on a swap-partition? Type "1" to skip creating a swap-partition, "2" to create a swap-partition: " SWAP_choice
+      fi
 
-    if [[ $SWAP_choice == "1" ]]; then
+      if [[ $ENCRYPTION_choice -ne 1 ]] || [[ $ENCRYPTION_choice -ne 2 ]]; then 
+
+        VALID_ENTRY_encryption=false
+        
+        echo 
+
+        echo "Invalid answer. Please try again"
+
+        echo
+
+      fi
+      done
+ 
+    echo
+
+    until [ $VALID_ENTRY_swap == "true" ]; do 
+
+      read -rp "Any thoughts on a swap-partition? Type "1" to skip creating a swap-partition, "2" to create a swap-partition: " SWAP_choice
+
+      if [[ $SWAP_choice == "1" ]]; then
   
-      echo
+        echo
   
-      echo "No SWAP-partition will be created"
+        echo "No SWAP-partition will be created"
     
-      echo
+        echo
+
+        VALID_ENTRY_swap=true
   
-    elif [[ $SWAP_choice = "2" ]]; then
+      elif [[ $SWAP_choice = "2" ]]; then
 
-      echo
+        echo
 
-      echo "The size of the SWAP-partition will be set later on"
+        echo "The size of the SWAP-partition will be set later on"
     
-      echo
+        echo
 
-    fi
-  
-    read -rp "Any thoughts on subvolumes for BTRFS? Type "1" to not have subvolumes, "2" to have subvolumes: " SUBVOLUMES_choice
+        VALID_ENTRY_swap=true
 
-    if [[ $SUBVOLUMES_choice == "1" ]]; then
+      fi
+
+      if [[ $SWAP_choice -ne 1 ]] || [[ $SWAP_choice -ne 2 ]]; then 
+
+        VALID_ENTRY_swap=false
+        
+        echo 
+
+        echo "Invalid answer. Please try again"
+
+        echo
+
+      fi
+      done
+ 
+    echo
   
-      echo
+    until [ $VALID_ENTRY_subvolumes == "true" ]; do 
+
+      read -rp "Any thoughts on subvolumes for BTRFS? Type "1" to not have subvolumes, "2" to have subvolumes: " SUBVOLUMES_choice
+
+      if [[ $SUBVOLUMES_choice == "1" ]]; then
   
-      echo "A BTRFS-partition will be created without subvolumes"
+        echo
+  
+        echo "A BTRFS-partition will be created without subvolumes"
     
-      echo
+        echo
+
+        VALID_ENTRY_subvolumes=true
   
-    elif [[ $SUBVOLUMES_choice = "2" ]]; then
+      elif [[ $SUBVOLUMES_choice = "2" ]]; then
 
-      echo
+        echo
 
-      echo "The BTRFS-partition will consists of subvolumes"
+        echo "The BTRFS-partition will consists of subvolumes"
     
-      echo
+        echo
 
-    fi    
+        VALID_ENTRY_subvolumes=true
+
+      fi    
+
+      if [[ $SUBVOLUMES_choice -ne 1 ]] || [[ $SUBVOLUMES_choice -ne 2 ]]; then 
+
+        VALID_ENTRY_subvolumes=false
+        
+        echo 
+
+        echo "Invalid answer. Please try again"
+
+        echo
+
+      fi
+      done
+ 
+    echo
 
     echo "You have chosen the following choices: "
 
-    
+    more text
 
+    read -rp "Is everything fine? Type "YES" if yes, "NO" if no: " INTRO_choice
 
-   more text
+    if [[ $INTRO_choice == "YES" ]]; then 
 
-    read -rp "Is everything fine? " INTRO_choice
+      VALID_ENTRY_intro=true
 
-      if [[ $INTRO_choice == "YES" ]]; then 
-        VALID_ENTRY_intro=true
       else 
-       echo "Invalid drive. Try again."
-     fi
-    done 
+
+       echo "Back to square one!"
+
+    fi
+  done 
+
+  echo
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -176,7 +273,11 @@
 
     more network.txt
 
+    echo
+
     echo "You're wifi-card is about to be activated"
+
+    echo
 
     rfkill unblock wifi
     connmanctl enable wifi
@@ -184,6 +285,8 @@
     connmanctl services
     connmanctl services > wifi_list
     connmanctl agent on
+
+    echo
 
     read -p "Please type the WIFI-name from the list above, which you wish to connect to: " WIFI_SSID
     
@@ -197,6 +300,8 @@
     rm wifi_list
 
     connmanctl connect "$WIFI_ID" 
+
+  echo
     
   fi
 
@@ -206,19 +311,33 @@
 
   more partitions.txt
 
+  echo
+
   fdisk -l
 
   VALID_ENTRY_drive=false
+
+  echo
+
   echo "Which drive do you want to partition?"
+
   until [ $VALID_ENTRY_drive == "true" ]; do 
+
     read DRIVE_LABEL
     OUTPUT="fdisk -l | sed -n "s/^.*\("$DRIVE_LABEL"\).*$/\1/p""
-      if [[ $DRIVE_LABEL == "$OUTPUT" ]]; then 
+
+    if [[ $DRIVE_LABEL == "$OUTPUT" ]]; then 
+
         VALID_ENTRY_drive=true
-      else 
-       echo "Invalid drive. Try again."
-     fi
-    done 
+
+    else
+ 
+       echo "Invalid drive. Please try again"
+
+       echo
+
+    fi
+  done 
  
   read -rp "You have chosen "$DRIVE_LABEL" - is that the correct drive? Type "1" for no, "2" for yes: " DRIVE_check
 
@@ -338,6 +457,8 @@
 
     quit
 
+  echo
+
   fi
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -348,11 +469,17 @@
 
     more encryptions.txt
 
+    echo
+
     echo "Please have your encryption-password ready"
+
+    echo
 
     cryptsetup luksFormat --type luks1 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL"
 
     cryptsetup open /dev/DRIVE_LABEL_root cryptroot
+
+    echo
     
   fi
 
@@ -370,11 +497,13 @@
 
   mkfs.btrfs -l "$ROOT_label" /dev/mapper/cryptroot
 
+  echo
+
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # BTRFS-subvolumes
 
- if [[ $SUBVOLUMES_choice == 2 ]]; then
+  if [[ $SUBVOLUMES_choice == 2 ]]; then
 
     more subvolumes.txt
 
@@ -398,6 +527,8 @@
 
   fi
 
+  echo
+
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Drive-mount
@@ -406,11 +537,15 @@
 
   swapon /"$DRIVE_LABEL_swap"
 
+  echo
+
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Base-install
 
   basestrap /mnt base base-devel neovim nano runit linux linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 cryptsetup
+
+  echo
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -419,6 +554,8 @@
   more fstab.txt
 
   fstabgen -U /mnt >> /mnt/etc/fstab
+ 
+  echo
 
   read -rp "If unsure / want to do a double check, enter "1"; if not, enter "2": " FSTAB_double_check
 
@@ -427,8 +564,12 @@
   if [[ $FSTAB_double_check == 2 ]]; then
   
     fdisk -l
+
+    echo
     
     more /mnt/etc/fstab
+
+    echo
 
     read -rp "Does everything seems right? Type "1" for no, "2" for yes: " FSTAB_confirm
     
@@ -442,6 +583,8 @@
 
   fi
 
+  echo
+
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Chroot
@@ -450,11 +593,15 @@
 
   /bin/bash
 
+  echo
+
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Setting up time
 
   more time.txt
+
+  echo
 
   echo "Do you know your local timezone?"
 
@@ -470,6 +617,8 @@
 # Setting up locals
 
   more locals.txt
+
+  echo
 
   read -rp "How many languages do you plan to use? No wrong answers, unless it is above 3!: " LANGUAGE_how_many
 
@@ -547,6 +696,8 @@
 
   locale.gen
 
+  echo
+
   echo "Any thoughts on the system-wide language?"
 
   echo "Example: da_DK.UTF-8"
@@ -554,6 +705,8 @@
   read LANGUAGE
 
   echo "LANG=$LANGUAGE" >> /etc/locale.conf
+
+  echo
 
   echo "Any thoughts on the system-wide keymap?"
 
@@ -565,6 +718,8 @@
   
   echo "keymap="$KEYMAP$"" >> /etc/vconsole.conf
 
+  echo
+
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Regenerating initramfs with encrypt-hook
@@ -574,11 +729,15 @@
   sed -i 's/HOOKS=(base\ udev\ autodetect\ modconf\ block\ filesystems\ keyboard\ fsck)/HOOKS="base\ udev\ autodetect\ modconf\ block\ encrypt\ filesystems\ keyboard\ fsck"/' /etc/mkinitcpio.conf
   mkinitcpio -p linux
 
+  echo
+
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Setting up GRUB
 
   more GRUB.txt
+
+  echo
 
   read -p "Any fitting name for the bootloader? " BOOTLOADER_label
 
@@ -590,15 +749,23 @@
 
   grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=$BOOTLOADER_label --recheck
 
+  echo
+
   sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="cryptdevice=\/dev\/$DRIVE_LABEL_root:cryptroot\ root=\/dev\/mapper\/cryptroot\ rootflags=subvol=@\/rootvol\ quiet"/' /etc/default/grub
 
+  echo
+
   grub-mkconfig -o /boot/grub/grub.cfg
+
+  echo
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Setting root-password + creating personal user
 
   more users.txt
+
+  echo
 
   echo "Any thoughts on a root-password"?
 
@@ -607,23 +774,32 @@
   passwd
   $ROOT_PASSWD
 
+  echo
+
   echo "Can I suggest a username?"
 
   read USERNAME
+
+  echo
 
   echo "A password too?"
 
   read USERNAME_PASSWD
 
   useradd -m -G users -g video,audio,input,power,storage,optical,lp,scanner,dbus,daemon,disk,uucp,wheel $USERNAME
+
   passwd $USERNAME
   $USERNAME_PASSWD
+
+  echo
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Setting up hostname
 
   more hostname.txt
+
+  echo
 
   echo "Is there a name that you want to host?"
 
@@ -637,11 +813,15 @@
   127.0.1.1 $HOSTNAME.localdomain $HOSTNAME     
   EOF
 
+  echo
+
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Setting NetworkManager to start on boot
 
   ln -s /etc/runit/sv/NetworkManager /run/runit/service 
+
+  echo
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -649,11 +829,15 @@
 
   echo "%wheel ALL=(ALL) ALL" | (EDITOR="tee -a" visudo)
 
+  echo
+
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Farewell
 
   more farewell.txt
+
+  echo
 
   exit
   exit
