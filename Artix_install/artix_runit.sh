@@ -57,7 +57,6 @@
   LANGUAGE_GEN3=""  
 
   VALID_ENTRY_timezone=false
-  VALID_ENTRY_hostname=false
   VALID_ENTRY_languages=false
   VALID_ENTRY_keymap=false
 
@@ -65,13 +64,22 @@
   VALID_ENTRY_locals_check=false
   LOCALS_proceed=""
 
+  HOSTNAME_check=""
+  VALID_ENTRY_hostname_check=false
+  HOSTNAME_proceed=""
+
   ROOT_passwd=""
+
+  ROOT_check=""
+  VALID_ENTRY_root_check=false
+  ROOT_proceed=""
+
   USERNAME=""
   USERNAME_passwd=""
 
-  USERS_check=""
-  VALID_ENTRY_users_check=false
-  USERS_proceed=""
+  USER_check=""
+  VALID_ENTRY_user_check=false
+  USER_proceed=""
 
   BOOTLOADER_label=""
 
@@ -871,24 +879,118 @@
 
   echo
 
-  echo "Any thoughts on a root-password"?
+  until [ "$ROOT_proceed" == "true" ]; do 
 
-  read -r ROOT_passwd
+    echo "Any thoughts on a root-password"?
+
+    read -r ROOT_passwd
+
+    echo
+
+    until [ "$VALID_ENTRY_root_check" == "true" ]; do 
+
+      read -rp "You have chosen $ROOT_passwd. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " ROOT_check
+
+      echo
+
+      if [[ $ROOT_check == "YES" ]]; then
+
+        echo "You'll get a new prompt"
+
+        ROOT_passwd=""
+
+        ROOT_proceed=false
+
+        VALID_ENTRY_root_check=true
+
+        echo
+
+      elif [[ $ROOT_check == "NO" ]]; then
+        
+        ROOT_passwd=true
+
+        VALID_ENTRY_root_check=true
+
+      elif [[ $ROOT_check -ne "NO" ]] && [[ $ROOT_check -ne "YES" ]]; then 
+
+        VALID_ENTRY_root_check=false
+
+        echo 
+
+        echo "Invalid answer. Please try again"
+
+        echo
+
+      fi
+  
+    done
+
+  done
+
+  echo
 
   passwd
   $ROOT_passwd
 
   echo
 
-  echo "Can I suggest a username?"
+  until [ "$USER_proceed" == "true" ]; do 
 
-  read -r USERNAME
+    echo "Can I suggest a username?"
 
-  echo
+    read -r USERNAME
 
-  echo "A password too?"
+    echo
 
-  read -r USERNAME_passwd
+    echo "A password too?"
+
+    read -r USERNAME_passwd
+
+    echo
+
+    until [ "$VALID_ENTRY_user_check" == "true" ]; do 
+
+      read -rp "You have chosen $USERNAME as username and $USERNAME_passwd as password. Do you want to change anyone of these? Type \"YES\" if yes, \"NO\" if no: " USER_check
+
+      echo
+
+      if [[ $USER_check == "YES" ]]; then
+
+        echo "You'll get a new prompt"
+
+        USERNAME=""
+
+        USERNAME_passwd=""
+
+        USER_proceed=false
+
+        VALID_ENTRY_user_check=true
+
+        echo
+
+      elif [[ $USER_check == "NO" ]]; then
+        
+        USERNAME=""
+
+        USERNAME_passwd=""
+
+        VALID_ENTRY_user_check=true
+
+      elif [[ $USER_check -ne "NO" ]] && [[ $USER_check -ne "YES" ]]; then 
+
+        VALID_ENTRY_user_check=false
+
+        echo 
+
+        echo "Invalid answer. Please try again"
+
+        echo
+
+      fi
+  
+    done
+
+  done
 
   useradd -m -G users -g video,audio,input,power,storage,optical,lp,scanner,dbus,daemon,disk,uucp,wheel "$USERNAME"
 
@@ -905,16 +1007,62 @@
 
   echo
 
-  echo "Is there a name that you want to host?"
+  until [ "$LOCALS_proceed" == "true" ]; do 
 
-  read -r HOSTNAME
+    echo "Is there a name that you want to host?"
+
+    read -r HOSTNAME
+
+    echo
+
+    until [ "$VALID_ENTRY_hostname_check" == "true" ]; do 
+
+      read -rp "You have chosen $HOSTNAME. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " HOSTNAME_check
+
+      echo
+
+      if [[ $HOSTNAME_check == "YES" ]]; then
+
+        echo "You'll get a new prompt"
+
+        HOSTNAME=""
+
+        LOCALS_proceed=false
+
+        VALID_ENTRY_hostname_check=true
+
+        echo
+
+      elif [[ $HOSTNAME_check == "NO" ]]; then
+        
+        LOCALS_proceed=true
+
+        VALID_ENTRY_hostname_check=true
+
+      elif [[ $HOSTNAME_check -ne "NO" ]] && [[ $HOSTNAME_check -ne "YES" ]]; then 
+
+        VALID_ENTRY_hostname_check=false
+
+        echo 
+
+        echo "Invalid answer. Please try again"
+
+        echo
+
+      fi
+  
+    done
+
+  done
+
+  echo
 
   echo "$HOSTNAME" >> /etc/hostname
 
   cat > /etc/hosts<< "EOF"
-  127.0.0.1 localhost
-  ::1 localhost
-  127.0.1.1 $HOSTNAME.localdomain $HOSTNAME     
+127.0.0.1 localhost
+::1 localhost
+127.0.1.1 $HOSTNAME.localdomain $HOSTNAME     
 EOF
 
   echo
