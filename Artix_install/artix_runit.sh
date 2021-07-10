@@ -84,7 +84,7 @@
 
     until [ $VALID_ENTRY_wifi == "true" ]; do 
 
-      read -rp "Do you plan to use WiFi (unnesscary if using ethernet)? If no, please type "1" - if yes, please type "2": " WIFI_choice
+      read -rp "Do you plan to use WiFi (unnesscary if using ethernet)? If no, please type \"1\" - if yes, please type \"2\": " WIFI_choice
 
       if [[ $WIFI_choice == "1" ]]; then
   
@@ -108,7 +108,7 @@
 
       fi
 
-      if [[ $WIFI_choice -ne 1 ]] || [[ $WIFI_choice -ne 2 ]]; then 
+      if [[ $WIFI_choice -ne 1 ]] && [[ $WIFI_choice -ne 2 ]]; then 
 
         VALID_ENTRY_wifi=false
         
@@ -125,7 +125,7 @@
 
     until [ $VALID_ENTRY_encryption == "true" ]; do 
 
-      read -rp "Any thoughts on encryption? Type "1" for skipping encryption, "2" for setting encryption: " ENCRYPTION_choice
+      read -rp "Any thoughts on encryption? Type \"1\" for skipping encryption, \"2\" for setting encryption: " ENCRYPTION_choice
 
       if [[ $ENCRYPTION_choice == "1" ]]; then
   
@@ -149,7 +149,7 @@
 
       fi
 
-      if [[ $ENCRYPTION_choice -ne 1 ]] || [[ $ENCRYPTION_choice -ne 2 ]]; then 
+      if [[ $ENCRYPTION_choice -ne 1 ]] && [[ $ENCRYPTION_choice -ne 2 ]]; then 
 
         VALID_ENTRY_encryption=false
         
@@ -166,7 +166,7 @@
 
     until [ $VALID_ENTRY_swap == "true" ]; do 
 
-      read -rp "Any thoughts on a swap-partition? Type "1" to skip creating a swap-partition, "2" to create a swap-partition: " SWAP_choice
+      read -rp "Any thoughts on a swap-partition? Type \"1\" to skip creating a swap-partition, \"2\" to create a swap-partition: " SWAP_choice
 
       if [[ $SWAP_choice == "1" ]]; then
   
@@ -190,7 +190,7 @@
 
       fi
 
-      if [[ $SWAP_choice -ne 1 ]] || [[ $SWAP_choice -ne 2 ]]; then 
+      if [[ $SWAP_choice -ne 1 ]] && [[ $SWAP_choice -ne 2 ]]; then 
 
         VALID_ENTRY_swap=false
         
@@ -207,7 +207,7 @@
   
     until [ $VALID_ENTRY_subvolumes == "true" ]; do 
 
-      read -rp "Any thoughts on subvolumes for BTRFS? Type "1" to not have subvolumes, "2" to have subvolumes: " SUBVOLUMES_choice
+      read -rp "Any thoughts on subvolumes for BTRFS? Type \"1\" to not have subvolumes, \"2\" to have subvolumes: " SUBVOLUMES_choice
 
       if [[ $SUBVOLUMES_choice == "1" ]]; then
   
@@ -231,7 +231,7 @@
 
       fi    
 
-      if [[ $SUBVOLUMES_choice -ne 1 ]] || [[ $SUBVOLUMES_choice -ne 2 ]]; then 
+      if [[ $SUBVOLUMES_choice -ne 1 ]] && [[ $SUBVOLUMES_choice -ne 2 ]]; then 
 
         VALID_ENTRY_subvolumes=false
         
@@ -250,7 +250,7 @@
 
     more text
 
-    read -rp "Is everything fine? Type "YES" if yes, "NO" if no: " INTRO_choice
+    read -rp "Is everything fine? Type \"YES\" if yes, \"NO\" if no: " INTRO_choice
 
     if [[ $INTRO_choice == "YES" ]]; then 
 
@@ -288,7 +288,7 @@
 
     echo
 
-    read -p "Please type the WIFI-name from the list above, which you wish to connect to: " WIFI_SSID
+    read -rp "Please type the WIFI-name from the list above, which you wish to connect to: " WIFI_SSID
     
     echo
   
@@ -323,7 +323,7 @@
 
   until [ $VALID_ENTRY_drive == "true" ]; do 
 
-    read DRIVE_LABEL
+    read -r DRIVE_LABEL
     OUTPUT="fdisk -l | sed -n "s/^.*\("$DRIVE_LABEL"\).*$/\1/p""
 
     if [[ $DRIVE_LABEL == "$OUTPUT" ]]; then 
@@ -339,7 +339,7 @@
     fi
   done 
  
-  read -rp "You have chosen "$DRIVE_LABEL" - is that the correct drive? Type "1" for no, "2" for yes: " DRIVE_check
+  read -rp "You have chosen ""$DRIVE_LABEL"" - is that the correct drive? Type \"1\" for no, \"2\" for yes: " DRIVE_check
 
   if [[ $DRIVE_check == "1" ]]; then
 
@@ -471,7 +471,7 @@
 
     echo
 
-    echo "Please have your encryption-password ready"
+    echo "Please have your encryption-password ready "
 
     echo
 
@@ -557,7 +557,7 @@
  
   echo
 
-  read -rp "If unsure / want to do a double check, enter "1"; if not, enter "2": " FSTAB_double_check
+  read -rp "If unsure / want to do a double check, enter \"1\"; if not, enter \"2\": " FSTAB_double_check
 
   echo
 
@@ -571,9 +571,11 @@
 
     echo
 
-    read -rp "Does everything seems right? Type "1" for no, "2" for yes: " FSTAB_confirm
+    read -rp "Does everything seems right? Type \"1\" for no, \"2\" for yes: " FSTAB_confirm
     
     echo
+  
+  fi
     
     if [[ $FSTAB_confirm == 2 ]]; then
 
@@ -702,7 +704,7 @@
 
   echo "Example: da_DK.UTF-8"
 
-  read LANGUAGE
+  read -r LANGUAGE
 
   echo "LANG=$LANGUAGE" >> /etc/locale.conf
 
@@ -712,11 +714,11 @@
 
   echo "Example: dk-latin1"
 
-  read KEYMAP
+  read -r KEYMAP
 
-  echo "keymap="$KEYMAP$"" >> /etc/conf.d/keymaps
+  echo "keymap=""$KEYMAP""" >> /etc/conf.d/keymaps
   
-  echo "keymap="$KEYMAP$"" >> /etc/vconsole.conf
+  echo "keymap=""$KEYMAP""" >> /etc/vconsole.conf
 
   echo
 
@@ -739,7 +741,7 @@
 
   echo
 
-  read -p "Any fitting name for the bootloader? " BOOTLOADER_label
+  read -rp "Any fitting name for the bootloader? " BOOTLOADER_label
 
   echo
   
@@ -747,7 +749,7 @@
 
   echo
 
-  grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=$BOOTLOADER_label --recheck
+  grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id="$BOOTLOADER_label" --recheck
 
   echo
 
@@ -769,7 +771,7 @@
 
   echo "Any thoughts on a root-password"?
 
-  read ROOT_PASSWD
+  read -r ROOT_PASSWD
 
   passwd
   $ROOT_PASSWD
@@ -778,17 +780,17 @@
 
   echo "Can I suggest a username?"
 
-  read USERNAME
+  read -r USERNAME
 
   echo
 
   echo "A password too?"
 
-  read USERNAME_PASSWD
+  read -r USERNAME_PASSWD
 
-  useradd -m -G users -g video,audio,input,power,storage,optical,lp,scanner,dbus,daemon,disk,uucp,wheel $USERNAME
+  useradd -m -G users -g video,audio,input,power,storage,optical,lp,scanner,dbus,daemon,disk,uucp,wheel "$USERNAME"
 
-  passwd $USERNAME
+  passwd "$USERNAME"
   $USERNAME_PASSWD
 
   echo
@@ -803,15 +805,15 @@
 
   echo "Is there a name that you want to host?"
 
-  read HOSTNAME
+  read -r HOSTNAME
 
   echo "$HOSTNAME" >> /etc/hostname
 
-  cat >> /etc/hosts<< EOF
+  cat > /etc/hosts<< "EOF"
   127.0.0.1 localhost
   ::1 localhost
   127.0.1.1 $HOSTNAME.localdomain $HOSTNAME     
-  EOF
+EOF
 
   echo
 
