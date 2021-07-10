@@ -98,7 +98,7 @@
 
         VALID_ENTRY_wifi=true
 
-      elif [[ $WIFI_choice = "2" ]]; then
+      elif [[ $WIFI_choice == "2" ]]; then
 
         echo
 
@@ -138,7 +138,7 @@
   
         VALID_ENTRY_encryption=true
 
-      elif [[ $ENCRYPTION_choice = "2" ]]; then
+      elif [[ $ENCRYPTION_choice == "2" ]]; then
 
         echo
 
@@ -178,7 +178,7 @@
 
         VALID_ENTRY_swap=true
   
-      elif [[ $SWAP_choice = "2" ]]; then
+      elif [[ $SWAP_choice == "2" ]]; then
 
         echo
 
@@ -218,7 +218,7 @@
 
         VALID_ENTRY_subvolumes=true
   
-      elif [[ $SUBVOLUMES_choice = "2" ]]; then
+      elif [[ $SUBVOLUMES_choice == "2" ]]; then
 
         echo
 
@@ -282,6 +282,8 @@
           echo
 
         elif [[ $INTRO_choices -ne "NO" ]] && [[ $INTRO_choices -ne "YES" ]]; then 
+
+          VALID_ENTRY_intro_check=true
 
           echo 
 
