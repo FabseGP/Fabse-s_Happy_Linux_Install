@@ -2,23 +2,19 @@
 
 # Parameters
 
+  SWAP_choice=""
+  ENCRYPTION_choice=""
+  SUBVOLUMES_choice=""
+  WIFI_choice=""
+  INTRO_choice=""
+
   VALID_ENTRY_wifi=false
   VALID_ENTRY_swap=false
   VALID_ENTRY_encryption=false
   VALID_ENTRY_subvolumes=false
 
   VALID_ENTRY_intro_check=false
-  VALID_ENTRY_intro=false
-
-  INTRO_choices=""
-
-  VALID_ENTRY_drive=false
-  OUTPUT=""
-  
-  SWAP_choice=""
-  ENCRYPTION_choice=""
-  SUBVOLUMES_choice=""
-  WIFI_choice=""
+  INTRO_proceed=false
 
   WIFI_SSID=""
   WIFI_check=""
@@ -26,11 +22,13 @@
   WIFI_proceed=""
   WIFI_ID=""
 
+  VALID_ENTRY_drive=false
+  OUTPUT=""
+
   BOOT_size=""
   SWAP_size=""
 
   DRIVE_LABEL=""
-  DRIVE_check=""
 
   DRIVE_LABEL_boot=""
   DRIVE_LABEL_swap=""
@@ -40,8 +38,13 @@
   ROOT_label=""
   SWAP_label=""
 
-  FSTAB_double_check=""
-  FSTAB_confirm=""
+  DRIVE_check=""
+  VALID_ENTRY_drive_check=""
+  DRIVE_proceed=""
+
+  FSTAB_check=""
+  VALID_ENTRY_fstab_check=""
+  FSTAB_proceed=""
 
   TIMEZONE=""
   HOSTNAME=""
@@ -53,11 +56,33 @@
   LANGUAGE_GEN2=""
   LANGUAGE_GEN3=""  
 
+  VALID_ENTRY_timezone=false
+  VALID_ENTRY_hostname=false
+  VALID_ENTRY_languages=false
+  VALID_ENTRY_keymap=false
+
+  LOCALS_check=""
+  VALID_ENTRY_locals_check=false
+  LOCALS_proceed=""
+
   ROOT_passwd=""
   USERNAME=""
   USERNAME_passwd=""
 
+  USERS_check=""
+  VALID_ENTRY_users_check=false
+  USERS_proceed=""
+
   BOOTLOADER_label=""
+
+  BOOTLOADER_check=""
+  VALID_ENTRY_bootloader_check=false
+  BOOTLOADER_proceed=""
+
+  SUMMARY=""
+  SUMMARY_check=""
+  VALID_ENTRY_SUMMARY_check=false
+  SUMMARY_proceed="" # Rebooting if true
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -65,7 +90,8 @@
 
   if [ "$USER" != 'root' ]; then
 
-    echo "Sorry, this script must be run as root"
+    echo
+    echo "Sorry, this script must be run as ROOT"
     exit 1
 
   fi
@@ -82,7 +108,7 @@
 
   echo
 
-  until [ $VALID_ENTRY_intro == "true" ]; do 
+  until [ $INTRO_proceed == "true" ]; do 
 
     until [ $VALID_ENTRY_wifi == "true" ]; do 
 
@@ -250,21 +276,21 @@
 
     until [ $VALID_ENTRY_intro_check == "true" ]; do 
 
-      read -rp "Is everything fine? Type \"YES\" if yes, \"NO\" if no: " INTRO_choices
+      read -rp "Is everything fine? Type \"YES\" if yes, \"NO\" if no: " INTRO_choice
 
-        if [[ $INTRO_choices == "YES" ]]; then 
+        if [[ $INTRO_choice == "YES" ]]; then 
 
           VALID_ENTRY_intro_check=true
 
-          VALID_ENTRY_intro=true
+          INTRO_proceed=true
 
-        elif [[ $INTRO_choices == "NO" ]]; then  
+        elif [[ $INTRO_choice == "NO" ]]; then  
  
           SWAP_choice=""
           ENCRYPTION_choice=""
           SUBVOLUMES_choice=""
           WIFI_choice=""
-          INTRO_choices=""
+          INTRO_choice=""
 
           VALID_ENTRY_wifi=false
           VALID_ENTRY_swap=false
@@ -273,7 +299,7 @@
 
           VALID_ENTRY_intro_check=true
 
-          VALID_ENTRY_intro=false
+          INTRO_proceed=false
 
           echo
 
@@ -281,7 +307,7 @@
 
           echo
 
-        elif [[ $INTRO_choices -ne "NO" ]] && [[ $INTRO_choices -ne "YES" ]]; then 
+        elif [[ $INTRO_choice -ne "NO" ]] && [[ $INTRO_choice -ne "YES" ]]; then 
 
           VALID_ENTRY_intro_check=true
 
