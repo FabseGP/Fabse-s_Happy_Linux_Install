@@ -22,6 +22,7 @@
 
   WIFI_SSID=""
   WIFI_check=""
+  VALID_ENTRY_wifi_check=""
   WIFI_proceed=""
   WIFI_ID=""
 
@@ -107,9 +108,7 @@
 
         VALID_ENTRY_wifi=true
 
-      fi
-
-      if [[ $WIFI_choice -ne 1 ]] && [[ $WIFI_choice -ne 2 ]]; then 
+      elif [[ $WIFI_choice -ne 1 ]] && [[ $WIFI_choice -ne 2 ]]; then 
 
         VALID_ENTRY_wifi=false
         
@@ -120,7 +119,8 @@
         echo
      
       fi
-      done
+
+    done
  
     echo
 
@@ -148,9 +148,7 @@
 
         VALID_ENTRY_encryption=true
 
-      fi
-
-      if [[ $ENCRYPTION_choice -ne 1 ]] && [[ $ENCRYPTION_choice -ne 2 ]]; then 
+      elif [[ $ENCRYPTION_choice -ne 1 ]] && [[ $ENCRYPTION_choice -ne 2 ]]; then 
 
         VALID_ENTRY_encryption=false
         
@@ -161,7 +159,8 @@
         echo
 
       fi
-      done
+
+    done
  
     echo
 
@@ -184,14 +183,12 @@
         echo
 
         echo "The size of the SWAP-partition will be set later on"
-    
+   
         echo
 
         VALID_ENTRY_swap=true
 
-      fi
-
-      if [[ $SWAP_choice -ne 1 ]] && [[ $SWAP_choice -ne 2 ]]; then 
+      elif [[ $SWAP_choice -ne 1 ]] && [[ $SWAP_choice -ne 2 ]]; then 
 
         VALID_ENTRY_swap=false
         
@@ -202,7 +199,8 @@
         echo
 
       fi
-      done
+
+    done
  
     echo
   
@@ -211,9 +209,9 @@
       read -rp "Any thoughts on subvolumes for BTRFS? Type \"1\" to not have subvolumes, \"2\" to have subvolumes: " SUBVOLUMES_choice
 
       if [[ $SUBVOLUMES_choice == "1" ]]; then
-  
+ 
         echo
-  
+
         echo "A BTRFS-partition will be created without subvolumes"
     
         echo
@@ -228,11 +226,9 @@
     
         echo
 
-        VALID_ENTRY_subvolumes=true
+        VALID_ENTRY_subvolumes=true    
 
-      fi    
-
-      if [[ $SUBVOLUMES_choice -ne 1 ]] && [[ $SUBVOLUMES_choice -ne 2 ]]; then 
+      elif [[ $SUBVOLUMES_choice -ne 1 ]] && [[ $SUBVOLUMES_choice -ne 2 ]]; then 
 
         VALID_ENTRY_subvolumes=false
         
@@ -243,7 +239,8 @@
         echo
 
       fi
-      done
+      
+    done
  
     echo
 
@@ -251,46 +248,50 @@
 
     more text
 
-    read -rp "Is everything fine? Type \"YES\" if yes, \"NO\" if no: " INTRO_choices
-
     until [ $VALID_ENTRY_intro_check == "true" ]; do 
 
-      if [[ $INTRO_choices == "YES" ]]; then 
+      read -rp "Is everything fine? Type \"YES\" if yes, \"NO\" if no: " INTRO_choices
 
-        VALID_ENTRY_intro_check=true
+        if [[ $INTRO_choices == "YES" ]]; then 
 
-        VALID_ENTRY_intro=true
+          VALID_ENTRY_intro_check=true
 
-      elif [[ $INTRO_choices == "NO" ]]; then  
+          VALID_ENTRY_intro=true
+
+        elif [[ $INTRO_choices == "NO" ]]; then  
  
-        VALID_ENTRY_intro_check=true
+          SWAP_choice=""
+          ENCRYPTION_choice=""
+          SUBVOLUMES_choice=""
+          WIFI_choice=""
+          INTRO_choices=""
 
-        echo
+          VALID_ENTRY_wifi=false
+          VALID_ENTRY_swap=false
+          VALID_ENTRY_encryption=false
+          VALID_ENTRY_subvolumes=false
 
-        echo "Back to square one!"
+          VALID_ENTRY_intro_check=true
 
-        SWAP_choice=""
-        ENCRYPTION_choice=""
-        SUBVOLUMES_choice=""
-        WIFI_choice=""
-        INTRO_choices=""
+          VALID_ENTRY_intro=false
 
-        echo
+          echo
 
-      fi
+          echo "Back to square one!"
 
-      if [[ $INTRO_choices -ne "NO" ]] && [[ $INTRO_choices -ne "YES" ]]; then 
+          echo
 
-        VALID_ENTRY_intro_check=false
+        elif [[ $INTRO_choices -ne "NO" ]] && [[ $INTRO_choices -ne "YES" ]]; then 
 
-        echo 
+          echo 
 
-        echo "Invalid answer. Please try again"
+          echo "Invalid answer. Please try again"
 
-        echo
+          echo
 
-      fi
-      done
+        fi
+     
+    done
 
   done 
 
@@ -324,26 +325,44 @@
       read -rp "Please type the WIFI-name from the list above, which you wish to connect to: " WIFI_SSID
     
       echo
-  
-      read -rp "You have chosen $WIFI_SSID. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " WIFI_check
+   
+      until [ "$VALID_ENTRY_wifi_check" == "true" ]; do 
 
-      echo
-
-      if [[ $WIFI_check == "YES" ]]; then
-
-        echo "You'll get a new prompt"
-
-        WIFI_SSID=""
-
-        WIFI_proceed=false
+        read -rp "You have chosen $WIFI_SSID. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " WIFI_check
 
         echo
 
-      else
-        
-        WIFI_proceed=true
+        if [[ $WIFI_check == "YES" ]]; then
 
-      fi
+          echo "You'll get a new prompt"
+
+          WIFI_SSID=""
+
+          WIFI_proceed=false
+
+          VALID_ENTRY_wifi_check=true
+
+          echo
+
+        elif [[ $WIFI_check == "NO" ]]; then
+        
+          WIFI_proceed=true
+
+          VALID_ENTRY_wifi_check=true
+
+        elif [[ $WIFI_check -ne "NO" ]] && [[ $WIFI_check -ne "YES" ]]; then 
+
+          VALID_ENTRY_wifi_check=false
+
+          echo 
+
+          echo "Invalid answer. Please try again"
+
+          echo
+
+        fi
+
+      done
 
     done
     
