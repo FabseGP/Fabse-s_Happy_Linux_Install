@@ -130,7 +130,7 @@
 
 # Insure that the script is run as root-user
 
-  if [ "$USER" != 'root' ]; then
+  if [ "$USER" = 'root' ]; then
 
     echo
     echo "Sorry, this script must be run as ROOT"
@@ -143,7 +143,7 @@
 # Introduction
 
   more welcome.txt # Prints the content of the file
-   
+ 
   echo
 
   echo "To tailor the installation to your needs, you have the following choices: "
@@ -151,6 +151,8 @@
   echo
 
   until [ $INTRO_proceed == "true" ]; do 
+
+    VALID_ENTRY_intro_check=false # Otherwise it will mess up answering the questions again
 
     until [ $VALID_ENTRY_wifi == "true" ]; do 
 
@@ -313,8 +315,16 @@
     echo
 
     echo "You have chosen the following choices: "
+    echo
 
-    more text
+    echo "WIFI = $WIFI_choice"
+    echo "SWAP = $SWAP_choice"
+    echo "ENCRYPTION = $ENCRYPTION_choice"
+    echo "SUBVOLUMES = $SUBVOLUMES_choice"
+
+    echo
+    echo "Where \"1\" = NO and \"2\" = YES"
+    echo
 
     until [ $VALID_ENTRY_intro_check == "true" ]; do 
 
