@@ -63,7 +63,7 @@
 
 # Insure that the script is run as root-user
 
-  if [ "$USER" = 'root' ]; then
+  if [ "$USER" != 'root' ]; then
 
     echo "Sorry, this script must be run as root"
     exit 1
