@@ -2,7 +2,10 @@
 
 # Parameters
 
-  VALID_ENTRY=false
+  VALID_ENTRY_intro=false
+  INTRO_choices=""
+
+  VALID_ENTRY_drive=false
   INPUT=""
   OUTPUT=""
   
@@ -51,89 +54,119 @@
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
+# Insure that the script is run as root-user
+
+  if [ "$USER" != 'root' ]; then
+
+    echo "Sorry, this script must be run as root"
+    exit 1
+
+  fi
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
 # Introduction
 
   more welcome.txt # Prints the content of the file
    
-  read -rp "Are you using ethernet now? If yes, then you probably don't need to set up WiFi. Typing "1" skips setting up WiFi, while typing "2" will make it to set up WiFi: " WIFI_choice
+  echo "To tailor the installation to your needs, you have the following choices: "
+  until [ $VALID_ENTRY_intro == "true" ]; do 
 
-  if [[ $WIFI_choice == "1" ]]; then
+    read -rp "Are you using ethernet now? If yes, then you probably don't need to set up WiFi. Typing "1" skips setting up WiFi, while typing "2" will make it to set up WiFi: " WIFI_choice
+
+    if [[ $WIFI_choice == "1" ]]; then
   
-    echo
+      echo
   
-    echo "WiFi will therefore not be initialised"
+      echo "WiFi will therefore not be initialised"
     
-    echo
+      echo
   
-  elif [[ $WIFI_choice = "2" ]]; then
+    elif [[ $WIFI_choice = "2" ]]; then
 
-    echo
+      echo
 
-    echo "WiFi will therefore be initialised"
+      echo "WiFi will therefore be initialised"
     
-    echo
+      echo
 
-  fi
+    fi
   
-  read -rp "Any thoughts on encryption? Type "1" for skipping encryption, "2" for setting encryption: " ENCRYPTION_choice
+    read -rp "Any thoughts on encryption? Type "1" for skipping encryption, "2" for setting encryption: " ENCRYPTION_choice
 
-  if [[ $ENCRYPTION_choice == "1" ]]; then
+    if [[ $ENCRYPTION_choice == "1" ]]; then
   
-    echo
+      echo
   
-    echo "The main partition will not be encrypted"
+      echo "The main partition will not be encrypted"
     
-    echo
+      echo
   
-  elif [[ $ENCRYPTION_choice = "2" ]]; then
+    elif [[ $ENCRYPTION_choice = "2" ]]; then
 
-    echo
+      echo
 
-    echo "The main partition will be encrypted"
+      echo "The main partition will be encrypted"
     
-    echo
+      echo
 
-  fi
+    fi
 
-  read -rp "Any thoughts on a swap-partition? Type "1" to skip creating a swap-partition, "2" to create a swap-partition: " SWAP_choice
+    read -rp "Any thoughts on a swap-partition? Type "1" to skip creating a swap-partition, "2" to create a swap-partition: " SWAP_choice
 
-  if [[ $SWAP_choice == "1" ]]; then
+    if [[ $SWAP_choice == "1" ]]; then
   
-    echo
+      echo
   
-    echo "No SWAP-partition will be created"
+      echo "No SWAP-partition will be created"
     
-    echo
+      echo
   
-  elif [[ $SWAP_choice = "2" ]]; then
+    elif [[ $SWAP_choice = "2" ]]; then
 
-    echo
+      echo
 
-    echo "The size of the SWAP-partition will be set later on"
+      echo "The size of the SWAP-partition will be set later on"
     
-    echo
+      echo
 
-  fi
+    fi
   
-  read -rp "Any thoughts on subvolumes for BTRFS? Type "1" to not have subvolumes, "2" to have subvolumes: " SUBVOLUMES_choice
+    read -rp "Any thoughts on subvolumes for BTRFS? Type "1" to not have subvolumes, "2" to have subvolumes: " SUBVOLUMES_choice
 
-  if [[ $SUBVOLUMES_choice == "1" ]]; then
+    if [[ $SUBVOLUMES_choice == "1" ]]; then
   
-    echo
+      echo
   
-    echo "A BTRFS-partition will be created without subvolumes"
+      echo "A BTRFS-partition will be created without subvolumes"
     
-    echo
+      echo
   
-  elif [[ $SUBVOLUMES_choice = "2" ]]; then
+    elif [[ $SUBVOLUMES_choice = "2" ]]; then
 
-    echo
+      echo
 
-    echo "The BTRFS-partition will consists of subvolumes"
+      echo "The BTRFS-partition will consists of subvolumes"
     
-    echo
+      echo
 
-  fi
+    fi    
+
+    echo "You have chosen the following choices: "
+
+    
+
+
+   more text
+
+    read -rp "Is everything fine? " INTRO_choice
+
+      if [[ $INTRO_choice == "YES" ]]; then 
+        VALID_ENTRY_intro=true
+      else 
+       echo "Invalid drive. Try again."
+     fi
+    done 
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -175,13 +208,13 @@
 
   fdisk -l
 
-  VALID_ENTRY=false
+  VALID_ENTRY_drive=false
   echo "Which drive do you want to partition?"
-  until [ $VALID_ENTRY == "true" ]; do 
+  until [ $VALID_ENTRY_drive == "true" ]; do 
     read DRIVE_LABEL
-    OUTPUT="fdisk -l | sed -n "s//^.*\("$DRIVE_LABEL"\).*$/\1/p""
+    OUTPUT="fdisk -l | sed -n "s/^.*\("$DRIVE_LABEL"\).*$/\1/p""
       if [[ $DRIVE_LABEL == "$OUTPUT" ]]; then 
-        VALID_ENTRY=true
+        VALID_ENTRY_drive=true
       else 
        echo "Invalid drive. Try again."
      fi
