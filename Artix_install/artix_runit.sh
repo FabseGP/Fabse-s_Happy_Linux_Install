@@ -23,7 +23,32 @@
   WIFI_ID=""
 
   VALID_ENTRY_drive=false
+  VALID_ENTRY_drive_choice=false
   OUTPUT=""
+
+  DRIVE_check=""
+  DRIVE_proceed=""
+
+  VALID_ENTRY_boot_size_format=""
+  VALID_ENTRY_boot_size=""
+  VALID_ENTRY_boot_size_check=""
+  BOOT_size_check=""
+
+  VALID_ENTRY_swap_size=""
+  VALID_ENTRY_swap_size_check=""
+  SWAP_size_check=""
+
+  VALID_ENTRY_boot_name=""
+  VALID_ENTRY_boot_name_check=""
+  BOOT_label_check=""
+
+  VALID_ENTRY_swap_name=""
+  VALID_ENTRY_swap_name_check=""
+  SWAP_label_check=""
+
+  VALID_ENTRY_primary_name=""
+  VALID_ENTRY_primary_name_check=""
+  PRIMARY_label_check=""
 
   BOOT_size=""
   SWAP_size=""
@@ -32,19 +57,18 @@
 
   DRIVE_LABEL_boot=""
   DRIVE_LABEL_swap=""
-  DRIVE_LABEL_root=""
+  DRIVE_LABEL_primary=""
 
   BOOT_label=""
-  ROOT_label=""
+  PRIMARY_label=""
   SWAP_label=""
-
-  DRIVE_check=""
-  VALID_ENTRY_drive_check=""
-  DRIVE_proceed=""
 
   FSTAB_check=""
   VALID_ENTRY_fstab_check=""
   FSTAB_proceed=""
+
+  FSTAB_confirm=""
+  VALID_ENTRY_fstab_confirm_check=""
 
   TIMEZONE=""
   HOSTNAME=""
@@ -57,12 +81,22 @@
   LANGUAGE_GEN3=""  
 
   VALID_ENTRY_timezone=false
+
+  TIME_check=""
+  VALID_ENTRY_time_check=false
+  TIME_proceed=""
+
   VALID_ENTRY_languages=false
-  VALID_ENTRY_keymap=false
 
   LOCALS_check=""
   VALID_ENTRY_locals_check=false
   LOCALS_proceed=""
+
+  VALID_ENTRY_keymap=false
+
+  KEYMAP_check=""
+  VALID_ENTRY_keymap_check=false
+  KEYMAP_proceed=""
 
   HOSTNAME_check=""
   VALID_ENTRY_hostname_check=false
@@ -423,8 +457,6 @@
 
   fdisk -l
 
-  VALID_ENTRY_drive=false
-
   echo
 
   echo "Which drive do you want to partition?"
@@ -436,7 +468,39 @@
 
     if [[ $DRIVE_LABEL == "$OUTPUT" ]]; then 
 
-        VALID_ENTRY_drive=true
+      until [ $VALID_ENTRY_drive_choice == "true" ]; do 
+
+        read -rp "You have chosen ""$DRIVE_LABEL"" - is that the correct drive? Type \"1\" for no, \"2\" for yes: " DRIVE_check
+
+        if [[ $DRIVE_check == "1" ]]; then
+
+          echo "You'll get a new prompt"
+
+          VALID_ENTRY_drive_choice=true
+
+          VALID_ENTRY_drive=false
+
+        elif [[ $DRIVE_check == "2" ]]; then
+
+          echo "You'll get a new prompt"
+
+          VALID_ENTRY_drive_choice=true
+
+          VALID_ENTRY_drive=true
+
+        elif [[ $DRIVE_check -ne 1 ]] && [[ $DRIVE_check -ne 2 ]]; then 
+
+          VALID_ENTRY_drive_choice=false
+
+          echo 
+
+          echo "Invalid answer. Please try again"
+
+          echo
+
+        fi
+
+      done
 
     else
    
@@ -447,46 +511,199 @@
        echo
 
     fi
-  done 
- 
-  read -rp "You have chosen ""$DRIVE_LABEL"" - is that the correct drive? Type \"1\" for no, \"2\" for yes: " DRIVE_check
 
-  if [[ $DRIVE_check == "1" ]]; then
-
-    echo "Sorry, you have to execute the scipt again :("
-      
-    exit 1
-
-  fi
+  done
 
   if [[ $SWAP_choice == "1" ]]; then
 
     DRIVE_LABEL_boot="$DRIVE_LABEL""1"
-    DRIVE_LABEL_root="$DRIVE_LABEL""2"
+    DRIVE_LABEL_primary="$DRIVE_LABEL""2"
 
     badblocks -c 10240 -s -w -t random -v "$DRIVE_LABEL"
 
-    read -rp "Any favourite size for the boot-partition in MB? Though minimum 256MB; only type the size without units: " BOOT_size
+    until [ "$DRIVE_proceed" == "true" ]; do 
 
-    echo
+      until [ "$VALID_ENTRY_boot_size_format" == "true" ] && [ "$VALID_ENTRY_boot_size" == "true" ]; do 
+
+        read -rp "Any favourite size for the boot-partition in MB? Though minimum 256MB; only type the size without units: " BOOT_size
+
+        echo
+
+        if ! [[ "$BOOT_size" =~ ^[0-9]+$ ]]; then
+
+          echo "Sorry, only numbers please"
+
+          echo
+
+          BOOT_size=""
+ 
+          VALID_ENTRY_boot_size_format=false
+
+        elif ! [[ "$BOOT_size" -ge 256 ]]; then
+
+          echo "Sorry, the boot-partition will not be large enough"
+
+          echo
+
+          BOOT_size=""
+ 
+          VALID_ENTRY_boot_size_format=false
+
+        else 
+
+          VALID_ENTRY_boot_size_format=true
+
+        fi
   
-    echo "The boot-partition is set to be $BOOT_size"
-    
-    echo
+        echo
 
-    read -rp "A special name for the boot-partition? " BOOT_label
+        if [ "$VALID_ENTRY_boot_size_format" == "true" ]; then
 
-    echo
+          until [ "$VALID_ENTRY_boot_size_check" == "true" ]; do 
+
+            read -rp "The boot-partition will fill $BOOT_size. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " BOOT_size_check
   
-    echo "The boot-partition will be named $BOOT_label"
-    
-    echo
+            echo
 
-    read -rp "A special name for the primary partition? " ROOT_label
+            if [[ $BOOT_size_check == "YES" ]]; then
 
-    echo
+              echo "You'll get a new prompt"
+
+              VALID_ENTRY_boot_size_check=true
+
+              VALID_ENTRY_boot_size=false
+
+              echo
+
+            elif [[ $BOOT_size_check == "NO" ]]; then
+
+              VALID_ENTRY_boot_size_check=true
+
+              VALID_ENTRY_boot_size=true
+
+              echo "The boot-partition is set to be $BOOT_size MiB"
+
+              echo
+
+            elif [[ $BOOT_size_check -ne "NO" ]] && [[ $BOOT_size_check -ne "YES" ]]; then 
+
+              VALID_ENTRY_boot_size_check=false
+
+              echo 
+
+              echo "Invalid answer. Please try again"
+
+              echo
+
+            fi
   
-    echo "The primary partition will be named $ROOT_label"
+          done
+
+        fi
+  
+      done
+
+      until [ "$VALID_ENTRY_boot_name" == "true" ]; do 
+
+        read -rp "A special name for the boot-partition? " BOOT_label
+
+        echo
+
+        until [ "$VALID_ENTRY_boot_name_check" == "true" ]; do 
+
+          read -rp "The boot-partition will be named $BOOT_label. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " BOOT_label_check
+
+          echo
+
+          if [[ $BOOT_label_check == "YES" ]]; then
+
+            echo "You'll get a new prompt"
+
+            VALID_ENTRY_boot_name_check=true
+
+            VALID_ENTRY_boot_name=false
+
+            echo
+
+          elif [[ $BOOT_label_check == "NO" ]]; then
+
+            VALID_ENTRY_boot_name_check=true
+
+            VALID_ENTRY_boot_name=true
+
+            echo "The boot-partition will be named $BOOT_label"
+
+            echo
+
+          elif [[ $BOOT_label_check -ne "NO" ]] && [[ $BOOT_label_check -ne "YES" ]]; then 
+
+            VALID_ENTRY_boot_name_check=false
+
+            echo 
+
+            echo "Invalid answer. Please try again"
+  
+            echo
+
+          fi
+  
+        done
+
+      done
+
+      echo
+
+      until [ "$VALID_ENTRY_primary_name" == "true" ]; do 
+
+        read -rp "A special name for the primary partition? " PRIMARY_label
+
+        echo
+
+        until [ "$VALID_ENTRY_primary_name_check" == "true" ]; do 
+
+          read -rp "The primary partition will be named $PRIMARY_label. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " PRIMARY_label_check
+
+          echo
+  
+          if [[ $PRIMARY_label_check == "YES" ]]; then
+
+            echo "You'll get a new prompt"
+
+            VALID_ENTRY_primary_name_check=true
+ 
+            VALID_ENTRY_primary_name=false
+
+            echo
+
+          elif [[ $PRIMARY_label_check == "NO" ]]; then
+  
+            VALID_ENTRY_primary_name_check=true
+ 
+            VALID_ENTRY_primary_name=true
+
+            DRIVE_proceed=true
+
+            echo "The primary partition will be named $PRIMARY_label"
+
+            echo
+
+          elif [[ $PRIMARY_label_check -ne "NO" ]] && [[ $PRIMARY_label_check -ne "YES" ]]; then 
+
+            VALID_ENTRY_primary_name_check=false
+
+            echo 
+
+            echo "Invalid answer. Please try again"
+
+            echo
+  
+          fi
+  
+        done
+
+      done
+
+    done
 
     echo
 
@@ -499,55 +716,300 @@
     name 1 "$BOOT_label"
 
     mkpart primary "$BOOT_size"MiB 100%
-    name 2 "$ROOT_label"
-
+    name 2 "$PRIMARY_label"
     quit
+
+    echo
 
   elif [[ $SWAP_choice == "2" ]]; then
 
     DRIVE_LABEL_boot="$DRIVE_LABEL""1"
     DRIVE_LABEL_swap="$DRIVE_LABEL""2"
-    DRIVE_LABEL_root="$DRIVE_LABEL""3"
+    DRIVE_LABEL_primary="$DRIVE_LABEL""3"
 
     badblocks -c 10240 -s -w -t random -v "$DRIVE_LABEL"
 
-    read -rp "Any favourite size for the boot-partition in MB? Though minimum 256MB; only type the size without units: " BOOT_size
+    until [ "$DRIVE_proceed" == "true" ]; do 
 
-    echo
+      until [ "$VALID_ENTRY_boot_size_format" == "true" ] && [ "$VALID_ENTRY_boot_size" == "true" ]; do 
+
+        read -rp "Any favourite size for the boot-partition in MB? Though minimum 256MB; only type the size without units: " BOOT_size
+
+        echo
+
+        if ! [[ "$BOOT_size" =~ ^[0-9]+$ ]]; then
+
+          echo "Sorry, only numbers please"
+
+          echo
+
+          BOOT_size=""
+ 
+          VALID_ENTRY_boot_size_format=false
+
+        elif ! [[ "$BOOT_size" -ge 256 ]]; then
+
+          echo "Sorry, the boot-partition will not be large enough"
+
+          echo
+
+          BOOT_size=""
+ 
+          VALID_ENTRY_boot_size_format=false
+
+        else 
+
+          VALID_ENTRY_boot_size_format=true
+
+        fi
   
-    echo "The boot-partition is set to be $BOOT_size"
-    
-    echo
+        echo
 
-    read -rp "A special name for the boot-partition? " BOOT_label
+        if [ "$VALID_ENTRY_boot_size_format" == "true" ]; then
 
-    echo
+          until [ "$VALID_ENTRY_boot_size_check" == "true" ]; do 
+
+            read -rp "The boot-partition will fill $BOOT_size. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " BOOT_size_check
   
-    echo "The boot-partition will be named $BOOT_label"
-    
-    echo
+            echo
 
-    read -rp "Any favourite size for the SWAP-partition in MB? " SWAP_size
+            if [[ $BOOT_size_check == "YES" ]]; then
 
-    echo
+              echo "You'll get a new prompt"
+
+              VALID_ENTRY_boot_size_check=true
+
+              VALID_ENTRY_boot_size=false
+
+              echo
+
+            elif [[ $BOOT_size_check == "NO" ]]; then
+
+              VALID_ENTRY_boot_size_check=true
+
+              VALID_ENTRY_boot_size=true
+
+              echo "The boot-partition is set to be $BOOT_size MiB"
+
+              echo
+
+            elif [[ $BOOT_size_check -ne "NO" ]] && [[ $BOOT_size_check -ne "YES" ]]; then 
+
+              VALID_ENTRY_boot_size_check=false
+
+              echo 
+
+              echo "Invalid answer. Please try again"
+
+              echo
+
+            fi
   
-    echo "The SWAP-partition is set to be $SWAP_size"
-    
-    echo
+          done
 
-    read -rp "A special name for the SWAP-partition? " SWAP_label
-
-    echo
+        fi
   
-    echo "The SWAP-partition will be named $SWAP_label"
-    
-    echo
+      done
 
-    read -rp "A special name for the primary partition? " ROOT_label
+      until [ "$VALID_ENTRY_boot_name" == "true" ]; do 
 
-    echo
+        read -rp "A special name for the boot-partition? " BOOT_label
+
+        echo
+
+        until [ "$VALID_ENTRY_boot_name_check" == "true" ]; do 
+
+          read -rp "The boot-partition will be named $BOOT_label. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " BOOT_label_check
+
+          echo
+
+          if [[ $BOOT_label_check == "YES" ]]; then
+
+            echo "You'll get a new prompt"
+
+            VALID_ENTRY_boot_name_check=true
+
+            VALID_ENTRY_boot_name=false
+
+            echo
+
+          elif [[ $BOOT_label_check == "NO" ]]; then
+
+            VALID_ENTRY_boot_name_check=true
+
+            VALID_ENTRY_boot_name=true
+
+            echo "The boot-partition will be named $BOOT_label"
+
+            echo
+
+          elif [[ $BOOT_label_check -ne "NO" ]] && [[ $BOOT_label_check -ne "YES" ]]; then 
+
+            VALID_ENTRY_boot_name_check=false
+
+            echo 
+
+            echo "Invalid answer. Please try again"
   
-    echo "The primary partition will be named $ROOT_label"
+            echo
+
+          fi
+  
+        done
+
+      done
+
+      echo
+
+      until [ "$VALID_ENTRY_swap_size" == "true" ]; do 
+
+        read -rp "Any favourite size for the SWAP-partition in MB? " SWAP_size
+
+        echo
+
+        until [ "$VALID_ENTRY_swap_size_check" == "true" ]; do 
+
+          read -rp "The swap-partition will fill $SWAP_size. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " SWAP_size_check
+  
+          echo
+
+          if [[ $SWAP_size_check == "YES" ]]; then
+
+            echo "You'll get a new prompt"
+
+            VALID_ENTRY_swap_size_check=true
+
+            VALID_ENTRY_swap_size=false
+
+            echo
+
+          elif [[ $SWAP_size_check == "NO" ]]; then
+
+            VALID_ENTRY_swap_size_check=true
+
+            VALID_ENTRY_swap_size=true
+
+            echo "The SWAP-partition is set to be $SWAP_size MiB"
+
+            echo
+
+          elif [[ $SWAP_size_check -ne "NO" ]] && [[ $SWAP_size_check -ne "YES" ]]; then 
+
+            VALID_ENTRY_swap_size_check=false
+
+            echo 
+
+            echo "Invalid answer. Please try again"
+
+            echo
+
+          fi
+  
+        done
+  
+      done
+
+      until [ "$VALID_ENTRY_swap_name" == "true" ]; do 
+
+        read -rp "A special name for the SWAP-partition? " SWAP_label
+
+        echo
+
+        until [ "$VALID_ENTRY_swap_name_check" == "true" ]; do 
+
+          read -rp "The boot-partition will be named $SWAP_label. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " SWAP_label_check
+
+          echo
+
+          if [[ $SWAP_label_check == "YES" ]]; then
+
+            echo "You'll get a new prompt"
+
+            VALID_ENTRY_swap_name_check=true
+
+            VALID_ENTRY_swap_name=false
+
+            echo
+
+          elif [[ $SWAP_label_check == "NO" ]]; then
+
+            VALID_ENTRY_swap_name_check=true
+
+            VALID_ENTRY_swap_name=true
+
+            echo "The SWAP-partition will be named $SWAP_label"
+
+            echo
+
+          elif [[ $SWAP_label_check -ne "NO" ]] && [[ $SWAP_label_check -ne "YES" ]]; then 
+
+            VALID_ENTRY_swap_name_check=false
+
+            echo 
+
+            echo "Invalid answer. Please try again"
+  
+            echo
+
+          fi
+  
+        done
+
+      done
+ 
+      echo
+
+      until [ "$VALID_ENTRY_primary_name" == "true" ]; do 
+
+        read -rp "A special name for the primary partition? " PRIMARY_label
+
+        echo
+
+        until [ "$VALID_ENTRY_primary_name_check" == "true" ]; do 
+
+          read -rp "The primary partition will be named $PRIMARY_label. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " PRIMARY_label_check
+
+          echo
+  
+          if [[ $PRIMARY_label_check == "YES" ]]; then
+
+            echo "You'll get a new prompt"
+
+            VALID_ENTRY_primary_name_check=true
+ 
+            VALID_ENTRY_primary_name=false
+
+            echo
+
+          elif [[ $PRIMARY_label_check == "NO" ]]; then
+  
+            VALID_ENTRY_primary_name_check=true
+ 
+            VALID_ENTRY_primary_name=true
+
+            DRIVE_proceed=true
+
+            echo "The primary partition will be named $PRIMARY_label"
+
+            echo
+
+          elif [[ $PRIMARY_label_check -ne "NO" ]] && [[ $PRIMARY_label_check -ne "YES" ]]; then 
+
+            VALID_ENTRY_primary_name_check=false
+
+            echo 
+
+            echo "Invalid answer. Please try again"
+
+            echo
+  
+          fi
+  
+        done
+
+      done
+
+    done
 
     echo
 
@@ -563,13 +1025,15 @@
     name 2 "$SWAP_label"
 
     mkpart primary "$SWAP_size"MiB 100%
-    name 3 "$ROOT_label"
+    name 3 "$PRIMARY_label"
 
     quit
 
-  echo
+    echo
 
   fi
+
+  echo
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -585,7 +1049,7 @@
 
     echo
 
-    cryptsetup luksFormat --type luks1 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL"
+    cryptsetup luksFormat --type luks1 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL_primary"
 
     cryptsetup open /dev/DRIVE_LABEL_root cryptroot
 
@@ -605,7 +1069,7 @@
 
   mkswap -L "$SWAP_label" "$DRIVE_LABEL_swap"
 
-  mkfs.btrfs -l "$ROOT_label" /dev/mapper/cryptroot
+  mkfs.btrfs -l "$PRIMARY_label" /dev/mapper/cryptroot
 
   echo
 
@@ -664,36 +1128,82 @@
   more fstab.txt
 
   fstabgen -U /mnt >> /mnt/etc/fstab
+
+  echo
  
-  echo
+  until [ "$FSTAB_proceed" == "true" ]; do 
 
-  read -rp "If unsure / want to do a double check, enter \"1\"; if not, enter \"2\": " FSTAB_double_check
+    until [ "$VALID_ENTRY_fstab_check" == "true" ]; do 
 
-  echo
+      read -rp "If unsure / want to do be sure that the UUID in fstab is correct, enter \"1\"; if not, enter \"2\": " FSTAB_check
 
-  if [[ $FSTAB_double_check == 2 ]]; then
+      echo
+
+      if [[ $FSTAB_check == 1 ]]; then
+
+        VALID_ENTRY_fstab_check=true
+
+        FSTAB_proceed=true
+
+      elif [[ $FSTAB_check == 2 ]]; then
   
-    fdisk -l
+        VALID_ENTRY_fstab_check=true
 
-    echo
+        fdisk -l
+
+        FSTAB_proceed=false
+
+        echo
     
-    more /mnt/etc/fstab
+        more /mnt/etc/fstab
 
-    echo
+        echo
 
-    read -rp "Does everything seems right? Type \"1\" for no, \"2\" for yes: " FSTAB_confirm
-    
-    echo
-  
-  fi
-    
-    if [[ $FSTAB_confirm == 2 ]]; then
+        until [ "$VALID_ENTRY_fstab_confirm_check" == "true" ]; do 
 
-      echo "Sorry, you have to execute the scipt again :("
+          read -rp "Does everything seems right? Type \"1\" for no, \"2\" for yes: " FSTAB_confirm
+
+          if [[ $FSTAB_confirm == 1 ]]; then
+
+            echo "Sorry, you have to execute the scipt again :("
       
-      exit 1
+            exit 1
 
-  fi
+          elif [[ $FSTAB_confirm == 2 ]]; then
+
+            VALID_ENTRY_fstab_confirm_check=true
+
+            FSTAB_proceed=true
+
+          elif [[ $FSTAB_confirm -ne 1 ]] && [[ $FSTAB_check -ne 2 ]]; then 
+
+            VALID_ENTRY_fstab_confirm_check=false
+
+            echo 
+
+            echo "Invalid answer. Please try again"
+
+            echo
+
+          fi
+ 
+        done
+
+      elif [[ $FSTAB_check -ne 1 ]] && [[ $FSTAB_check -ne 2 ]]; then 
+
+        VALID_ENTRY_fstab_check=false
+
+        echo 
+
+        echo "Invalid answer. Please try again"
+
+        echo
+  
+      fi
+ 
+    done 
+
+  done
 
   echo
 
@@ -711,22 +1221,70 @@
 
 # Setting up time
 
+VALID_ENTRY_time_check
+
   more time.txt
 
   echo
 
-  echo "Do you know your local timezone?"
+  until [ "$TIME_proceed" == "true" ]; do 
 
-  echo "Example: Europe/Copenhagen"
+    echo "Do you know your local timezone?"
 
-  read -r TIMEZONE
+    echo "Example: Europe/Copenhagen"
+
+    read -r TIMEZONE
+
+    echo
+
+    until [ "$VALID_ENTRY_time_check" == "true" ]; do 
+
+      read -rp "You have chosen $TIMEZONE. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " TIME_check
+
+      echo
+
+      if [[ $TIME_check == "YES" ]]; then
+
+        echo "You'll get a new prompt"
+
+        TIMEZONE=""
+
+        TIME_proceed=false
+
+        VALID_ENTRY_time_check=true
+
+        echo
+
+      elif [[ $TIME_check == "NO" ]]; then
+        
+        TIME_proceed=true
+
+        VALID_ENTRY_time_check=true
+
+      elif [[ $TIME_check -ne "NO" ]] && [[ $TIME_check -ne "YES" ]]; then 
+
+        VALID_ENTRY_time_check=false
+
+        echo 
+
+        echo "Invalid answer. Please try again"
+
+        echo
+
+      fi
+  
+    done
+
+  done
+
+  echo
 
   ln -sf /usr/share/zoneinfo/"$TIMEZONE" /etc/localtime
   hwclock --systoch
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Setting up locals
+# Setting up locals_languages
 
   more locals.txt
 
@@ -820,11 +1378,61 @@
 
   echo
 
-  echo "Any thoughts on the system-wide keymap?"
+#----------------------------------------------------------------------------------------------------------------------------------
 
-  echo "Example: dk-latin1"
+# Setting up locals_keymap
 
-  read -r KEYMAP
+  until [ "$KEYMAP_proceed" == "true" ]; do 
+
+    echo "Any thoughts on the system-wide keymap?"
+
+    echo "Example: dk-latin1"
+
+    read -r KEYMAP
+
+    echo
+
+    until [ "$VALID_ENTRY_keymap_check" == "true" ]; do 
+
+      read -rp "You have chosen $KEYMAP. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " KEYMAP_check
+
+      echo
+
+      if [[ $KEYMAP_check == "YES" ]]; then
+
+        echo "You'll get a new prompt"
+
+        TIMEZONE=""
+
+        KEYMAP_proceed=false
+
+        VALID_ENTRY_keymap_check=true
+
+        echo
+
+      elif [[ $KEYMAP_check == "NO" ]]; then
+        
+        KEYMAP_proceed=true
+
+        VALID_ENTRY_keymap_check=true
+
+      elif [[ $KEYMAP_check -ne "NO" ]] && [[ $KEYMAP_check -ne "YES" ]]; then 
+
+        VALID_ENTRY_keymap_check=false
+
+        echo 
+
+        echo "Invalid answer. Please try again"
+
+        echo
+
+      fi
+  
+    done
+
+  done
+
+  echo
 
   echo "keymap=""$KEYMAP""" >> /etc/conf.d/keymaps
   
@@ -851,10 +1459,56 @@
 
   echo
 
-  read -rp "Any fitting name for the bootloader? " BOOTLOADER_label
+  until [ "$BOOTLOADER_proceed" == "true" ]; do 
+
+    read -rp "Any fitting name for the bootloader? " BOOTLOADER_label
+
+    echo
+
+    echo
+
+    until [ "$VALID_ENTRY_bootloader_check" == "true" ]; do 
+
+      read -rp "You have chosen $BOOTLOADER_label. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " BOOTLOADER_check
+
+      echo
+
+      if [[ $BOOTLOADER_check == "YES" ]]; then
+
+        echo "You'll get a new prompt"
+
+        BOOTLOADER_label=""
+
+        BOOTLOADER_proceed=false
+
+        VALID_ENTRY_bootloader_check=true
+
+        echo
+
+      elif [[ $BOOTLOADER_check == "NO" ]]; then
+        
+        BOOTLOADER_proceed=true
+
+        VALID_ENTRY_bootloader_check=true
+
+      elif [[ $BOOTLOADER_check -ne "NO" ]] && [[ $BOOTLOADER_check -ne "YES" ]]; then 
+
+        VALID_ENTRY_bootloader_check=false
+
+        echo 
+
+        echo "Invalid answer. Please try again"
+
+        echo
+
+      fi
+  
+    done
+
+  done
 
   echo
-  
+
   echo "The bootloader will be viewed as $BOOTLOADER_label in the BIOS"
 
   echo
