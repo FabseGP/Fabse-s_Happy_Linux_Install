@@ -2,16 +2,17 @@
 
 # Parameters
 
-  VALID_ENTRY_intro=false
   VALID_ENTRY_wifi=false
   VALID_ENTRY_swap=false
   VALID_ENTRY_encryption=false
   VALID_ENTRY_subvolumes=false
 
+  VALID_ENTRY_intro_check=false
+  VALID_ENTRY_intro=false
+
   INTRO_choices=""
 
   VALID_ENTRY_drive=false
-  INPUT=""
   OUTPUT=""
   
   SWAP_choice=""
@@ -250,17 +251,47 @@
 
     more text
 
-    read -rp "Is everything fine? Type \"YES\" if yes, \"NO\" if no: " INTRO_choice
+    read -rp "Is everything fine? Type \"YES\" if yes, \"NO\" if no: " INTRO_choices
 
-    if [[ $INTRO_choice == "YES" ]]; then 
+    until [ $VALID_ENTRY_intro_check == "true" ]; do 
 
-      VALID_ENTRY_intro=true
+      if [[ $INTRO_choices == "YES" ]]; then 
 
-      else 
+        VALID_ENTRY_intro_check=true
 
-       echo "Back to square one!"
+        VALID_ENTRY_intro=true
 
-    fi
+      elif [[ $INTRO_choices == "NO" ]]; then  
+ 
+        VALID_ENTRY_intro_check=true
+
+        echo
+
+        echo "Back to square one!"
+
+        SWAP_choice=""
+        ENCRYPTION_choice=""
+        SUBVOLUMES_choice=""
+        WIFI_choice=""
+        INTRO_choices=""
+
+        echo
+
+      fi
+
+      if [[ $INTRO_choices -ne "NO" ]] && [[ $INTRO_choices -ne "YES" ]]; then 
+
+        VALID_ENTRY_intro_check=false
+
+        echo 
+
+        echo "Invalid answer. Please try again"
+
+        echo
+
+      fi
+      done
+
   done 
 
   echo
@@ -331,7 +362,9 @@
         VALID_ENTRY_drive=true
 
     else
- 
+   
+       echo 
+
        echo "Invalid drive. Please try again"
 
        echo
@@ -771,10 +804,10 @@
 
   echo "Any thoughts on a root-password"?
 
-  read -r ROOT_PASSWD
+  read -r ROOT_passwd
 
   passwd
-  $ROOT_PASSWD
+  $ROOT_passwd
 
   echo
 
@@ -786,12 +819,12 @@
 
   echo "A password too?"
 
-  read -r USERNAME_PASSWD
+  read -r USERNAME_passwd
 
   useradd -m -G users -g video,audio,input,power,storage,optical,lp,scanner,dbus,daemon,disk,uucp,wheel "$USERNAME"
 
   passwd "$USERNAME"
-  $USERNAME_PASSWD
+  $USERNAME_passwd
 
   echo
 
