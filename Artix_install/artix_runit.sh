@@ -61,7 +61,8 @@
   FSTAB_confirm=""
   VALID_ENTRY_fstab_confirm_check=""
 
-  TIMEZONE=""
+  TIMEZONE_1=""
+  TIMEZONE_2=""
   HOSTNAME=""
   LANGUAGE=""
   KEYMAP=""
@@ -669,16 +670,26 @@
   echo
 
   until [ "$TIME_proceed" == "true" ]; do 
-    print blue "Do you know your local timezone?"
-    print purple "Example: Europe/Copenhagen"
-    read -r TIMEZONE
-    echo
+    print blue "Please choose your locale time"
+    select TIMEZONE_1 in $(ls /usr/share/zoneinfo);do
+      if [ -d "/usr/share/zoneinfo/$TIME" ];then
+        select TIMEZONE_2 in $(ls /usr/share/zoneinfo/"$TIMEZONE_1");do
+          ln -sf /usr/share/zoneinfo/"$TIMEZONE_1"/"$TIMEZONE_2" /etc/localtime
+        break
+        done
+      else
+        ln -sf /usr/share/zoneinfo/"$TIMEZONE_1" /etc/localtime
+      fi
+    break
+    done
+    
     until [ "$VALID_ENTRY_time_check" == "true" ]; do 
-      read -rp "You have chosen $TIMEZONE. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " TIME_check
+      read -rp "You have chosen $TIMEZONE_1/$TIMEZONE_2 . Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " TIME_check
       echo
       if [[ $TIME_check == "YES" ]]; then
         print yellow "You'll get a new prompt"
-        TIMEZONE=""
+        TIMEZONE_1=""
+        TIMEZONE_2=""
         TIME_proceed=false
         VALID_ENTRY_time_check=true
         echo
@@ -693,7 +704,6 @@
     done
   done
 
-  ln -sf /usr/share/zoneinfo/"$TIMEZONE" /etc/localtime
   hwclock --systoch
 
   lines
