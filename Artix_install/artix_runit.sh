@@ -246,6 +246,82 @@
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
+# Until-loop; boot-size
+
+  until_loop_drive_boot_size() {
+    until [ "$VALID_ENTRY_boot_size_format" == "true" ] && [ "$VALID_ENTRY_boot_size" == "true" ]; do 
+      read -rp "Any favourite size for the boot-partition in MB? Though minimum 256MB; only type the size without units: " BOOT_size
+      echo
+      if ! [[ "$BOOT_size" =~ ^[0-9]+$ ]]; then
+        print red "Sorry, only numbers please"
+        echo
+        BOOT_size=""
+        VALID_ENTRY_boot_size_format=false
+      elif ! [[ "$BOOT_size" -ge 256 ]]; then
+        print red "Sorry, the boot-partition will not be large enough"
+        echo
+        BOOT_size=""
+        VALID_ENTRY_boot_size_format=false
+      else 
+        VALID_ENTRY_boot_size_format=true
+      fi
+
+      if [ "$VALID_ENTRY_boot_size_format" == "true" ]; then
+        until [ "$VALID_ENTRY_boot_size_check" == "true" ]; do 
+          read -rp "The boot-partition will fill $BOOT_size. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " BOOT_size_check
+          echo
+          if [[ $BOOT_size_check == "YES" ]]; then
+            print yellow "You'll get a new prompt"
+            VALID_ENTRY_boot_size_check=true
+            VALID_ENTRY_boot_size=false
+            echo
+          elif [[ $BOOT_size_check == "NO" ]]; then
+            VALID_ENTRY_boot_size_check=true
+            VALID_ENTRY_boot_size=true
+            print green "The boot-partition is set to be $BOOT_size MiB"
+            echo
+          elif [[ $BOOT_size_check -ne "NO" ]] && [[ $BOOT_size_check -ne "YES" ]]; then 
+            VALID_ENTRY_boot_size_check=false
+            print red "Invalid answer. Please try again"
+            echo
+          fi
+        done
+      fi
+    done
+}
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# Until-loop; swap-size
+
+  until_loop_drive_swap_size() {
+    until [ "$VALID_ENTRY_swap_size" == "true" ]; do 
+      read -rp "Any favourite size for the SWAP-partition in MB? " SWAP_size
+      echo
+      until [ "$VALID_ENTRY_swap_size_check" == "true" ]; do 
+        read -rp "The swap-partition will fill $SWAP_size. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " SWAP_size_check
+        echo
+        if [[ $SWAP_size_check == "YES" ]]; then
+          print yellow "You'll get a new prompt"
+          VALID_ENTRY_swap_size_check=true
+          VALID_ENTRY_swap_size=false
+          echo
+        elif [[ $SWAP_size_check == "NO" ]]; then
+          VALID_ENTRY_swap_size_check=true
+          VALID_ENTRY_swap_size=true
+          print green "The SWAP-partition is set to be $SWAP_size MiB"
+          echo
+        elif [[ $SWAP_size_check -ne "NO" ]] && [[ $SWAP_size_check -ne "YES" ]]; then 
+          VALID_ENTRY_swap_size_check=false
+          print red "Invalid answer. Please try again"
+          echo
+        fi
+      done
+    done
+}
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
 # Insure that the script is run as root-user
 
   if [ "$USER" = 'root' ]; then
@@ -406,50 +482,9 @@
     badblocks -c 10240 -s -w -t random -v "$DRIVE_LABEL"
 
     until [ "$DRIVE_proceed" == "true" ]; do 
-
-      until [ "$VALID_ENTRY_boot_size_format" == "true" ] && [ "$VALID_ENTRY_boot_size" == "true" ]; do 
-        read -rp "Any favourite size for the boot-partition in MB? Though minimum 256MB; only type the size without units: " BOOT_size
-        echo
-        if ! [[ "$BOOT_size" =~ ^[0-9]+$ ]]; then
-          print red "Sorry, only numbers please"
-          echo
-          BOOT_size=""
-          VALID_ENTRY_boot_size_format=false
-        elif ! [[ "$BOOT_size" -ge 256 ]]; then
-          print red "Sorry, the boot-partition will not be large enough"
-          echo
-          BOOT_size=""
-          VALID_ENTRY_boot_size_format=false
-        else 
-          VALID_ENTRY_boot_size_format=true
-        fi
-
-        if [ "$VALID_ENTRY_boot_size_format" == "true" ]; then
-          until [ "$VALID_ENTRY_boot_size_check" == "true" ]; do 
-            read -rp "The boot-partition will fill $BOOT_size. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " BOOT_size_check
-            echo
-            if [[ $BOOT_size_check == "YES" ]]; then
-              print yellow "You'll get a new prompt"
-              VALID_ENTRY_boot_size_check=true
-              VALID_ENTRY_boot_size=false
-              echo
-            elif [[ $BOOT_size_check == "NO" ]]; then
-              VALID_ENTRY_boot_size_check=true
-              VALID_ENTRY_boot_size=true
-              print green "The boot-partition is set to be $BOOT_size MiB"
-              echo
-            elif [[ $BOOT_size_check -ne "NO" ]] && [[ $BOOT_size_check -ne "YES" ]]; then 
-              VALID_ENTRY_boot_size_check=false
-              print red "Invalid answer. Please try again"
-              echo
-            fi
-          done
-        fi
-      done
-
+      until_loop_drive_boot_size
       until_loop_drive_name boot BOOT_label BOOT_label_check
       until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
-
     done
 
     parted "$DRIVE_LABEL"
@@ -471,76 +506,11 @@
     badblocks -c 10240 -s -w -t random -v "$DRIVE_LABEL"
 
     until [ "$DRIVE_proceed" == "true" ]; do 
-
-      until [ "$VALID_ENTRY_boot_size_format" == "true" ] && [ "$VALID_ENTRY_boot_size" == "true" ]; do 
-        read -rp "Any favourite size for the boot-partition in MB? Though minimum 256MB; only type the size without units: " BOOT_size
-        echo
-        if ! [[ "$BOOT_size" =~ ^[0-9]+$ ]]; then
-          print red "Sorry, only numbers please"
-          echo
-          BOOT_size=""
-          VALID_ENTRY_boot_size_format=false
-        elif ! [[ "$BOOT_size" -ge 256 ]]; then
-          print red "Sorry, the boot-partition will not be large enough"
-          echo
-          BOOT_size=""
-          VALID_ENTRY_boot_size_format=false
-        else
-          VALID_ENTRY_boot_size_format=true
-        fi
-
-        if [ "$VALID_ENTRY_boot_size_format" == "true" ]; then
-          until [ "$VALID_ENTRY_boot_size_check" == "true" ]; do 
-            read -rp "The boot-partition will fill $BOOT_size. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " BOOT_size_check
-            echo
-            if [[ $BOOT_size_check == "YES" ]]; then
-              print yellow "You'll get a new prompt"
-              VALID_ENTRY_boot_size_check=true
-              VALID_ENTRY_boot_size=false
-              echo
-            elif [[ $BOOT_size_check == "NO" ]]; then
-              VALID_ENTRY_boot_size_check=true
-              VALID_ENTRY_boot_size=true
-              print green "The boot-partition is set to be $BOOT_size MiB"
-              echo
-            elif [[ $BOOT_size_check -ne "NO" ]] && [[ $BOOT_size_check -ne "YES" ]]; then 
-              VALID_ENTRY_boot_size_check=false
-              print red "Invalid answer. Please try again"
-              echo
-            fi
-          done
-        fi
-      done
-
+      until_loop_drive_boot_size
       until_loop_drive_name boot BOOT_label BOOT_label_check
-
-      until [ "$VALID_ENTRY_swap_size" == "true" ]; do 
-        read -rp "Any favourite size for the SWAP-partition in MB? " SWAP_size
-        echo
-        until [ "$VALID_ENTRY_swap_size_check" == "true" ]; do 
-          read -rp "The swap-partition will fill $SWAP_size. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " SWAP_size_check
-          echo
-          if [[ $SWAP_size_check == "YES" ]]; then
-            print yellow "You'll get a new prompt"
-            VALID_ENTRY_swap_size_check=true
-            VALID_ENTRY_swap_size=false
-            echo
-          elif [[ $SWAP_size_check == "NO" ]]; then
-            VALID_ENTRY_swap_size_check=true
-            VALID_ENTRY_swap_size=true
-            print green "The SWAP-partition is set to be $SWAP_size MiB"
-            echo
-          elif [[ $SWAP_size_check -ne "NO" ]] && [[ $SWAP_size_check -ne "YES" ]]; then 
-            VALID_ENTRY_swap_size_check=false
-            print red "Invalid answer. Please try again"
-            echo
-          fi
-        done
-      done
-
+      until_loop_drive_swap_size
       until_loop_drive_name SWAP SWAP_label SWAP_label_check
       until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
-
     done
 
     parted "$DRIVE_LABEL"
