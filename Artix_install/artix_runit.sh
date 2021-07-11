@@ -8,13 +8,9 @@
   WIFI_choice=""
   INTRO_choice=""
 
-  VALID_ENTRY_wifi=false
-  VALID_ENTRY_swap=false
-  VALID_ENTRY_encryption=false
-  VALID_ENTRY_subvolumes=false
-
-  VALID_ENTRY_intro_check=false
-  INTRO_proceed=false
+  VALID_ENTRY_choices=""
+  VALID_ENTRY_intro_check=""
+  INTRO_proceed=""
 
   WIFI_SSID=""
   WIFI_check=""
@@ -22,8 +18,8 @@
   WIFI_proceed=""
   WIFI_ID=""
 
-  VALID_ENTRY_drive=false
-  VALID_ENTRY_drive_choice=false
+  VALID_ENTRY_drive=""
+  VALID_ENTRY_drive_choice=""
   OUTPUT=""
 
   DRIVE_check=""
@@ -38,16 +34,11 @@
   VALID_ENTRY_swap_size_check=""
   SWAP_size_check=""
 
-  VALID_ENTRY_boot_name=""
-  VALID_ENTRY_boot_name_check=""
+  VALID_ENTRY_drive_name=""
+  VALID_ENTRY_drive_name_check=""
+
   BOOT_label_check=""
-
-  VALID_ENTRY_swap_name=""
-  VALID_ENTRY_swap_name_check=""
   SWAP_label_check=""
-
-  VALID_ENTRY_primary_name=""
-  VALID_ENTRY_primary_name_check=""
   PRIMARY_label_check=""
 
   BOOT_size=""
@@ -60,8 +51,8 @@
   DRIVE_LABEL_primary=""
 
   BOOT_label=""
-  PRIMARY_label=""
   SWAP_label=""
+  PRIMARY_label=""
 
   FSTAB_check=""
   VALID_ENTRY_fstab_check=""
@@ -80,50 +71,50 @@
   LANGUAGE_GEN2=""
   LANGUAGE_GEN3=""  
 
-  VALID_ENTRY_timezone=false
+  VALID_ENTRY_timezone=""
 
   TIME_check=""
-  VALID_ENTRY_time_check=false
+  VALID_ENTRY_time_check=""
   TIME_proceed=""
 
-  VALID_ENTRY_languages=false
+  VALID_ENTRY_languages=""
 
   LOCALS_check=""
-  VALID_ENTRY_locals_check=false
+  VALID_ENTRY_locals_check=""
   LOCALS_proceed=""
 
-  VALID_ENTRY_keymap=false
+  VALID_ENTRY_keymap=""
 
   KEYMAP_check=""
-  VALID_ENTRY_keymap_check=false
+  VALID_ENTRY_keymap_check=""
   KEYMAP_proceed=""
 
   HOSTNAME_check=""
-  VALID_ENTRY_hostname_check=false
+  VALID_ENTRY_hostname_check=""
   HOSTNAME_proceed=""
 
   ROOT_passwd=""
 
   ROOT_check=""
-  VALID_ENTRY_root_check=false
+  VALID_ENTRY_root_check=""
   ROOT_proceed=""
 
   USERNAME=""
   USERNAME_passwd=""
 
   USER_check=""
-  VALID_ENTRY_user_check=false
+  VALID_ENTRY_user_check=""
   USER_proceed=""
 
   BOOTLOADER_label=""
 
   BOOTLOADER_check=""
-  VALID_ENTRY_bootloader_check=false
+  VALID_ENTRY_bootloader_check=""
   BOOTLOADER_proceed=""
 
   SUMMARY=""
   SUMMARY_check=""
-  VALID_ENTRY_SUMMARY_check=false
+  VALID_ENTRY_SUMMARY_check=""
   SUMMARY_proceed="" # Rebooting if true
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -167,6 +158,94 @@
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
+# Until-loop; intro
+
+  until_loop_intro() {
+    type="$1"
+    type_choice="$2"
+    until [ "$VALID_ENTRY_choices" == "true" ]; do 
+      read -rp "Do you plan to utilise ""${type,,}""? If no, please type \"1\" - if yes, please type \"2\": " type_choice
+      echo
+      if [[ $type_choice == "1" ]]; then
+        print yellow """$1"" will therefore not be configured"
+        echo
+        VALID_ENTRY_choices=true
+      elif [[ $type_choice == "2" ]]; then
+        print green """$1"" will therefore be configured"
+        echo
+        VALID_ENTRY_choices=true
+      elif [[ $type_choice -ne 1 ]] && [[ $type_choice -ne 2 ]]; then 
+        VALID_ENTRY_choices=false
+        print red "Invalid answer. Please try again"
+        echo
+      fi
+    done
+
+    if [[ $type == "WiFi" ]]; then
+      WIFI_choice=$type_choice
+    elif [[ $type == "Swap" ]]; then
+      SWAP_choice=$type_choice
+    elif [[ $type == "Encryption" ]]; then
+      ENCRYPTION_choice=$type_choice
+    elif [[ $type == "Subvolumes" ]]; then
+      SUBVOLUMES_choice=$type_choice
+    fi
+
+    type=""
+    type_choice=""
+    VALID_ENTRY_choices=""
+}
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# Until-loop; disk-name
+
+  until_loop_drive_name() {
+    drive="$1"
+    drive_name="$2"
+    drive_name_check="$3"
+
+    until [ "$VALID_ENTRY_drive_name" == "true" ]; do 
+      read -rp "A special name for the ""$drive""-partition? " drive_name
+      echo
+      until [ "$VALID_ENTRY_drive_name_check" == "true" ]; do 
+        read -rp "The ""$drive""-partition will be named \"$drive_name\". Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " drive_name_check
+        echo
+        if [[ $drive_name_check == "YES" ]]; then
+          print yellow "You'll get a new prompt"
+          VALID_ENTRY_drive_name_check=true
+          VALID_ENTRY_drive_name=false
+          echo
+        elif [[ $drive_name_check == "NO" ]]; then
+          VALID_ENTRY_drive_name_check=true
+          VALID_ENTRY_drive_name=true
+          print green "The ""$drive""-partition will be named $drive_name"
+          echo
+        elif [[ $drive_name_check -ne "NO" ]] && [[ $drive_name_check -ne "YES" ]]; then 
+          print red "Invalid answer. Please try again"
+          VALID_ENTRY_drive_name_check=false
+          echo
+        fi
+      done
+    done
+
+    if [[ $drive == "boot" ]]; then
+      BOOT_label=$drive_name
+    elif [[ $drive == "SWAP" ]]; then
+      SWAP_label=$drive_name
+    elif [[ $drive == "primary" ]]; then
+      PRIMARY_label=$drive_name
+    fi
+
+    drive=""
+    drive_name=""
+    drive_name_check=""
+    VALID_ENTRY_drive_name=""
+    VALID_ENTRY_drive_name_check=""
+}
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
 # Insure that the script is run as root-user
 
   if [ "$USER" = 'root' ]; then
@@ -185,80 +264,13 @@
   print blue "To tailor the installation to your needs, you have the following choices: "
   echo
 
-  until [ $INTRO_proceed == "true" ]; do 
+  until [ "$INTRO_proceed" == "true" ]; do 
     VALID_ENTRY_intro_check=false # Otherwise it will mess up answering the questions again
 
-    until [ $VALID_ENTRY_wifi == "true" ]; do 
-      read -rp "Do you plan to use WiFi (unnesscary if using ethernet)? If no, please type \"1\" - if yes, please type \"2\": " WIFI_choice
-      echo
-      if [[ $WIFI_choice == "1" ]]; then
-        print yellow "WiFi will therefore not be initialised"
-        echo
-        VALID_ENTRY_wifi=true
-      elif [[ $WIFI_choice == "2" ]]; then
-        print green "WiFi will therefore be initialised"
-        echo
-        VALID_ENTRY_wifi=true
-      elif [[ $WIFI_choice -ne 1 ]] && [[ $WIFI_choice -ne 2 ]]; then 
-        VALID_ENTRY_wifi=false
-        print red "Invalid answer. Please try again"
-        echo
-      fi
-    done
-
-    until [ $VALID_ENTRY_encryption == "true" ]; do 
-      read -rp "Any thoughts on encryption? Type \"1\" for skipping encryption, \"2\" for setting encryption: " ENCRYPTION_choice
-      echo
-      if [[ $ENCRYPTION_choice == "1" ]]; then
-        print yellow "The main partition will not be encrypted"
-        echo
-        VALID_ENTRY_encryption=true
-      elif [[ $ENCRYPTION_choice == "2" ]]; then
-        print green "The main partition will be encrypted"
-        echo
-        VALID_ENTRY_encryption=true
-      elif [[ $ENCRYPTION_choice -ne 1 ]] && [[ $ENCRYPTION_choice -ne 2 ]]; then 
-        VALID_ENTRY_encryption=false
-        print red "Invalid answer. Please try again"
-        echo
-      fi
-    done
-
-    until [ $VALID_ENTRY_swap == "true" ]; do 
-      read -rp "Any thoughts on a swap-partition? Type \"1\" to skip creating a swap-partition, \"2\" to create a swap-partition: " SWAP_choice
-      echo
-      if [[ $SWAP_choice == "1" ]]; then
-        print yellow "No SWAP-partition will be created"
-        echo
-        VALID_ENTRY_swap=true
-      elif [[ $SWAP_choice == "2" ]]; then
-        print green "The size of the SWAP-partition will be set later on"
-        echo
-        VALID_ENTRY_swap=true
-      elif [[ $SWAP_choice -ne 1 ]] && [[ $SWAP_choice -ne 2 ]]; then 
-        VALID_ENTRY_swap=false
-        print red "Invalid answer. Please try again"
-        echo
-      fi
-    done
-
-    until [ $VALID_ENTRY_subvolumes == "true" ]; do 
-      read -rp "Any thoughts on subvolumes for BTRFS? Type \"1\" to not have subvolumes, \"2\" to have subvolumes: " SUBVOLUMES_choice
-      echo
-      if [[ $SUBVOLUMES_choice == "1" ]]; then
-        print yellow "A BTRFS-partition will be created without subvolumes"
-        echo
-        VALID_ENTRY_subvolumes=true
-      elif [[ $SUBVOLUMES_choice == "2" ]]; then
-        print green "The BTRFS-partition will consists of subvolumes"
-        echo
-        VALID_ENTRY_subvolumes=true    
-      elif [[ $SUBVOLUMES_choice -ne 1 ]] && [[ $SUBVOLUMES_choice -ne 2 ]]; then 
-        VALID_ENTRY_subvolumes=false
-        print red "Invalid answer. Please try again"
-        echo
-      fi
-    done
+    until_loop_intro WiFi WIFI_choice
+    until_loop_intro Encryption ENCRYPTION_choice
+    until_loop_intro Swap SWAP_choice
+    until_loop_intro Subvolumes SUBVOLUMES_choice
 
     print blue "You have chosen the following choices: "
     echo
@@ -282,10 +294,6 @@
           SUBVOLUMES_choice=""
           WIFI_choice=""
           INTRO_choice=""
-          VALID_ENTRY_wifi=false
-          VALID_ENTRY_swap=false
-          VALID_ENTRY_encryption=false
-          VALID_ENTRY_subvolumes=false
           VALID_ENTRY_intro_check=true
           INTRO_proceed=false
           print cyan "Back to square one!"
@@ -359,13 +367,13 @@
   echo
   print blue "Which drive do you want to partition?"
 
-  until [ $VALID_ENTRY_drive == "true" ]; do 
+  until [ "$VALID_ENTRY_drive" == "true" ]; do 
     read -r DRIVE_LABEL
     OUTPUT="fdisk -l | sed -n "s/^.*\("$DRIVE_LABEL"\).*$/\1/p""
 
     if [[ $DRIVE_LABEL == "$OUTPUT" ]]; then 
 
-      until [ $VALID_ENTRY_drive_choice == "true" ]; do 
+      until [ "$VALID_ENTRY_drive_choice" == "true" ]; do 
         read -rp "You have chosen ""$DRIVE_LABEL"" - is that the correct drive? Type \"1\" for no, \"2\" for yes: " DRIVE_check
         echo
         if [[ $DRIVE_check == "1" ]]; then
@@ -439,54 +447,9 @@
         fi
       done
 
-      until [ "$VALID_ENTRY_boot_name" == "true" ]; do 
-        read -rp "A special name for the boot-partition? " BOOT_label
-        echo
-        until [ "$VALID_ENTRY_boot_name_check" == "true" ]; do 
-          read -rp "The boot-partition will be named $BOOT_label. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " BOOT_label_check
-          echo
-          if [[ $BOOT_label_check == "YES" ]]; then
-            print yellow "You'll get a new prompt"
-            VALID_ENTRY_boot_name_check=true
-            VALID_ENTRY_boot_name=false
-            echo
-          elif [[ $BOOT_label_check == "NO" ]]; then
-            VALID_ENTRY_boot_name_check=true
-            VALID_ENTRY_boot_name=true
-            print green "The boot-partition will be named $BOOT_label"
-            echo
-          elif [[ $BOOT_label_check -ne "NO" ]] && [[ $BOOT_label_check -ne "YES" ]]; then 
-            VALID_ENTRY_boot_name_check=false
-            print red "Invalid answer. Please try again"
-            echo
-          fi
-        done
-      done
+      until_loop_drive_name boot BOOT_label BOOT_label_check
+      until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
 
-      until [ "$VALID_ENTRY_primary_name" == "true" ]; do 
-        read -rp "A special name for the primary partition? " PRIMARY_label
-        echo
-        until [ "$VALID_ENTRY_primary_name_check" == "true" ]; do 
-          read -rp "The primary partition will be named $PRIMARY_label. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " PRIMARY_label_check
-          echo
-          if [[ $PRIMARY_label_check == "YES" ]]; then
-            print yellow "You'll get a new prompt"
-            VALID_ENTRY_primary_name_check=true
-            VALID_ENTRY_primary_name=false
-            echo
-          elif [[ $PRIMARY_label_check == "NO" ]]; then
-            VALID_ENTRY_primary_name_check=true
-            VALID_ENTRY_primary_name=true
-            DRIVE_proceed=true
-            print green "The primary partition will be named $PRIMARY_label"
-            echo
-          elif [[ $PRIMARY_label_check -ne "NO" ]] && [[ $PRIMARY_label_check -ne "YES" ]]; then 
-            VALID_ENTRY_primary_name_check=false
-            print red "Invalid answer. Please try again"
-            echo
-          fi
-        done
-      done
     done
 
     parted "$DRIVE_LABEL"
@@ -549,29 +512,7 @@
         fi
       done
 
-      until [ "$VALID_ENTRY_boot_name" == "true" ]; do 
-        read -rp "A special name for the boot-partition? " BOOT_label
-        echo
-        until [ "$VALID_ENTRY_boot_name_check" == "true" ]; do 
-          read -rp "The boot-partition will be named $BOOT_label. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " BOOT_label_check
-          echo
-          if [[ $BOOT_label_check == "YES" ]]; then
-            print yellow "You'll get a new prompt"
-            VALID_ENTRY_boot_name_check=true
-            VALID_ENTRY_boot_name=false
-            echo
-          elif [[ $BOOT_label_check == "NO" ]]; then
-            VALID_ENTRY_boot_name_check=true
-            VALID_ENTRY_boot_name=true
-            print green "The boot-partition will be named $BOOT_label"
-            echo
-          elif [[ $BOOT_label_check -ne "NO" ]] && [[ $BOOT_label_check -ne "YES" ]]; then 
-            VALID_ENTRY_boot_name_check=false
-            print red "Invalid answer. Please try again"
-            echo
-          fi
-        done
-      done
+      until_loop_drive_name boot BOOT_label BOOT_label_check
 
       until [ "$VALID_ENTRY_swap_size" == "true" ]; do 
         read -rp "Any favourite size for the SWAP-partition in MB? " SWAP_size
@@ -597,54 +538,9 @@
         done
       done
 
-      until [ "$VALID_ENTRY_swap_name" == "true" ]; do 
-        read -rp "A special name for the SWAP-partition? " SWAP_label
-        echo
-        until [ "$VALID_ENTRY_swap_name_check" == "true" ]; do 
-          read -rp "The boot-partition will be named $SWAP_label. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " SWAP_label_check
-          echo
-          if [[ $SWAP_label_check == "YES" ]]; then
-            print yellow "You'll get a new prompt"
-            VALID_ENTRY_swap_name_check=true
-            VALID_ENTRY_swap_name=false
-            echo
-          elif [[ $SWAP_label_check == "NO" ]]; then
-            VALID_ENTRY_swap_name_check=true
-            VALID_ENTRY_swap_name=true
-            print green "The SWAP-partition will be named $SWAP_label"
-            echo
-          elif [[ $SWAP_label_check -ne "NO" ]] && [[ $SWAP_label_check -ne "YES" ]]; then 
-            VALID_ENTRY_swap_name_check=false
-            print red "Invalid answer. Please try again"
-            echo
-          fi
-        done
-      done
+      until_loop_drive_name SWAP SWAP_label SWAP_label_check
+      until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
 
-      until [ "$VALID_ENTRY_primary_name" == "true" ]; do 
-        read -rp "A special name for the primary partition? " PRIMARY_label
-        echo
-        until [ "$VALID_ENTRY_primary_name_check" == "true" ]; do 
-          read -rp "The primary partition will be named $PRIMARY_label. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " PRIMARY_label_check
-          echo
-          if [[ $PRIMARY_label_check == "YES" ]]; then
-            print yellow "You'll get a new prompt"
-            VALID_ENTRY_primary_name_check=true
-            VALID_ENTRY_primary_name=false
-            echo
-          elif [[ $PRIMARY_label_check == "NO" ]]; then
-            VALID_ENTRY_primary_name_check=true
-            VALID_ENTRY_primary_name=true
-            DRIVE_proceed=true
-            print green "The primary partition will be named $PRIMARY_label"
-            echo
-          elif [[ $PRIMARY_label_check -ne "NO" ]] && [[ $PRIMARY_label_check -ne "YES" ]]; then 
-            VALID_ENTRY_primary_name_check=false
-            print red "Invalid answer. Please try again"
-            echo
-          fi
-        done
-      done
     done
 
     parted "$DRIVE_LABEL"
