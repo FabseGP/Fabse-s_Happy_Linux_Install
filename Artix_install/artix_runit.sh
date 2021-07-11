@@ -215,6 +215,7 @@
     drive_name_check="$3"
 
     until [ "$VALID_ENTRY_drive_name" == "true" ]; do 
+      VALID_ENTRY_drive_name_check=false # Necessary for trying again
       read -rp "A special name for the ""$drive""-partition? " drive_name
       echo
       until [ "$VALID_ENTRY_drive_name_check" == "true" ]; do 
@@ -259,6 +260,7 @@
 
   until_loop_drive_boot_size() {
     until [ "$VALID_ENTRY_boot_size_format" == "true" ] && [ "$VALID_ENTRY_boot_size" == "true" ]; do 
+      VALID_ENTRY_boot_size_check=false # Necessary for trying again
       read -rp "Any favourite size for the boot-partition in MB? Though minimum 256MB; only type the size without units: " BOOT_size
       echo
       if ! [[ "$BOOT_size" =~ ^[0-9]+$ ]]; then
@@ -282,6 +284,7 @@
           if [[ $BOOT_size_check == "YES" ]]; then
             print yellow "You'll get a new prompt"
             VALID_ENTRY_boot_size_check=true
+            VALID_ENTRY_boot_size_format=false
             VALID_ENTRY_boot_size=false
             echo
           elif [[ $BOOT_size_check == "NO" ]]; then
@@ -305,6 +308,7 @@
 
   until_loop_drive_swap_size() {
     until [ "$VALID_ENTRY_swap_size" == "true" ]; do 
+      VALID_ENTRY_swap_size_check=false # Necessary for trying again
       read -rp "Any favourite size for the SWAP-partition in MB? " SWAP_size
       echo
       until [ "$VALID_ENTRY_swap_size_check" == "true" ]; do 
@@ -350,7 +354,7 @@
   echo
 
   until [ "$INTRO_proceed" == "true" ]; do 
-    VALID_ENTRY_intro_check=false # Otherwise it will mess up answering the questions again
+    VALID_ENTRY_intro_check=false # Necessary for trying again
 
     until_loop_intro WiFi WIFI_choice
     until_loop_intro Encryption ENCRYPTION_choice
@@ -411,6 +415,7 @@
     echo
 
     until [ "$WIFI_proceed" == "true" ]; do 
+      VALID_ENTRY_wifi_check=false # Necessary for trying again
       read -rp "Please type the WIFI-name from the list above, which you wish to connect to: " WIFI_SSID
       echo
       until [ "$VALID_ENTRY_wifi_check" == "true" ]; do 
@@ -453,6 +458,7 @@
   print blue "Which drive do you want to partition?"
 
   until [ "$VALID_ENTRY_drive" == "true" ]; do 
+    VALID_ENTRY_drive_choice=false # Necessary for trying again
     read -r DRIVE_LABEL
     OUTPUT="fdisk -l | sed -n "s/^.*\("$DRIVE_LABEL"\).*$/\1/p""
 
@@ -478,8 +484,8 @@
 
     else
        echo
-       print red "Invalid drive. Please try again"
        fdisk -l
+       print red "Invalid drive. Please try again"
        echo
     fi
 
@@ -678,6 +684,7 @@
   echo
 
   until [ "$TIME_proceed" == "true" ]; do 
+    VALID_ENTRY_time_check=false # Necessary for trying again
     print blue "Please choose your locale time"
     select TIMEZONE_1 in $(ls /usr/share/zoneinfo);do
       if [ -d "/usr/share/zoneinfo/$TIME" ];then
@@ -784,6 +791,7 @@
 # Setting up locals_keymap
 
   until [ "$KEYMAP_proceed" == "true" ]; do 
+    VALID_ENTRY_keymap_check=false # Necessary for trying again
     print blue "Any thoughts on the system-wide keymap?"
     print purple "Example: dk-latin1"
     read -r KEYMAP
@@ -832,6 +840,7 @@
   echo
 
   until [ "$BOOTLOADER_proceed" == "true" ]; do 
+    VALID_ENTRY_bootloader_check=false # Necessary for trying again
     read -rp "Any fitting name for the bootloader? " BOOTLOADER_label
     echo
     until [ "$VALID_ENTRY_bootloader_check" == "true" ]; do 
@@ -872,6 +881,7 @@
   echo
 
   until [ "$ROOT_proceed" == "true" ]; do 
+    VALID_ENTRY_root_check=false # Necessary for trying again
     print blue "Any thoughts on a root-password"?
     read -r ROOT_passwd
     echo
@@ -900,6 +910,7 @@
   echo
 
   until [ "$USER_proceed" == "true" ]; do 
+    VALID_ENTRY_user_check=false # Necessary for trying again
     print blue "Can I suggest a username?"
     read -r USERNAME
     echo
@@ -943,7 +954,8 @@
   echo
 
   until [ "$LOCALS_proceed" == "true" ]; do 
-    print blue "Is there a name that you want to host?"
+    VALID_ENTRY_hostname_check=false # Necessary for trying again
+    print blue "What name do you want to host?"
     read -r HOSTNAME
     echo
     until [ "$VALID_ENTRY_hostname_check" == "true" ]; do 
