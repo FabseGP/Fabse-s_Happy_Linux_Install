@@ -463,13 +463,9 @@
       until_loop_drive_name boot BOOT_label BOOT_label_check
       until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
     done
-    parted /dev/"$DRIVE_LABEL"
-    mklabel gpt
-    mkpart ESP fat32 1MiB "$BOOT_size"MiB
-    set 1 boot on
-    name 1 "$BOOT_label"
-    mkpart primary "$BOOT_size"MiB 100%
-    name 2 "$PRIMARY_label"
+    parted /dev/"$DRIVE_LABEL" mklabel gpt
+    parted /dev/"$DRIVE_LABEL" mkpart ESP fat32 1MiB "$BOOT_size"MiB && parted set 1 boot on && parted name 1 "$BOOT_label"
+    parted /dev/"$DRIVE_LABEL" mkpart primary "$BOOT_size"MiB 100% && parted name 2 "$PRIMARY_label"
     quit
     echo
 
@@ -485,15 +481,10 @@
       until_loop_drive_name SWAP SWAP_label SWAP_label_check
       until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
     done
-    parted /dev/"$DRIVE_LABEL"
-    mklabel gpt
-    mkpart ESP fat32 1MiB "$BOOT_size"MiB
-    set 1 boot on
-    name 1 "$BOOT_label"
-    mkpart primary "$BOOT_size"MiB "$SWAP_size"MiB
-    name 2 "$SWAP_label"
-    mkpart primary "$SWAP_size"MiB 100%
-    name 3 "$PRIMARY_label"
+    parted /dev/"$DRIVE_LABEL" mklabel gpt
+    parted /dev/"$DRIVE_LABEL" mkpart ESP fat32 1MiB "$BOOT_size"MiB && parted set 1 boot on && parted name 1 "$BOOT_label"
+    parted /dev/"$DRIVE_LABEL" mkpart primary "$BOOT_size"MiB "$SWAP_size"MiB && parted name 2 "$SWAP_label"
+    parted /dev/"$DRIVE_LABEL" mkpart primary "$SWAP_size"MiB 100% && parted name 3 "$PRIMARY_label"
     quit
     echo
   fi
