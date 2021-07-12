@@ -21,91 +21,77 @@
   VALID_ENTRY_drive=""
   VALID_ENTRY_drive_choice=""
   OUTPUT=""
-
   DRIVE_check=""
   DRIVE_proceed=""
 
   VALID_ENTRY_drive_size_format=""
   VALID_ENTRY_drive_size=""
   VALID_ENTRY_drive_size_check=""
+  BOOT_size=""
+  SWAP_size=""
   BOOT_size_check=""
   SWAP_size_check=""
 
   VALID_ENTRY_drive_name=""
   VALID_ENTRY_drive_name_check=""
-
+  BOOT_label=""
+  SWAP_label=""
+  PRIMARY_label=""
   BOOT_label_check=""
   SWAP_label_check=""
   PRIMARY_label_check=""
 
-  BOOT_size=""
-  SWAP_size=""
-
   DRIVE_LABEL=""
-
   DRIVE_LABEL_boot=""
   DRIVE_LABEL_swap=""
   DRIVE_LABEL_primary=""
 
-  BOOT_label=""
-  SWAP_label=""
-  PRIMARY_label=""
-
   FSTAB_check=""
   VALID_ENTRY_fstab_check=""
   FSTAB_proceed=""
-
   FSTAB_confirm=""
   VALID_ENTRY_fstab_confirm_check=""
 
+  VALID_ENTRY_timezone=""
   TIMEZONE_1=""
   TIMEZONE_2=""
-  HOSTNAME=""
-  LANGUAGE=""
-  KEYMAP=""
+  TIME_check=""
+  VALID_ENTRY_time_check=""
+  TIME_proceed=""
 
   LANGUAGE_how_many=""
   LANGUAGE_GEN1=""
   LANGUAGE_GEN2=""
   LANGUAGE_GEN3=""  
-
-  VALID_ENTRY_timezone=""
-
-  TIME_check=""
-  VALID_ENTRY_time_check=""
-  TIME_proceed=""
-
+  LANGUAGE=""
   VALID_ENTRY_languages=""
-
   LOCALS_check=""
   VALID_ENTRY_locals_check=""
   LOCALS_proceed=""
 
+  KEYMAP=""
   VALID_ENTRY_keymap=""
-
   KEYMAP_check=""
   VALID_ENTRY_keymap_check=""
   KEYMAP_proceed=""
 
+  HOSTNAME=""
   HOSTNAME_check=""
   VALID_ENTRY_hostname_check=""
   HOSTNAME_proceed=""
 
   ROOT_passwd=""
-
   ROOT_check=""
   VALID_ENTRY_root_check=""
   ROOT_proceed=""
 
   USERNAME=""
   USERNAME_passwd=""
-
   USER_check=""
   VALID_ENTRY_user_check=""
   USER_proceed=""
 
   BOOTLOADER_label=""
-
   BOOTLOADER_check=""
   VALID_ENTRY_bootloader_check=""
   BOOTLOADER_proceed=""
