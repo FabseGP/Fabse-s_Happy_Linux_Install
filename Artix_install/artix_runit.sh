@@ -215,6 +215,9 @@
           VALID_ENTRY_drive_name_check=true
           VALID_ENTRY_drive_name=true
           print green "The ""$drive""-partition will be named $drive_name"
+          if [[ $drive == "primary" ]]; then
+            DRIVE_proceed=true
+          fi
           echo
         elif [[ $drive_name_check -ne "NO" ]] && [[ $drive_name_check -ne "YES" ]]; then 
           print red "Invalid answer. Please try again"
