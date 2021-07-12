@@ -421,9 +421,10 @@
     print blue "Which drive do you want to partition? Please enter the whole part such as \"/dev/sda\": " 
     VALID_ENTRY_drive_choice=false # Necessary for trying again
     read -r DRIVE_LABEL
-    OUTPUT="fdisk -l | sed -n "s/^.*\("$DRIVE_LABEL"\).*$/\1/p""
+    OUTPUT=`fdisk -l | sed -n "s/^.*\("$DRIVE_LABEL"\).*$/\1/p"`
     if [[ "$OUTPUT" == *"$DRIVE_LABEL"* ]]; then 
       until [ "$VALID_ENTRY_drive_choice" == "true" ]; do 
+        echo
         read -rp "You have chosen ""$DRIVE_LABEL"" - is that the correct drive? Type \"1\" for no, \"2\" for yes: " DRIVE_check
         echo
         if [[ $DRIVE_check == "1" ]]; then
@@ -431,7 +432,6 @@
           echo
           VALID_ENTRY_drive_choice=true
           VALID_ENTRY_drive=false
-          echo
         elif [[ $DRIVE_check == "2" ]]; then
           VALID_ENTRY_drive_choice=true
           VALID_ENTRY_drive=true
