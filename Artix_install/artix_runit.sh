@@ -25,13 +25,10 @@
   DRIVE_check=""
   DRIVE_proceed=""
 
-  VALID_ENTRY_boot_size_format=""
-  VALID_ENTRY_boot_size=""
-  VALID_ENTRY_boot_size_check=""
+  VALID_ENTRY_drive_size_format=""
+  VALID_ENTRY_drive_size=""
+  VALID_ENTRY_drive_size_check=""
   BOOT_size_check=""
-
-  VALID_ENTRY_swap_size=""
-  VALID_ENTRY_swap_size_check=""
   SWAP_size_check=""
 
   VALID_ENTRY_drive_name=""
@@ -189,7 +186,6 @@
         echo
       fi
     done
-
     if [[ $type == "WiFi" ]]; then
       WIFI_choice=$type_choice
     elif [[ $type == "Swap" ]]; then
@@ -199,7 +195,6 @@
     elif [[ $type == "Subvolumes" ]]; then
       SUBVOLUMES_choice=$type_choice
     fi
-
     type=""
     type_choice=""
     VALID_ENTRY_choices=""
@@ -213,7 +208,6 @@
     drive="$1"
     drive_name="$2"
     drive_name_check="$3"
-
     until [ "$VALID_ENTRY_drive_name" == "true" ]; do 
       VALID_ENTRY_drive_name_check=false # Necessary for trying again
       read -rp "A special name for the ""$drive""-partition? " drive_name
@@ -238,7 +232,6 @@
         fi
       done
     done
-
     if [[ $drive == "boot" ]]; then
       BOOT_label=$drive_name
     elif [[ $drive == "SWAP" ]]; then
@@ -246,7 +239,6 @@
     elif [[ $drive == "primary" ]]; then
       PRIMARY_label=$drive_name
     fi
-
     drive=""
     drive_name=""
     drive_name_check=""
@@ -256,81 +248,65 @@
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Until-loop; boot-size
+# Until-loop; drive-size
 
-  until_loop_drive_boot_size() {
-    until [ "$VALID_ENTRY_boot_size_format" == "true" ] && [ "$VALID_ENTRY_boot_size" == "true" ]; do 
-      VALID_ENTRY_boot_size_check=false # Necessary for trying again
-      read -rp "Any favourite size for the boot-partition in MB? Though minimum 256MB; only type the size without units: " BOOT_size
+  until_loop_drive_size() {
+    drive="$1"
+    drive_size="$2"
+    drive_size_check="$3"
+    until [ "$VALID_ENTRY_drive_size_format" == "true" ] && [ "$VALID_ENTRY_drive_size" == "true" ]; do 
+      VALID_ENTRY_drive_size_check=false # Necessary for trying again
+      read -rp "Any favourite size for the ""$drive""-partition in MB? Though minimum 256MB; only type the size without units: " drive_size
       echo
-      if ! [[ "$BOOT_size" =~ ^[0-9]+$ ]]; then
+      if ! [[ "$drive_size" =~ ^[0-9]+$ ]]; then
         print red "Sorry, only numbers please"
         echo
-        BOOT_size=""
-        VALID_ENTRY_boot_size_format=false
-      elif ! [[ "$BOOT_size" -ge 256 ]]; then
-        print red "Sorry, the boot-partition will not be large enough"
-        echo
-        BOOT_size=""
-        VALID_ENTRY_boot_size_format=false
-      else 
-        VALID_ENTRY_boot_size_format=true
-      fi
-
-      if [ "$VALID_ENTRY_boot_size_format" == "true" ]; then
-        until [ "$VALID_ENTRY_boot_size_check" == "true" ]; do 
-          read -rp "The boot-partition will fill $BOOT_size. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " BOOT_size_check
+        drive_size=""
+        VALID_ENTRY_drive_size_format=false
+      elif [ "$drive" == "BOOT" ]; then
+        if ! [[ "$drive_size" -ge 256 ]]; then
+          print red "Sorry, the ""$drive""-partition will not be large enough"
           echo
-          if [[ $BOOT_size_check == "YES" ]]; then
+          drive_size=""
+          VALID_ENTRY_drive_size_format=false
+        fi
+      else 
+        VALID_ENTRY_drive_size_format=true
+      fi
+      if [ "$VALID_ENTRY_drive_size_format" == "true" ]; then
+        until [ "$VALID_ENTRY_drive_size_check" == "true" ]; do 
+          read -rp "The ""$drive""-partition will fill $drive_size. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " drive_size_check
+          echo
+          if [[ $drive_size_check == "YES" ]]; then
             print yellow "You'll get a new prompt"
-            VALID_ENTRY_boot_size_check=true
-            VALID_ENTRY_boot_size_format=false
-            VALID_ENTRY_boot_size=false
+            VALID_ENTRY_drive_size_check=true
+            VALID_ENTRY_drive_size_format=false
+            VALID_ENTRY_drive_size=false
             echo
-          elif [[ $BOOT_size_check == "NO" ]]; then
-            VALID_ENTRY_boot_size_check=true
-            VALID_ENTRY_boot_size=true
-            print green "The boot-partition is set to be $BOOT_size MiB"
+          elif [[ $drive_size_check == "NO" ]]; then
+            VALID_ENTRY_drive_size_check=true
+            VALID_ENTRY_drive_size=true
+            print green "The ""$drive""-partition is set to be $drive_size MiB"
             echo
-          elif [[ $BOOT_size_check -ne "NO" ]] && [[ $BOOT_size_check -ne "YES" ]]; then 
-            VALID_ENTRY_boot_size_check=false
+          elif [[ $drive_size_check -ne "NO" ]] && [[ $drive_size_check -ne "YES" ]]; then 
+            VALID_ENTRY_drive_size_check=false
             print red "Invalid answer. Please try again"
             echo
           fi
         done
       fi
     done
-}
-
-#----------------------------------------------------------------------------------------------------------------------------------
-
-# Until-loop; swap-size
-
-  until_loop_drive_swap_size() {
-    until [ "$VALID_ENTRY_swap_size" == "true" ]; do 
-      VALID_ENTRY_swap_size_check=false # Necessary for trying again
-      read -rp "Any favourite size for the SWAP-partition in MB? " SWAP_size
-      echo
-      until [ "$VALID_ENTRY_swap_size_check" == "true" ]; do 
-        read -rp "The swap-partition will fill $SWAP_size. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " SWAP_size_check
-        echo
-        if [[ $SWAP_size_check == "YES" ]]; then
-          print yellow "You'll get a new prompt"
-          VALID_ENTRY_swap_size_check=true
-          VALID_ENTRY_swap_size=false
-          echo
-        elif [[ $SWAP_size_check == "NO" ]]; then
-          VALID_ENTRY_swap_size_check=true
-          VALID_ENTRY_swap_size=true
-          print green "The SWAP-partition is set to be $SWAP_size MiB"
-          echo
-        elif [[ $SWAP_size_check -ne "NO" ]] && [[ $SWAP_size_check -ne "YES" ]]; then 
-          VALID_ENTRY_swap_size_check=false
-          print red "Invalid answer. Please try again"
-          echo
-        fi
-      done
-    done
+    if [[ $drive == "BOOT" ]]; then
+      BOOT_size=$drive_size
+    elif [[ $drive == "SWAP" ]]; then
+      SWAP_size=$drive_size
+    fi
+    drive=""
+    drive_size=""
+    drive_size_check=""
+    VALID_ENTRY_drive_size_format=""
+    VALID_ENTRY_drive_size=""
+    VALID_ENTRY_drive_size_check=""
 }
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -355,12 +331,10 @@
 
   until [ "$INTRO_proceed" == "true" ]; do 
     VALID_ENTRY_intro_check=false # Necessary for trying again
-
     until_loop_intro WiFi WIFI_choice
     until_loop_intro Encryption ENCRYPTION_choice
     until_loop_intro Swap SWAP_choice
     until_loop_intro Subvolumes SUBVOLUMES_choice
-
     print blue "You have chosen the following choices: "
     echo
     print white "WIFI = $WIFI_choice"
@@ -370,7 +344,6 @@
     echo
     print white "Where \"1\" = NO and \"2\" = YES"
     echo
-
     until [ $VALID_ENTRY_intro_check == "true" ]; do 
       read -rp "Is everything fine? Type \"YES\" if yes, \"NO\" if no: " INTRO_choice
       echo
@@ -413,7 +386,6 @@
     connmanctl services > wifi_list
     connmanctl agent on
     echo
-
     until [ "$WIFI_proceed" == "true" ]; do 
       VALID_ENTRY_wifi_check=false # Necessary for trying again
       read -rp "Please type the WIFI-name from the list above, which you wish to connect to: " WIFI_SSID
@@ -437,15 +409,13 @@
         fi
       done
     done
-    
     WIFI_ID=sed -n "s //^.*$WIFI_SSID\s*\(\S*\)/\1/p" wifi_list
     rm wifi_list
     connmanctl connect "$WIFI_ID" 
     echo
   fi
 
-  echo "--------------------------------------------------------------------------------------------------------------------------"
-  echo
+  lines
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -461,9 +431,7 @@
     VALID_ENTRY_drive_choice=false # Necessary for trying again
     read -r DRIVE_LABEL
     OUTPUT="fdisk -l | sed -n "s/^.*\("$DRIVE_LABEL"\).*$/\1/p""
-
     if [[ $DRIVE_LABEL == "$OUTPUT" ]]; then 
-
       until [ "$VALID_ENTRY_drive_choice" == "true" ]; do 
         read -rp "You have chosen ""$DRIVE_LABEL"" - is that the correct drive? Type \"1\" for no, \"2\" for yes: " DRIVE_check
         echo
@@ -481,37 +449,31 @@
           echo
         fi
       done
-
     else
        echo
        fdisk -l
        print red "Invalid drive. Please try again"
        echo
     fi
-
   done
 
   if [[ $SWAP_choice == "1" ]]; then
     DRIVE_LABEL_boot="$DRIVE_LABEL""1"
     DRIVE_LABEL_primary="$DRIVE_LABEL""2"
     badblocks -c 10240 -s -w -t random -v "$DRIVE_LABEL"
-
     until [ "$DRIVE_proceed" == "true" ]; do 
-      until_loop_drive_boot_size
+      until_loop_drive_size BOOT BOOT_size BOOT_size_check
       until_loop_drive_name boot BOOT_label BOOT_label_check
       until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
     done
-
     parted "$DRIVE_LABEL"
     mklabel gpt
     mkpart ESP fat32 1MiB "$BOOT_size"MiB
     set 1 boot on
     name 1 "$BOOT_label"
-
     mkpart primary "$BOOT_size"MiB 100%
     name 2 "$PRIMARY_label"
     quit
-
     echo
 
   elif [[ $SWAP_choice == "2" ]]; then
@@ -519,29 +481,23 @@
     DRIVE_LABEL_swap="$DRIVE_LABEL""2"
     DRIVE_LABEL_primary="$DRIVE_LABEL""3"
     badblocks -c 10240 -s -w -t random -v "$DRIVE_LABEL"
-
     until [ "$DRIVE_proceed" == "true" ]; do 
       until_loop_drive_boot_size
-      until_loop_drive_name boot BOOT_label BOOT_label_check
+      until_loop_drive_size BOOT BOOT_size BOOT_size_check
       until_loop_drive_swap_size
-      until_loop_drive_name SWAP SWAP_label SWAP_label_check
+      until_loop_drive_size SWAP SWAP_size SWAP_size_check
       until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
     done
-
     parted "$DRIVE_LABEL"
     mklabel gpt
     mkpart ESP fat32 1MiB "$BOOT_size"MiB
     set 1 boot on
     name 1 "$BOOT_label"
-
     mkpart primary "$BOOT_size"MiB "$SWAP_size"MiB
     name 2 "$SWAP_label"
-
     mkpart primary "$SWAP_size"MiB 100%
     name 3 "$PRIMARY_label"
-
     quit
-
     echo
   fi
 
@@ -697,7 +653,6 @@
       fi
     break
     done
-    
     until [ "$VALID_ENTRY_time_check" == "true" ]; do 
       read -rp "You have chosen $TIMEZONE_1/$TIMEZONE_2 . Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " TIME_check
       echo
