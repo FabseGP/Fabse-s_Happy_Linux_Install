@@ -96,9 +96,14 @@
   VALID_ENTRY_bootloader_check=""
   BOOTLOADER_proceed=""
 
+  PACKAGES=""
+  PACKAGES_check=""
+  VALID_ENTRY_packages_check=""
+  PACKAGES_proceed=""
+
   SUMMARY=""
   SUMMARY_check=""
-  VALID_ENTRY_SUMMARY_check=""
+  VALID_ENTRY_summary_check=""
   SUMMARY_proceed="" # Rebooting if true
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -946,6 +951,18 @@ EOF
   echo
 
   lines
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# Choice of DE/VM, Wayland/Xorg and other packages/services
+
+
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# Summary before restart
+
+
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
