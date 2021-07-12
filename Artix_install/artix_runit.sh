@@ -842,11 +842,10 @@
       if [[ $ROOT_check == "YES" ]]; then
         print yellow "You'll get a new prompt"
         ROOT_passwd=""
-        ROOT_proceed=false
         VALID_ENTRY_root_check=true
         echo
       elif [[ $ROOT_check == "NO" ]]; then
-        ROOT_passwd=true
+        ROOT_proceed=true
         VALID_ENTRY_root_check=true
       elif [[ $ROOT_check -ne "NO" ]] && [[ $ROOT_check -ne "YES" ]]; then 
         VALID_ENTRY_root_check=false
@@ -860,7 +859,7 @@
 
   until [ "$USER_proceed_name" == "true" ]; do 
     VALID_ENTRY_user_check_username=false # Necessary for trying again
-    print blue "Can I suggest a username?"
+    print blue "Can I suggest a username for a new user?"
     read -r USERNAME
     until [ "$VALID_ENTRY_user_check_username" == "true" ]; do 
       read -rp "You have chosen $USERNAME as username. Are you sure that's correct? Type \"YES\" if yes, \"NO\" if no: " USER_check
@@ -885,7 +884,7 @@
   until [ "$USER_proceed_passwd" == "true" ]; do 
     VALID_ENTRY_user_check_passwd=false # Necessary for trying again
     echo
-    print blue "A password too?"
+    print blue "A password too for \"$USERNAME\"?"
     USERNAME_passwd=$1
     passwd "$USERNAME"
     echo
