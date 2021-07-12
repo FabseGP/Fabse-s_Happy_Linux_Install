@@ -474,9 +474,9 @@
     DRIVE_LABEL_primary="$DRIVE_LABEL""3"
     badblocks -c 10240 -s -w -t random -v "$DRIVE_LABEL"
     until [ "$DRIVE_proceed" == "true" ]; do 
-      until_loop_drive_boot_size
       until_loop_drive_size BOOT BOOT_size BOOT_size_check
-      until_loop_drive_swap_size
+      until_loop_drive_size BOOT BOOT_size BOOT_size_check
+      until_loop_drive_size SWAP SWAP_size SWAP_size_check
       until_loop_drive_size SWAP SWAP_size SWAP_size_check
       until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
     done
