@@ -145,7 +145,7 @@
 # 1 = [X], anything else = [ ]
 
   checkbox() { 
-    [[ "$1" -eq 1 ]] && echo -e "${BBlue}[${Reset}${Bold}X${BBlue}]${Reset}" || echo -e "${BBlue}[ ${BBlue}]${Reset}";
+    [[ "$1" -eq 2 ]] && echo -e "${BBlue}[${Reset}${Bold}X${BBlue}]${Reset}" || echo -e "${BBlue}[ ${BBlue}]${Reset}";
 }
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -299,7 +299,7 @@
 
 # Insure that the script is run as root-user
 
-  if [ "$USER" = 'root' ]; then
+  if ! [ "$USER" = 'root' ]; then
     echo
     print red "Sorry, this script must be run as ROOT"
     exit 1
@@ -323,12 +323,12 @@
     until_loop_intro Subvolumes SUBVOLUMES_choice
     print blue "You have chosen the following choices: "
     echo
-    print white "WIFI = $WIFI_choice"
-    print white "SWAP = $SWAP_choice"
-    print white "ENCRYPTION = $ENCRYPTION_choice"
-    print white "SUBVOLUMES = $SUBVOLUMES_choice"
+    echo -n "WIFI = " && checkbox "$WIFI_choice"
+    echo -n "SWAP = " && checkbox "$SWAP_choice"
+    echo -n "ENCRYPTION = " && checkbox "$ENCRYPTION_choice"
+    echo -n "SUBVOLUMES = " && checkbox "$SUBVOLUMES_choice"
     echo
-    print white "Where \"1\" = NO and \"2\" = YES"
+    print white "Where [ ] = NO and [X] = YES"
     echo
     until [ $VALID_ENTRY_intro_check == "true" ]; do 
       read -rp "Is everything fine? Type \"YES\" if yes, \"NO\" if no: " INTRO_choice
