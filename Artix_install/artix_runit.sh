@@ -204,14 +204,14 @@
       read -rp "A special name for the ""$drive""-partition? " drive_name
       echo
       until [ "$VALID_ENTRY_drive_name_check" == "true" ]; do 
-        read -rp "The ""$drive""-partition will be named \"$drive_name\". Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " drive_name_check
+        read -rp "The ""$drive""-partition will be named \"$drive_name\". Are you sure that's the correct name? Type \"YES\" if yes, \"NO\" if no: " drive_name_check
         echo
-        if [[ $drive_name_check == "YES" ]]; then
+        if [[ $drive_name_check == "NO" ]]; then
           print yellow "You'll get a new prompt"
           VALID_ENTRY_drive_name_check=true
           VALID_ENTRY_drive_name=false
           echo
-        elif [[ $drive_name_check == "NO" ]]; then
+        elif [[ $drive_name_check == "YES" ]]; then
           VALID_ENTRY_drive_name_check=true
           VALID_ENTRY_drive_name=true
           print green "The ""$drive""-partition will be named $drive_name"
@@ -271,15 +271,15 @@
       fi
       if [ "$VALID_ENTRY_drive_size_format" == "true" ]; then
         until [ "$VALID_ENTRY_drive_size_check" == "true" ]; do 
-          read -rp "The ""$drive""-partition will fill $drive_size. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " drive_size_check
+          read -rp "The ""$drive""-partition will fill $drive_size. Are you sure that's the right size? Type \"YES\" if yes, \"NO\" if no: " drive_size_check
           echo
-          if [[ $drive_size_check == "YES" ]]; then
+          if [[ $drive_size_check == "NO" ]]; then
             print yellow "You'll get a new prompt"
             VALID_ENTRY_drive_size_check=true
             VALID_ENTRY_drive_size_format=false
             VALID_ENTRY_drive_size=false
             echo
-          elif [[ $drive_size_check == "NO" ]]; then
+          elif [[ $drive_size_check == "YES" ]]; then
             VALID_ENTRY_drive_size_check=true
             VALID_ENTRY_drive_size=true
             print green "The ""$drive""-partition is set to be $drive_size MiB"
@@ -384,18 +384,18 @@
     echo
     until [ "$WIFI_proceed" == "true" ]; do 
       VALID_ENTRY_wifi_check=false # Necessary for trying again
-      read -rp "Please type the WIFI-name from the list above, which you wish to connect to: " WIFI_SSID
+      read -rp "Please type the WiFi-network from the list above, which you wish to connect to: " WIFI_SSID
       echo
       until [ "$VALID_ENTRY_wifi_check" == "true" ]; do 
-        read -rp "You have chosen $WIFI_SSID. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " WIFI_check
+        read -rp "You have chosen $WIFI_SSID. Are you sure that's the correct WiFi-network? Type \"YES\" if yes, \"NO\" if no: " WIFI_check
         echo
-        if [[ $WIFI_check == "YES" ]]; then
+        if [[ $WIFI_check == "NO" ]]; then
           print yellow "You'll get a new prompt"
           WIFI_SSID=""
           WIFI_proceed=false
           VALID_ENTRY_wifi_check=true
           echo
-        elif [[ $WIFI_check == "NO" ]]; then
+        elif [[ $WIFI_check == "YES" ]]; then
           WIFI_proceed=true
           VALID_ENTRY_wifi_check=true
         elif [[ $WIFI_check -ne "NO" ]] && [[ $WIFI_check -ne "YES" ]]; then 
@@ -430,14 +430,14 @@
     if [[ "$OUTPUT" == *"$DRIVE_LABEL"* ]]; then 
       until [ "$VALID_ENTRY_drive_choice" == "true" ]; do 
         echo
-        read -rp "You have chosen ""$DRIVE_LABEL"" - is that the correct drive? Type \"1\" for no, \"2\" for yes: " DRIVE_check
+        read -rp "You have chosen ""$DRIVE_LABEL"" - is that the correct drive? Type \"1\" for yes, \"2\" for no: " DRIVE_check
         echo
-        if [[ $DRIVE_check == "1" ]]; then
+        if [[ $DRIVE_check == "2" ]]; then
           print yellow "You'll get a new prompt"
           echo
           VALID_ENTRY_drive_choice=true
           VALID_ENTRY_drive=false
-        elif [[ $DRIVE_check == "2" ]]; then
+        elif [[ $DRIVE_check == "1" ]]; then
           VALID_ENTRY_drive_choice=true
           VALID_ENTRY_drive=true
         elif [[ $DRIVE_check -ne 1 ]] && [[ $DRIVE_check -ne 2 ]]; then 
@@ -512,11 +512,13 @@
 # Drive-formatting
 
   more formatting.txt
-  print blue "A favourite filesystem for the root-drive? BTRFS of course!"
   mkfs.vfat -F32 "$DRIVE_LABEL_boot"
+  echo
   if [[ $SWAP_choice == "2" ]]; then
     mkswap -L "$SWAP_label" "$DRIVE_LABEL_swap"
   fi
+  print blue "A favourite filesystem for the root-drive? BTRFS of course!"
+  echo
   mkfs.btrfs -l "$PRIMARY_label" /dev/mapper/cryptroot
   echo
 
@@ -530,10 +532,10 @@
     more subvolumes.txt
     mount -o noatime,compress=lz4,discard,ssd,defaults /dev/mapper/cryptroot /mnt
     cd /mnt || return
-      btrfs subvolume create @
-      btrfs subvolume create @home
-      btrfs subvolume create @pkg
-      btrfs subvolume create @snapshots
+    btrfs subvolume create @
+    btrfs subvolume create @home
+    btrfs subvolume create @pkg
+    btrfs subvolume create @snapshots
     cd /
     umount /mnt
     mount -o noatime,nodiratime,compress=lz4,space_cache,ssd,subvol=@ /dev/mapper/cryptroot /mnt
@@ -578,24 +580,24 @@
  
   until [ "$FSTAB_proceed" == "true" ]; do 
     until [ "$VALID_ENTRY_fstab_check" == "true" ]; do 
-      read -rp "If unsure / want to do be sure that the UUID in fstab is correct, enter \"1\"; if not, enter \"2\": " FSTAB_check
+      read -rp "If unsure / want to be sure that the UUID in fstab is correct, enter \"2\"; if sure, enter \"1\": " FSTAB_check
       echo
-      if [[ $FSTAB_check == 1 ]]; then
+      if [[ $FSTAB_check == 2 ]]; then
         VALID_ENTRY_fstab_check=true
         FSTAB_proceed=true
-      elif [[ $FSTAB_check == 2 ]]; then
+      elif [[ $FSTAB_check == 1 ]]; then
         VALID_ENTRY_fstab_check=true
         fdisk -l
         FSTAB_proceed=false
         more /mnt/etc/fstab
         echo
         until [ "$VALID_ENTRY_fstab_confirm_check" == "true" ]; do 
-          read -rp "Does everything seems right? Type \"1\" for no, \"2\" for yes: " FSTAB_confirm
+          read -rp "Does everything seems right? Type \"1\" for yes, \"2\" for no: " FSTAB_confirm
           echo
-          if [[ $FSTAB_confirm == 1 ]]; then
+          if [[ $FSTAB_confirm == 2 ]]; then
             print cyan "Sorry, you have to execute the scipt again :("
             exit 1
-          elif [[ $FSTAB_confirm == 2 ]]; then
+          elif [[ $FSTAB_confirm == 1 ]]; then
             VALID_ENTRY_fstab_confirm_check=true
             FSTAB_proceed=true
           elif [[ $FSTAB_confirm -ne 1 ]] && [[ $FSTAB_check -ne 2 ]]; then 
@@ -646,16 +648,16 @@
     break
     done
     until [ "$VALID_ENTRY_time_check" == "true" ]; do 
-      read -rp "You have chosen $TIMEZONE_1/$TIMEZONE_2 . Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " TIME_check
+      read -rp "You have chosen $TIMEZONE_1/$TIMEZONE_2 . Are you sure that's the correct timezone? Type \"YES\" if yes, \"NO\" if no: " TIME_check
       echo
-      if [[ $TIME_check == "YES" ]]; then
+      if [[ $TIME_check == "NO" ]]; then
         print yellow "You'll get a new prompt"
         TIMEZONE_1=""
         TIMEZONE_2=""
         TIME_proceed=false
         VALID_ENTRY_time_check=true
         echo
-      elif [[ $TIME_check == "NO" ]]; then
+      elif [[ $TIME_check == "YES" ]]; then
         TIME_proceed=true
         VALID_ENTRY_time_check=true
       elif [[ $TIME_check -ne "NO" ]] && [[ $TIME_check -ne "YES" ]]; then 
@@ -744,15 +746,15 @@
     read -r KEYMAP
     echo
     until [ "$VALID_ENTRY_keymap_check" == "true" ]; do 
-      read -rp "You have chosen $KEYMAP. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " KEYMAP_check
+      read -rp "You have chosen $KEYMAP. Are you sure that's the correct keymap? Type \"YES\" if yes, \"NO\" if no: " KEYMAP_check
       echo
-      if [[ $KEYMAP_check == "YES" ]]; then
+      if [[ $KEYMAP_check == "NO" ]]; then
         print yellow "You'll get a new prompt"
         KEYMAP=""
         KEYMAP_proceed=false
         VALID_ENTRY_keymap_check=true
         echo
-      elif [[ $KEYMAP_check == "NO" ]]; then
+      elif [[ $KEYMAP_check == "YES" ]]; then
         KEYMAP_proceed=true
         VALID_ENTRY_keymap_check=true
       elif [[ $KEYMAP_check -ne "NO" ]] && [[ $KEYMAP_check -ne "YES" ]]; then 
@@ -791,15 +793,15 @@
     read -rp "Any fitting name for the bootloader? " BOOTLOADER_label
     echo
     until [ "$VALID_ENTRY_bootloader_check" == "true" ]; do 
-      read -rp "You have chosen $BOOTLOADER_label. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " BOOTLOADER_check
+      read -rp "You have chosen $BOOTLOADER_label. Are you sure that's the correct name? Type \"YES\" if yes, \"NO\" if no: " BOOTLOADER_check
       echo
-      if [[ $BOOTLOADER_check == "YES" ]]; then
+      if [[ $BOOTLOADER_check == "NO" ]]; then
         print yellow "You'll get a new prompt"
         BOOTLOADER_label=""
         BOOTLOADER_proceed=false
         VALID_ENTRY_bootloader_check=true
         echo
-      elif [[ $BOOTLOADER_check == "NO" ]]; then
+      elif [[ $BOOTLOADER_check == "YES" ]]; then
         BOOTLOADER_proceed=true
         VALID_ENTRY_bootloader_check=true
       elif [[ $BOOTLOADER_check -ne "NO" ]] && [[ $BOOTLOADER_check -ne "YES" ]]; then 
@@ -906,15 +908,15 @@
     read -r HOSTNAME
     echo
     until [ "$VALID_ENTRY_hostname_check" == "true" ]; do 
-      read -rp "You have chosen $HOSTNAME. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " HOSTNAME_check
+      read -rp "You have chosen $HOSTNAME. Are you sure that's the correct hostname? Type \"YES\" if yes, \"NO\" if no: " HOSTNAME_check
       echo
-      if [[ $HOSTNAME_check == "YES" ]]; then
+      if [[ $HOSTNAME_check == "NO" ]]; then
         print yellow "You'll get a new prompt"
         HOSTNAME=""
         LOCALS_proceed=false
         VALID_ENTRY_hostname_check=true
         echo
-      elif [[ $HOSTNAME_check == "NO" ]]; then
+      elif [[ $HOSTNAME_check == "YES" ]]; then
         LOCALS_proceed=true
         VALID_ENTRY_hostname_check=true
       elif [[ $HOSTNAME_check -ne "NO" ]] && [[ $HOSTNAME_check -ne "YES" ]]; then 
