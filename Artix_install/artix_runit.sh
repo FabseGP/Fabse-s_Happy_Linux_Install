@@ -255,7 +255,7 @@
         drive_size=""
         VALID_ENTRY_drive_size_format=false
       elif [ "$drive" == "BOOT" ]; then
-        if ! [[ "$drive_size" -ge 256 ]]; then
+        if ! [[ "$drive_size" -ge 255 ]]; then
           print red "Sorry, the ""$drive""-partition will not be large enough"
           echo
           drive_size=""
@@ -304,7 +304,7 @@
 
 # Insure that the script is run as root-user
 
-  if ! [ "$USER" = 'root' ]; then
+  if [ "$USER" = 'root' ]; then
     echo
     print red "Sorry, this script must be run as ROOT"
     exit 1
@@ -418,7 +418,7 @@
   echo
 
   until [ "$VALID_ENTRY_drive" == "true" ]; do
-    print blue "Which drive do you want to partition? Please enter the whole part such as \"/dev/sda\": " 
+    print blue "Which drive do you want to partition? Please only enter the part after \"/dev/\": " 
     VALID_ENTRY_drive_choice=false # Necessary for trying again
     read -r DRIVE_LABEL
     OUTPUT=`fdisk -l | sed -n "s/^.*\("$DRIVE_LABEL"\).*$/\1/p"`
@@ -450,15 +450,15 @@
   done
 
   if [[ $SWAP_choice == "1" ]]; then
-    DRIVE_LABEL_boot="$DRIVE_LABEL""1"
-    DRIVE_LABEL_primary="$DRIVE_LABEL""2"
-    badblocks -c 10240 -s -w -t random -v "$DRIVE_LABEL"
+    DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
+    DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""2"
+    badblocks -c 10240 -s -w -t random -v /dev/"$DRIVE_LABEL"
     until [ "$DRIVE_proceed" == "true" ]; do 
       until_loop_drive_size BOOT BOOT_size BOOT_size_check
       until_loop_drive_name boot BOOT_label BOOT_label_check
       until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
     done
-    parted "$DRIVE_LABEL"
+    parted /dev/"$DRIVE_LABEL"
     mklabel gpt
     mkpart ESP fat32 1MiB "$BOOT_size"MiB
     set 1 boot on
@@ -469,10 +469,10 @@
     echo
 
   elif [[ $SWAP_choice == "2" ]]; then
-    DRIVE_LABEL_boot="$DRIVE_LABEL""1"
-    DRIVE_LABEL_swap="$DRIVE_LABEL""2"
-    DRIVE_LABEL_primary="$DRIVE_LABEL""3"
-    badblocks -c 10240 -s -w -t random -v "$DRIVE_LABEL"
+    DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
+    DRIVE_LABEL_swap=/dev/"$DRIVE_LABEL""2"
+    DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""3"
+    badblocks -c 10240 -s -w -t random -v /dev/"$DRIVE_LABEL"
     until [ "$DRIVE_proceed" == "true" ]; do 
       until_loop_drive_size BOOT BOOT_size BOOT_size_check
       until_loop_drive_name boot BOOT_label BOOT_label_check
@@ -480,7 +480,7 @@
       until_loop_drive_name SWAP SWAP_label SWAP_label_check
       until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
     done
-    parted "$DRIVE_LABEL"
+    parted /dev/"$DRIVE_LABEL"
     mklabel gpt
     mkpart ESP fat32 1MiB "$BOOT_size"MiB
     set 1 boot on
@@ -504,8 +504,8 @@
     echo
     print blue "Please have your encryption-password ready "
     echo
-    cryptsetup luksFormat --type luks1 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL_primary"
-    cryptsetup open /dev/DRIVE_LABEL_root cryptroot
+    cryptsetup luksFormat --type luks1 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random /dev/"$DRIVE_LABEL_primary"
+    cryptsetup open /dev/"$DRIVE_LABEL_primary" cryptroot
     echo
   fi
 
@@ -518,7 +518,9 @@
   more formatting.txt
   print blue "A favourite filesystem for the root-drive? BTRFS of course!"
   mkfs.vfat -F32 "$DRIVE_LABEL_boot"
-  mkswap -L "$SWAP_label" "$DRIVE_LABEL_swap"
+  if [[ $SWAP_choice == "2" ]]; then
+    mkswap -L "$SWAP_label" "$DRIVE_LABEL_swap"
+  fi
   mkfs.btrfs -l "$PRIMARY_label" /dev/mapper/cryptroot
   echo
 
@@ -553,8 +555,10 @@
 
 # Drive-mount
 
-  mount "$DRIVE_LABEL_boot" /mnt/boot
-  swapon /"$DRIVE_LABEL_swap"
+  mount /dev/"$DRIVE_LABEL_boot" /mnt/boot
+  if [[ $SWAP_choice == "2" ]]; then
+    swapon /dev/"$DRIVE_LABEL_swap"
+  fi
   echo
 
   lines
