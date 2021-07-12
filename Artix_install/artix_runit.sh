@@ -954,7 +954,7 @@ EOF
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Choice of DE/VM, Wayland/Xorg and other packages/services
+# Choice of DE/VM, Wayland/Xorg and other packages/services (including wanting access to AUR (yay) or not)
 
 
 
