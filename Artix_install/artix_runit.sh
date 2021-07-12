@@ -457,8 +457,8 @@
   done
 
   if [[ $SWAP_choice == "2" ]]; then
-    DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
-    DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""2"
+    DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL"/"1"
+    DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL"/"2"
     badblocks -c 10240 -s -w -t random -v /dev/"$DRIVE_LABEL"
     until [ "$DRIVE_proceed" == "true" ]; do 
       until_loop_drive_size BOOT BOOT_size BOOT_size_check
@@ -472,9 +472,9 @@
     echo
 
   elif [[ $SWAP_choice == "1" ]]; then
-    DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
-    DRIVE_LABEL_swap=/dev/"$DRIVE_LABEL""2"
-    DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""3"
+    DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL"/"1"
+    DRIVE_LABEL_swap=/dev/"$DRIVE_LABEL"/"2"
+    DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL"/"3"
     badblocks -c 10240 -s -w -t random -v /dev/"$DRIVE_LABEL"
     until [ "$DRIVE_proceed" == "true" ]; do 
       until_loop_drive_size BOOT BOOT_size BOOT_size_check
