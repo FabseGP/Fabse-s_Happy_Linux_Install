@@ -304,7 +304,7 @@
 
 # Insure that the script is run as root-user
 
-  if ! [ "$USER" = 'root' ]; then
+  if  [ "$USER" = 'root' ]; then
     echo
     print red "Sorry, this script must be run as ROOT"
     exit 1
@@ -416,13 +416,13 @@
   echo
   fdisk -l
   echo
-  print blue "Which drive do you want to partition?"
 
-  until [ "$VALID_ENTRY_drive" == "true" ]; do 
+  until [ "$VALID_ENTRY_drive" == "true" ]; do
+    print blue "Which drive do you want to partition? Please enter the whole part such as \"/dev/sda\": " 
     VALID_ENTRY_drive_choice=false # Necessary for trying again
     read -r DRIVE_LABEL
     OUTPUT="fdisk -l | sed -n "s/^.*\("$DRIVE_LABEL"\).*$/\1/p""
-    if [[ $DRIVE_LABEL == "$OUTPUT" ]]; then 
+    if [[ "$OUTPUT" == *"$DRIVE_LABEL"* ]]; then 
       until [ "$VALID_ENTRY_drive_choice" == "true" ]; do 
         read -rp "You have chosen ""$DRIVE_LABEL"" - is that the correct drive? Type \"1\" for no, \"2\" for yes: " DRIVE_check
         echo
@@ -431,6 +431,7 @@
           echo
           VALID_ENTRY_drive_choice=true
           VALID_ENTRY_drive=false
+          echo
         elif [[ $DRIVE_check == "2" ]]; then
           VALID_ENTRY_drive_choice=true
           VALID_ENTRY_drive=true
