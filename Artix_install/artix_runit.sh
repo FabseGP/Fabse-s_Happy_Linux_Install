@@ -560,7 +560,7 @@
 # Drive-mount
 
   mount "$DRIVE_LABEL_boot" /mnt/boot
-  if [[ $SWAP_choice == "2" ]]; then
+  if [[ $SWAP_choice == "1" ]]; then
     swapon "$DRIVE_LABEL_swap"
   fi
   echo
