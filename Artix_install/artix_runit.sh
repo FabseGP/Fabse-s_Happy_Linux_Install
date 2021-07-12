@@ -88,8 +88,10 @@
   USERNAME=""
   USERNAME_passwd=""
   USER_check=""
-  VALID_ENTRY_user_check=""
-  USER_proceed=""
+  VALID_ENTRY_user_check_username=""
+  VALID_ENTRY_user_check_passwd=""
+  USER_proceed_username=""
+  USER_proceed_passwd=""
 
   BOOTLOADER_label=""
   BOOTLOADER_check=""
@@ -582,10 +584,10 @@
     until [ "$VALID_ENTRY_fstab_check" == "true" ]; do 
       read -rp "If unsure / want to be sure that the UUID in fstab is correct, enter \"2\"; if sure, enter \"1\": " FSTAB_check
       echo
-      if [[ $FSTAB_check == 2 ]]; then
+      if [[ $FSTAB_check == 1 ]]; then
         VALID_ENTRY_fstab_check=true
         FSTAB_proceed=true
-      elif [[ $FSTAB_check == 1 ]]; then
+      elif [[ $FSTAB_check == 2 ]]; then
         VALID_ENTRY_fstab_check=true
         fdisk -l
         FSTAB_proceed=false
@@ -722,8 +724,7 @@
   fi
 
   echo
-  locale.gen
-  locale -a
+  locale-gen
   echo
 
   print blue "Any thoughts on the system-wide language?"
@@ -830,9 +831,10 @@
   echo
 
   until [ "$ROOT_proceed" == "true" ]; do 
+    ROOT_passwd=$1
     VALID_ENTRY_root_check=false # Necessary for trying again
     print blue "Any thoughts on a root-password"?
-    read -r ROOT_passwd
+    passwd
     echo
     until [ "$VALID_ENTRY_root_check" == "true" ]; do 
       read -rp "You have chosen $ROOT_passwd. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " ROOT_check
@@ -854,43 +856,59 @@
     done
   done
 
-  passwd
-  $ROOT_passwd
   echo
 
-  until [ "$USER_proceed" == "true" ]; do 
-    VALID_ENTRY_user_check=false # Necessary for trying again
+  until [ "$USER_proceed_name" == "true" ]; do 
+    VALID_ENTRY_user_check_username=false # Necessary for trying again
     print blue "Can I suggest a username?"
     read -r USERNAME
-    echo
-    print blue "A password too?"
-    read -r USERNAME_passwd
-    echo
-    until [ "$VALID_ENTRY_user_check" == "true" ]; do 
-      read -rp "You have chosen $USERNAME as username and $USERNAME_passwd as password. Do you want to change anyone of these? Type \"YES\" if yes, \"NO\" if no: " USER_check
+    until [ "$VALID_ENTRY_user_check_username" == "true" ]; do 
+      read -rp "You have chosen $USERNAME as username. Are you sure that's correct? Type \"YES\" if yes, \"NO\" if no: " USER_check
       echo
-      if [[ $USER_check == "YES" ]]; then
+      if [[ $USER_check == "NO" ]]; then
         print yellow "You'll get a new prompt"
         USERNAME=""
-        USERNAME_passwd=""
-        USER_proceed=false
-        VALID_ENTRY_user_check=true
+        VALID_ENTRY_user_check_username=true
         echo
-      elif [[ $USER_check == "NO" ]]; then
-        USERNAME=""
-        USERNAME_passwd=""
-        VALID_ENTRY_user_check=true
+      elif [[ $USER_check == "YES" ]]; then
+        VALID_ENTRY_user_check_username=true
+        useradd -m -G users -g video,audio,input,power,storage,optical,lp,scanner,dbus,daemon,disk,uucp,wheel,realtime "$USERNAME"
+        USER_proceed_name=true
       elif [[ $USER_check -ne "NO" ]] && [[ $USER_check -ne "YES" ]]; then 
-        VALID_ENTRY_user_check=false
+        VALID_ENTRY_user_check_username=false
+        print red "Invalid answer. Please try again"
+        echo
+      fi
+    done
+  done
+    
+  until [ "$USER_proceed_passwd" == "true" ]; do 
+    VALID_ENTRY_user_check_passwd=false # Necessary for trying again
+    echo
+    print blue "A password too?"
+    USERNAME_passwd=$1
+    passwd "$USERNAME"
+    echo
+    USER_check=""
+    until [ "$VALID_ENTRY_user_check_passwd" == "true" ]; do 
+      read -rp "You have chosen $USERNAME_passwd as password. Are you sure that's correct? Type \"YES\" if yes, \"NO\" if no: " USER_check
+      echo
+      if [[ $USER_check == "NO" ]]; then
+        print yellow "You'll get a new prompt"
+        USERNAME_passwd=""
+        VALID_ENTRY_user_check_passwd=true
+        echo
+      elif [[ $USER_check == "YES" ]]; then
+        VALID_ENTRY_user_check_passwd=true
+        USER_proceed_passwd=true
+      elif [[ $USER_check -ne "NO" ]] && [[ $USER_check -ne "YES" ]]; then 
+        VALID_ENTRY_user_check_passwd=false
         print red "Invalid answer. Please try again"
         echo
       fi
     done
   done
 
-  useradd -m -G users -g video,audio,input,power,storage,optical,lp,scanner,dbus,daemon,disk,uucp,wheel,realtime "$USERNAME"
-  passwd "$USERNAME"
-  $USERNAME_passwd
   echo
 
   lines
