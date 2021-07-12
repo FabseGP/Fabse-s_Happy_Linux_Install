@@ -152,7 +152,7 @@
 # 1 = [X], anything else = [ ]
 
   checkbox() { 
-    [[ "$1" -eq 2 ]] && echo -e "${BBlue}[${Reset}${Bold}X${BBlue}]${Reset}" || echo -e "${BBlue}[ ${BBlue}]${Reset}";
+    [[ "$1" -eq 1 ]] && echo -e "${BBlue}[${Reset}${Bold}X${BBlue}]${Reset}" || echo -e "${BBlue}[ ${BBlue}]${Reset}";
 }
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -163,13 +163,13 @@
     type="$1"
     type_choice="$2"
     until [ "$VALID_ENTRY_choices" == "true" ]; do 
-      read -rp "Do you plan to utilise ""${type,,}""? If no, please type \"1\" - if yes, please type \"2\": " type_choice
+      read -rp "Do you plan to utilise ""${type,,}""? If yes, please type \"1\" - if no, please type \"2\": " type_choice
       echo
-      if [[ $type_choice == "1" ]]; then
+      if [[ $type_choice == "2" ]]; then
         print yellow """$1"" will therefore not be configured"
         echo
         VALID_ENTRY_choices=true
-      elif [[ $type_choice == "2" ]]; then
+      elif [[ $type_choice == "1" ]]; then
         print green """$1"" will therefore be configured"
         echo
         VALID_ENTRY_choices=true
@@ -340,7 +340,7 @@
     echo -n "ENCRYPTION = " && checkbox "$ENCRYPTION_choice"
     echo -n "SUBVOLUMES = " && checkbox "$SUBVOLUMES_choice"
     echo
-    print white "Where [ ] = NO and [X] = YES"
+    print white "Where [X] = YES and [ ] = NO"
     echo
     until [ $VALID_ENTRY_intro_check == "true" ]; do 
       read -rp "Is everything fine? Type \"YES\" if yes, \"NO\" if no: " INTRO_choice
@@ -372,7 +372,7 @@
 
 # Network-configuration
 
-  if [[ $WIFI_choice == 2 ]]; then
+  if [[ $WIFI_choice == 1 ]]; then
     more network.txt
     echo
     print blue "You're wifi-card is about to be activated"
@@ -456,7 +456,7 @@
     fi
   done
 
-  if [[ $SWAP_choice == "1" ]]; then
+  if [[ $SWAP_choice == "2" ]]; then
     DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
     DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""2"
     badblocks -c 10240 -s -w -t random -v /dev/"$DRIVE_LABEL"
@@ -471,7 +471,7 @@
     quit
     echo
 
-  elif [[ $SWAP_choice == "2" ]]; then
+  elif [[ $SWAP_choice == "1" ]]; then
     DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
     DRIVE_LABEL_swap=/dev/"$DRIVE_LABEL""2"
     DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""3"
@@ -497,13 +497,13 @@
 
 # ROOT-encryption
 
-  if [[ $ENCRYPTION_choice == 2 ]]; then
+  if [[ $ENCRYPTION_choice == 1 ]]; then
     more encryptions.txt
     echo
     print blue "Please have your encryption-password ready "
     echo
-    cryptsetup luksFormat --type luks1 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random /dev/"$DRIVE_LABEL_primary"
-    cryptsetup open /dev/"$DRIVE_LABEL_primary" cryptroot
+    cryptsetup luksFormat --type luks1 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL_primary"
+    cryptsetup open "$DRIVE_LABEL_primary" cryptroot
     echo
   fi
 
@@ -514,14 +514,18 @@
 # Drive-formatting
 
   more formatting.txt
-  mkfs.vfat -F32 "$DRIVE_LABEL_boot"
+  mkfs.vfat -F32 "$DRIVE_LABEL_boot" 
   echo
-  if [[ $SWAP_choice == "2" ]]; then
+  if [[ $SWAP_choice == "1" ]]; then
     mkswap -L "$SWAP_label" "$DRIVE_LABEL_swap"
   fi
   print blue "A favourite filesystem for the root-drive? BTRFS of course!"
   echo
-  mkfs.btrfs -l "$PRIMARY_label" /dev/mapper/cryptroot
+  if [[ $ENCRYPTION_choice == "1" ]]; then
+    mkfs.btrfs -l "$PRIMARY_label" /dev/mapper/cryptroot
+  else
+    mkfs.btrfs -l "$PRIMARY_label" "$DRIVE_LABEL_primary"
+  fi
   echo
 
   lines
@@ -530,7 +534,7 @@
 
 # BTRFS-subvolumes
 
-  if [[ $SUBVOLUMES_choice == 2 ]]; then
+  if [[ $SUBVOLUMES_choice == 1 ]]; then
     more subvolumes.txt
     mount -o noatime,compress=lz4,discard,ssd,defaults /dev/mapper/cryptroot /mnt
     cd /mnt || return
@@ -555,9 +559,9 @@
 
 # Drive-mount
 
-  mount /dev/"$DRIVE_LABEL_boot" /mnt/boot
+  mount "$DRIVE_LABEL_boot" /mnt/boot
   if [[ $SWAP_choice == "2" ]]; then
-    swapon /dev/"$DRIVE_LABEL_swap"
+    swapon "$DRIVE_LABEL_swap"
   fi
   echo
 
