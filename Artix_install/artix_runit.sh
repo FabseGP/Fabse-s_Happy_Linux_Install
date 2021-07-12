@@ -260,6 +260,8 @@
           echo
           drive_size=""
           VALID_ENTRY_drive_size_format=false
+        elif [[ "$drive_size" -ge 255 ]]; then
+          VALID_ENTRY_drive_size_format=true
         fi
       else 
         VALID_ENTRY_drive_size_format=true
