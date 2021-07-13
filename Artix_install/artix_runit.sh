@@ -459,22 +459,20 @@
   if [[ $SWAP_choice == "2" ]]; then
     DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
     DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""2"
-    badblocks -c 10240 -s -w -t random -v /dev/"$DRIVE_LABEL"
     until [ "$DRIVE_proceed" == "true" ]; do 
       until_loop_drive_size BOOT BOOT_size BOOT_size_check
       until_loop_drive_name boot BOOT_label BOOT_label_check
       until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
     done
     parted -s -a optimal /dev/"$DRIVE_LABEL" mklabel gpt
-    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart "$BOOT_label" fat32 1MiB "$BOOT_size"MiB set 1 ESP on
-    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart "$PRIMARY_label" btrfs "$BOOT_size"MiB 100%
+    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart BOOT fat32 1MiB "$BOOT_size"MiB set 1 ESP on
+    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart PRIMARY btrfs "$BOOT_size"MiB 100%
     echo
 
   elif [[ $SWAP_choice == "1" ]]; then
     DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
     DRIVE_LABEL_swap=/dev/"$DRIVE_LABEL""2"
     DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""3"
-    badblocks -c 10240 -s -w -t random -v /dev/"$DRIVE_LABEL"
     until [ "$DRIVE_proceed" == "true" ]; do 
       until_loop_drive_size BOOT BOOT_size BOOT_size_check
       until_loop_drive_name boot BOOT_label BOOT_label_check
@@ -483,9 +481,9 @@
       until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
     done
     parted -s -a optimal /dev/"$DRIVE_LABEL" mklabel gpt
-    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart "$BOOT_label" fat32 1MiB "$BOOT_size"MiB set 1 ESP on
-    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart "$SWAP_label" linux-swap "$BOOT_size"MiB "$SWAP_size"MiB
-    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart "$PRIMARY_label" btrfs "$SWAP_size"MiB 100%
+    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart BOOT fat32 1MiB "$BOOT_size"MiB set 1 ESP on
+    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart SWAP linux-swap "$BOOT_size"MiB "$SWAP_size"MiB
+    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart PRIMARY btrfs "$SWAP_size"MiB 100%
     echo
   fi
 
