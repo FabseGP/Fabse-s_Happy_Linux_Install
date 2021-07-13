@@ -273,7 +273,7 @@
       fi
       if [ "$VALID_ENTRY_drive_size_format" == "true" ]; then
         until [ "$VALID_ENTRY_drive_size_check" == "true" ]; do 
-          read -rp "The ""$drive""-partition will fill $drive_size. Are you sure that's the right size? Type \"YES\" if yes, \"NO\" if no: " drive_size_check
+          read -rp "The ""$drive""-partition will fill "$drive_size"MB. Are you sure that's the right size? Type \"YES\" if yes, \"NO\" if no: " drive_size_check
           echo
           if [[ $drive_size_check == "NO" ]]; then
             print yellow "You'll get a new prompt"
@@ -297,7 +297,7 @@
     if [[ $drive == "BOOT" ]]; then
       BOOT_size=$drive_size
     elif [[ $drive == "SWAP" ]]; then
-      SWAP_size=$drive_size
+      SWAP_size=$((drive_size+BOOT_size))
     fi
     drive=""
     drive_size=""
@@ -432,14 +432,14 @@
     if [[ "$OUTPUT" == *"$DRIVE_LABEL"* ]]; then 
       until [ "$VALID_ENTRY_drive_choice" == "true" ]; do 
         echo
-        read -rp "You have chosen ""$DRIVE_LABEL"" - is that the correct drive? Type \"1\" for yes, \"2\" for no: " DRIVE_check
+        read -rp "You have chosen ""$DRIVE_LABEL"" - is that the correct drive? Type \"YES\" for yes, \"NO\" for no: " DRIVE_check
         echo
-        if [[ $DRIVE_check == "2" ]]; then
+        if [[ $DRIVE_check == "NO" ]]; then
           print yellow "You'll get a new prompt"
           echo
           VALID_ENTRY_drive_choice=true
           VALID_ENTRY_drive=false
-        elif [[ $DRIVE_check == "1" ]]; then
+        elif [[ $DRIVE_check == "YES" ]]; then
           VALID_ENTRY_drive_choice=true
           VALID_ENTRY_drive=true
         elif [[ $DRIVE_check -ne 1 ]] && [[ $DRIVE_check -ne 2 ]]; then 
@@ -465,10 +465,9 @@
       until_loop_drive_name boot BOOT_label BOOT_label_check
       until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
     done
-    parted /dev/"$DRIVE_LABEL" mklabel gpt
-    parted /dev/"$DRIVE_LABEL" mkpart ESP fat32 1MiB "$BOOT_size"MiB && parted set 1 boot on && parted name 1 "$BOOT_label"
-    parted /dev/"$DRIVE_LABEL" mkpart primary "$BOOT_size"MiB 100% && parted name 2 "$PRIMARY_label"
-    quit
+    parted -s -a optimal /dev/"$DRIVE_LABEL" mklabel gpt
+    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart "$BOOT_label" fat32 1MiB "$BOOT_size"MiB set 1 ESP on
+    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart "$PRIMARY_label" btrfs "$BOOT_size"MiB 100%
     echo
 
   elif [[ $SWAP_choice == "1" ]]; then
@@ -483,11 +482,10 @@
       until_loop_drive_name SWAP SWAP_label SWAP_label_check
       until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
     done
-    parted /dev/"$DRIVE_LABEL" mklabel gpt
-    parted /dev/"$DRIVE_LABEL" mkpart ESP fat32 1MiB "$BOOT_size"MiB && parted set 1 boot on && parted name 1 "$BOOT_label"
-    parted /dev/"$DRIVE_LABEL" mkpart primary "$BOOT_size"MiB "$SWAP_size"MiB && parted name 2 "$SWAP_label"
-    parted /dev/"$DRIVE_LABEL" mkpart primary "$SWAP_size"MiB 100% && parted name 3 "$PRIMARY_label"
-    quit
+    parted -s -a optimal /dev/"$DRIVE_LABEL" mklabel gpt
+    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart "$BOOT_label" fat32 1MiB "$BOOT_size"MiB set 1 ESP on
+    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart "$SWAP_label" linux-swap "$BOOT_size"MiB "$SWAP_size"MiB
+    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart "$PRIMARY_label" btrfs "$SWAP_size"MiB 100%
     echo
   fi
 
@@ -514,7 +512,7 @@
 # Drive-formatting
 
   more formatting.txt
-  mkfs.vfat -F32 "$DRIVE_LABEL_boot" 
+  mkfs.vfat -F32 -n "$BOOT_label" "$DRIVE_LABEL_boot" 
   echo
   if [[ $SWAP_choice == "1" ]]; then
     mkswap -L "$SWAP_label" "$DRIVE_LABEL_swap"
@@ -522,9 +520,9 @@
   print blue "A favourite filesystem for the root-drive? BTRFS of course!"
   echo
   if [[ $ENCRYPTION_choice == "1" ]]; then
-    mkfs.btrfs -l "$PRIMARY_label" /dev/mapper/cryptroot
+    mkfs.btrfs -f -l "$PRIMARY_label" /dev/mapper/cryptroot
   else
-    mkfs.btrfs -l "$PRIMARY_label" "$DRIVE_LABEL_primary"
+    mkfs.btrfs -f -l "$PRIMARY_label" "$DRIVE_LABEL_primary"
   fi
   echo
 
