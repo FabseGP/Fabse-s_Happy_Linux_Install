@@ -6,6 +6,7 @@
   ENCRYPTION_choice=""
   SUBVOLUMES_choice=""
   WIFI_choice=""
+  AUR_choice=""
   INTRO_choice=""
 
   VALID_ENTRY_choices=""
@@ -163,14 +164,18 @@
     type="$1"
     type_choice="$2"
     until [ "$VALID_ENTRY_choices" == "true" ]; do 
-      read -rp "Do you plan to utilise ""${type,,}""? If yes, please type \"1\" - if no, please type \"2\": " type_choice
+      if [[ $type == "AUR" ]]; then
+        read -rp "Do you plan to utilise "$type"? If yes, please type \"1\" - if no, please type \"2\": " type_choice
+      else
+        read -rp "Do you plan to utilise ""${type,,}""? If yes, please type \"1\" - if no, please type \"2\": " type_choice
+      fi
       echo
       if [[ $type_choice == "2" ]]; then
-        print yellow """$1"" will therefore not be configured"
+        print yellow ""$1" will therefore not be configured"
         echo
         VALID_ENTRY_choices=true
       elif [[ $type_choice == "1" ]]; then
-        print green """$1"" will therefore be configured"
+        print green ""$1" will therefore be configured"
         echo
         VALID_ENTRY_choices=true
       elif [[ $type_choice -ne 1 ]] && [[ $type_choice -ne 2 ]]; then 
@@ -181,12 +186,14 @@
     done
     if [[ $type == "WiFi" ]]; then
       WIFI_choice=$type_choice
-    elif [[ $type == "Swap" ]]; then
+    elif [[ $type == "SWAP" ]]; then
       SWAP_choice=$type_choice
     elif [[ $type == "Encryption" ]]; then
       ENCRYPTION_choice=$type_choice
     elif [[ $type == "Subvolumes" ]]; then
       SUBVOLUMES_choice=$type_choice
+    elif [[ $type == "AUR" ]]; then
+      AUR_choice=$type_choice
     fi
     type=""
     type_choice=""
@@ -331,14 +338,16 @@
     VALID_ENTRY_intro_check=false # Necessary for trying again
     until_loop_intro WiFi WIFI_choice
     until_loop_intro Encryption ENCRYPTION_choice
-    until_loop_intro Swap SWAP_choice
+    until_loop_intro SWAP SWAP_choice
     until_loop_intro Subvolumes SUBVOLUMES_choice
+    until_loop_intro AUR AUR_choice
     print blue "You have chosen the following choices: "
     echo
     echo -n "WIFI = " && checkbox "$WIFI_choice"
     echo -n "SWAP = " && checkbox "$SWAP_choice"
     echo -n "ENCRYPTION = " && checkbox "$ENCRYPTION_choice"
     echo -n "SUBVOLUMES = " && checkbox "$SUBVOLUMES_choice"
+    echo -n "AUR = " && checkbox "$AUR_choice"
     echo
     print white "Where [X] = YES and [ ] = NO"
     echo
@@ -956,6 +965,27 @@ EOF
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
+# AUR-configuration
+
+  if [[ $AUR_choice == 1 ]]; then
+    more AUR.txt
+    echo
+    cd /opt
+    git clone https://aur.archlinux.org/yay-git.git
+    chown -R "$USERNAME":wheel ./yay-git
+    cd yay-git
+    makepkg -si
+  fi
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+
+# Choice of DE/VM, Wayland/Xorg and other packages/services
+
+
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
 # Setting NetworkManager to start on boot
 
   ln -s /etc/runit/sv/NetworkManager /run/runit/service 
@@ -974,14 +1004,9 @@ EOF
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Choice of DE/VM, Wayland/Xorg and other packages/services (including wanting access to AUR (yay) or not)
-
-
-
-#----------------------------------------------------------------------------------------------------------------------------------
-
 # Summary before restart
 
+  more summary.txt
 
 
 #----------------------------------------------------------------------------------------------------------------------------------
