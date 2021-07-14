@@ -115,7 +115,6 @@
 # Until-loop; intro
 
   lines
-  /bin/bash
 
   until [ "$VALID_ENTRY_choice" == "true" ]; do 
     read -rp "Do you plan to utilise "AUR"? If yes, please type \"1\" - if no, please type \"2\": " AUR_choice
