@@ -180,7 +180,7 @@
         print green ""$1" will therefore be configured"
         echo
         VALID_ENTRY_choices=true
-      elif [[ $type_choice -ne 1 ]] && [[ $type_choice -ne 2 ]]; then 
+      elif [[ $type_choice -ne "1" ]] && [[ $type_choice -ne "2" ]]; then 
         VALID_ENTRY_choices=false
         print red "Invalid answer. Please try again"
         echo
@@ -269,12 +269,12 @@
         drive_size=""
         VALID_ENTRY_drive_size_format=false
       elif [ "$drive" == "BOOT" ]; then
-        if ! [[ "$drive_size" -ge 255 ]]; then
+        if ! [[ "$drive_size" -ge "255" ]]; then
           print red "Sorry, the ""$drive""-partition will not be large enough"
           echo
           drive_size=""
           VALID_ENTRY_drive_size_format=false
-        elif [[ "$drive_size" -ge 255 ]]; then
+        elif [[ "$drive_size" -ge "255" ]]; then
           VALID_ENTRY_drive_size_format=true
         fi
       else 
@@ -440,9 +440,9 @@
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Installing parted to format drives
+# Installing parted to format drives + support for lz4-compression
 
-  pacman -Syq --noconfirm parted
+  pacman -Syq --noconfirm parted lz4 bc
 
   lines
 
@@ -473,7 +473,7 @@
         elif [[ $DRIVE_check == "YES" ]]; then
           VALID_ENTRY_drive_choice=true
           VALID_ENTRY_drive=true
-        elif [[ $DRIVE_check -ne 1 ]] && [[ $DRIVE_check -ne 2 ]]; then 
+        elif [[ $DRIVE_check -ne "YES" ]] && [[ $DRIVE_check -ne "NO" ]]; then 
           VALID_ENTRY_drive_choice=false
           print red "Invalid answer. Please try again"
           echo
@@ -563,7 +563,7 @@
 
 # BTRFS-subvolumes
 
-  if [[ $SUBVOLUMES_choice == 1 ]]; then
+  if [[ $SUBVOLUMES_choice == "1" ]]; then
     more subvolumes.txt
     mount -o noatime,compress=lz4,discard,ssd,defaults /dev/mapper/cryptroot /mnt
     cd /mnt || return
@@ -579,7 +579,7 @@
     mount -o noatime,nodiratime,compress=lz4,space_cache,ssd,subvol=@pkg /dev/mapper/cryptroot /mnt/var/cache/pacman/pkg
     mount -o noatime,nodiratime,compress=lz4,space_cache,ssd,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots
     sync
-  elif [[ $SUBVOLUMES_choice == 2 ]]; then
+  elif [[ $SUBVOLUMES_choice == "2" ]]; then
     mkdir /mnt/boot
   fi
   echo
@@ -602,7 +602,7 @@
 
 # Base-install
 
-  basestrap /mnt base base-devel neovim nano runit linux linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 cryptsetup realtime-privileges
+  basestrap /mnt base base-devel neovim nano runit linux linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 cryptsetup realtime-privileges elogind-runit mkinitcpio xudev libxudev
   echo
 
   lines
@@ -619,10 +619,10 @@
     until [ "$VALID_ENTRY_fstab_check" == "true" ]; do 
       read -rp "If unsure / want to be sure that the UUID in fstab is correct, enter \"2\"; if sure, enter \"1\": " FSTAB_check
       echo
-      if [[ $FSTAB_check == 1 ]]; then
+      if [[ $FSTAB_check == "1" ]]; then
         VALID_ENTRY_fstab_check=true
         FSTAB_proceed=true
-      elif [[ $FSTAB_check == 2 ]]; then
+      elif [[ $FSTAB_check == "2" ]]; then
         VALID_ENTRY_fstab_check=true
         fdisk -l
         FSTAB_proceed=false
@@ -631,19 +631,19 @@
         until [ "$VALID_ENTRY_fstab_confirm_check" == "true" ]; do 
           read -rp "Does everything seems right? Type \"1\" for yes, \"2\" for no: " FSTAB_confirm
           echo
-          if [[ $FSTAB_confirm == 2 ]]; then
+          if [[ $FSTAB_confirm == "2" ]]; then
             print cyan "Sorry, you have to execute the scipt again :("
             exit 1
-          elif [[ $FSTAB_confirm == 1 ]]; then
+          elif [[ $FSTAB_confirm == "1" ]]; then
             VALID_ENTRY_fstab_confirm_check=true
             FSTAB_proceed=true
-          elif [[ $FSTAB_confirm -ne 1 ]] && [[ $FSTAB_check -ne 2 ]]; then 
+          elif [[ $FSTAB_confirm -ne "1" ]] && [[ $FSTAB_check -ne "2" ]]; then 
             VALID_ENTRY_fstab_confirm_check=false
             print red "Invalid answer. Please try again"
             echo
           fi
         done
-      elif [[ $FSTAB_check -ne 1 ]] && [[ $FSTAB_check -ne 2 ]]; then 
+      elif [[ $FSTAB_check -ne "1" ]] && [[ $FSTAB_check -ne "2" ]]; then 
         VALID_ENTRY_fstab_check=false
         print red "Invalid answer. Please try again"
         echo
@@ -720,7 +720,7 @@
   print blue "$LANGUAGE_how_many languages will be generated"
   echo
   
-  if [[ "$LANGUAGE_how_many" == 0 ]] || [[ "$LANGUAGE_how_many" -gt 3 ]]; then
+  if [[ "$LANGUAGE_how_many" == "0" ]] || [[ "$LANGUAGE_how_many" -gt "3" ]]; then
     print cyan "Please try again; I don't have time for this!"
     echo
     read -rp "How many languages do you plan to use? No wrong answers, unless it is above 3!: " LANGUAGE_how_many
@@ -729,12 +729,12 @@
     echo
   fi
 
-  if [[ $LANGUAGE_how_many == 1 ]]; then
+  if [[ $LANGUAGE_how_many == "1" ]]; then
     print blue "What language do you wish to generate?"
     print purple "Example: da_DK.UTF-8"
     read -r LANGUAGE_GEN1
     sed -i 's/^# *\($LANGUAGE_GEN1\)/\1/' /etc/locale.gen
-  elif [[ $LANGUAGE_how_many == 2 ]]; then
+  elif [[ $LANGUAGE_how_many == "2" ]]; then
     print blue "Which languages do you wish to generate?"
     print purple "Example: da_DK.UTF-8"
     read -r LANGUAGE_GEN1
@@ -743,7 +743,7 @@
     read -r LANGUAGE_GEN2
     sed -i 's/^# *\($LANGUAGE_GEN1\)/\1/' /etc/locale.gen
     sed -i 's/^# *\($LANGUAGE_GEN2\)/\1/' /etc/locale.gen
-  elif [[ $LANGUAGE_how_many == 3 ]]; then
+  elif [[ $LANGUAGE_how_many == "3" ]]; then
      print blue "Which languages do you wish to generate?"
      print purple "Example: da_DK.UTF-8"
      read -r LANGUAGE_GEN1
@@ -993,7 +993,7 @@ EOF
 
 # AUR-configuration
 
-  if [[ $AUR_choice == 1 ]]; then
+  if [[ $AUR_choice == "1" ]]; then
     more AUR.txt
     echo
     cd /opt || return
