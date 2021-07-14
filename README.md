@@ -5,7 +5,7 @@
 <Br>
 <h1>About this repo! 😎</h1>
 
-- Script to install Artix Linux with Runit, including BTRFS-partition with encryption, swap-partition and locals for DK
+- Script to install Artix Linux with Runit; the script is dynamic in that sense that choices are giving during install
 - Installaton of certain packages + ZSH with PowerLevel10k-theme + GRUB-theme
 - Recovering KDE Plasma settings + Sway-config from backup
 - Setting Firefox- and Spotify-themes  
