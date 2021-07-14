@@ -442,7 +442,7 @@
 
 # Installing parted to format drives + support for lz4-compression
 
-  pacman -Syq --noconfirm parted lz4 bc
+  pacman -Syq --noconfirm parted
 
   lines
 
@@ -565,7 +565,7 @@
 
   if [[ $SUBVOLUMES_choice == "1" ]]; then
     more subvolumes.txt
-    mount -o noatime,compress=lz4,discard,ssd,defaults /dev/mapper/cryptroot /mnt
+    mount -o noatime,compress=lzo,discard,ssd,defaults /dev/mapper/cryptroot /mnt
     cd /mnt || return
     btrfs subvolume create @
     btrfs subvolume create @home
@@ -573,14 +573,20 @@
     btrfs subvolume create @snapshots
     cd /
     umount /mnt
-    mount -o noatime,nodiratime,compress=lz4,space_cache,ssd,subvol=@ /dev/mapper/cryptroot /mnt
+    mount -o noatime,nodiratime,compress=lzo,space_cache,ssd,subvol=@ /dev/mapper/cryptroot /mnt
     mkdir -p /mnt/{boot,home,var/cache/pacman/pkg,.snapshots}
-    mount -o noatime,nodiratime,compress=lz4,space_cache,ssd,subvol=@home /dev/mapper/cryptroot /mnt/home
-    mount -o noatime,nodiratime,compress=lz4,space_cache,ssd,subvol=@pkg /dev/mapper/cryptroot /mnt/var/cache/pacman/pkg
-    mount -o noatime,nodiratime,compress=lz4,space_cache,ssd,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots
+    mount -o noatime,nodiratime,compress=lzo,space_cache,ssd,subvol=@home /dev/mapper/cryptroot /mnt/home
+    mount -o noatime,nodiratime,compress=lzo,space_cache,ssd,subvol=@pkg /dev/mapper/cryptroot /mnt/var/cache/pacman/pkg
+    mount -o noatime,nodiratime,compress=lzo,space_cache,ssd,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots
     sync
   elif [[ $SUBVOLUMES_choice == "2" ]]; then
-    mkdir /mnt/boot
+    if [[ $ENCRYPTION_choice == "1" ]]; then
+      mount /dev/mapper/cryptroot /mnt
+      mkdir /mnt/boot
+    else
+      mount "$DRIVE_LABEL_primary" /mnt
+      mkdir /mnt/boot
+    fi
   fi
   echo
 
