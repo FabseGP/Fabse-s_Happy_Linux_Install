@@ -340,7 +340,6 @@
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-
 # Introduction
 
   more welcome.txt # Prints the content of the file
@@ -436,6 +435,14 @@
     connmanctl connect "$WIFI_ID" 
     echo
   fi
+
+  lines
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# Installing parted to format drives
+
+  pacman -Syq parted
 
   lines
 
@@ -572,6 +579,8 @@
     mount -o noatime,nodiratime,compress=lz4,space_cache,ssd,subvol=@pkg /dev/mapper/cryptroot /mnt/var/cache/pacman/pkg
     mount -o noatime,nodiratime,compress=lz4,space_cache,ssd,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots
     sync
+  elif [[ $SUBVOLUMES_choice == 2 ]]; then
+    mkdir /mnt/boot
   fi
   echo
 
