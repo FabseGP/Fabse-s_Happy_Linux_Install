@@ -160,10 +160,32 @@
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Setting up time
+# Until-loop; intro
 
   lines
   /bin/bash
+
+  until [ "$VALID_ENTRY_choices" == "true" ]; do 
+    read -rp "Do you plan to utilise "AUR"? If yes, please type \"1\" - if no, please type \"2\": " AUR_choice
+    echo
+    if [[ $AUR_choice == "2" ]]; then
+      print yellow "AUR will therefore not be configured"
+      echo
+      VALID_ENTRY_choices=true
+    elif [[ $AUR_choice == "1" ]]; then
+      print green "AUR will therefore be configured"
+      echo
+      VALID_ENTRY_choices=true
+    elif [[ $AUR_choice -ne "1" ]] && [[ $AUR_choice -ne "2" ]]; then 
+      VALID_ENTRY_choices=false
+      print red "Invalid answer. Please try again"
+      echo
+    fi
+  done
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# Setting up time
 
   more time.txt
   echo
