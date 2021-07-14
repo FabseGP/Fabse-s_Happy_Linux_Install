@@ -269,12 +269,12 @@
         drive_size=""
         VALID_ENTRY_drive_size_format=false
       elif [ "$drive" == "BOOT" ]; then
-        if ! [[ "$drive_size" -ge 10 ]]; then
+        if ! [[ "$drive_size" -ge 255 ]]; then
           print red "Sorry, the ""$drive""-partition will not be large enough"
           echo
           drive_size=""
           VALID_ENTRY_drive_size_format=false
-        elif [[ "$drive_size" -ge 10 ]]; then
+        elif [[ "$drive_size" -ge 255 ]]; then
           VALID_ENTRY_drive_size_format=true
         fi
       else 
@@ -544,9 +544,9 @@
   print blue "A favourite filesystem for the root-drive? BTRFS of course!"
   echo
   if [[ $ENCRYPTION_choice == "1" ]]; then
-    mkfs.btrfs -f -l "$PRIMARY_label" /dev/mapper/cryptroot
+    mkfs.btrfs -f -L "$PRIMARY_label" /dev/mapper/cryptroot
   else
-    mkfs.btrfs -f -l "$PRIMARY_label" "$DRIVE_LABEL_primary"
+    mkfs.btrfs -f -L "$PRIMARY_label" "$DRIVE_LABEL_primary"
   fi
   echo
 
