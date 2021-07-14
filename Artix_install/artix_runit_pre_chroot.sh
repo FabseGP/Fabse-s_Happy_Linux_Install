@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 # Parameters
-
+  BEGINNER_DIR=`pwd`
   LOADKEY=""
 
   SWAP_choice=""
@@ -660,7 +660,7 @@
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Chroot
-
+  cd $BEGINNER_DIR
   mkdir /mnt/install_script
   cp {artix_runit_after_chroot.sh,hostname.txt,users.txt,GRUB.txt,initramfs.txt,locals.txt,time.txt} /mnt/install_script
   artix-chroot /mnt /install_script/artix_runit_after_chroot.sh
