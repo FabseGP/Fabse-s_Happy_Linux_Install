@@ -2,6 +2,11 @@
 
 # Parameters
 
+  AUR_choice=""
+  VALID_ENTRY_choice=""
+  VALID_ENTRY_intro_check=""
+  INTRO_proceed=""
+
   VALID_ENTRY_timezone=""
   TIMEZONE_1=""
   TIMEZONE_2=""
@@ -112,19 +117,19 @@
   lines
   /bin/bash
 
-  until [ "$VALID_ENTRY_choices" == "true" ]; do 
+  until [ "$VALID_ENTRY_choice" == "true" ]; do 
     read -rp "Do you plan to utilise "AUR"? If yes, please type \"1\" - if no, please type \"2\": " AUR_choice
     echo
     if [[ $AUR_choice == "2" ]]; then
       print yellow "AUR will therefore not be configured"
       echo
-      VALID_ENTRY_choices=true
+      VALID_ENTRY_choice=true
     elif [[ $AUR_choice == "1" ]]; then
       print green "AUR will therefore be configured"
       echo
-      VALID_ENTRY_choices=true
+      VALID_ENTRY_choice=true
     elif [[ $AUR_choice -ne "1" ]] && [[ $AUR_choice -ne "2" ]]; then 
-      VALID_ENTRY_choices=false
+      VALID_ENTRY_choice=false
       print red "Invalid answer. Please try again"
       echo
     fi
