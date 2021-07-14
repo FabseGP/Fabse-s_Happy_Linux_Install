@@ -594,6 +594,7 @@
 
 # Drive-mount
 
+  cd $BEGINNER_DIR
   mount "$DRIVE_LABEL_boot" /mnt/boot
   if [[ $SWAP_choice == "1" ]]; then
     swapon "$DRIVE_LABEL_swap"
@@ -660,7 +661,7 @@
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Chroot
-  cd $BEGINNER_DIR
+
   mkdir /mnt/install_script
   cp {artix_runit_after_chroot.sh,hostname.txt,users.txt,GRUB.txt,initramfs.txt,locals.txt,time.txt} /mnt/install_script
   artix-chroot /mnt /install_script/artix_runit_after_chroot.sh
