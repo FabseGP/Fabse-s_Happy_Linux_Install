@@ -354,14 +354,12 @@
     until_loop_intro Encryption ENCRYPTION_choice
     until_loop_intro SWAP SWAP_choice
     until_loop_intro Subvolumes SUBVOLUMES_choice
-    until_loop_intro AUR AUR_choice
     print blue "You have chosen the following choices: "
     echo
     echo -n "WIFI = " && checkbox "$WIFI_choice"
     echo -n "SWAP = " && checkbox "$SWAP_choice"
     echo -n "ENCRYPTION = " && checkbox "$ENCRYPTION_choice"
     echo -n "SUBVOLUMES = " && checkbox "$SUBVOLUMES_choice"
-    echo -n "AUR = " && checkbox "$AUR_choice"
     echo
     print white "Where [X] = YES and [ ] = NO"
     echo
