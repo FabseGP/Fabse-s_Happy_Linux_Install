@@ -55,62 +55,6 @@
   FSTAB_confirm=""
   VALID_ENTRY_fstab_confirm_check=""
 
-  VALID_ENTRY_timezone=""
-  TIMEZONE_1=""
-  TIMEZONE_2=""
-  TIME_check=""
-  VALID_ENTRY_time_check=""
-  TIME_proceed=""
-
-  LANGUAGE_how_many=""
-  LANGUAGE_GEN1=""
-  LANGUAGE_GEN2=""
-  LANGUAGE_GEN3=""  
-  LANGUAGE=""
-  VALID_ENTRY_languages=""
-  LOCALS_check=""
-  VALID_ENTRY_locals_check=""
-  LOCALS_proceed=""
-
-  KEYMAP=""
-  VALID_ENTRY_keymap=""
-  KEYMAP_check=""
-  VALID_ENTRY_keymap_check=""
-  KEYMAP_proceed=""
-
-  HOSTNAME=""
-  HOSTNAME_check=""
-  VALID_ENTRY_hostname_check=""
-  HOSTNAME_proceed=""
-
-  ROOT_passwd=""
-  ROOT_check=""
-  VALID_ENTRY_root_check=""
-  ROOT_proceed=""
-
-  USERNAME=""
-  USERNAME_passwd=""
-  USER_check=""
-  VALID_ENTRY_user_check_username=""
-  VALID_ENTRY_user_check_passwd=""
-  USER_proceed_username=""
-  USER_proceed_passwd=""
-
-  BOOTLOADER_label=""
-  BOOTLOADER_check=""
-  VALID_ENTRY_bootloader_check=""
-  BOOTLOADER_proceed=""
-
-  PACKAGES=""
-  PACKAGES_check=""
-  VALID_ENTRY_packages_check=""
-  PACKAGES_proceed=""
-
-  SUMMARY=""
-  SUMMARY_check=""
-  VALID_ENTRY_summary_check=""
-  SUMMARY_proceed="" # Rebooting if true
-
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Colors for the output
@@ -166,11 +110,7 @@
     type="$1"
     type_choice="$2"
     until [ "$VALID_ENTRY_choices" == "true" ]; do 
-      if [[ $type == "AUR" ]]; then
-        read -rp "Do you plan to utilise "$type"? If yes, please type \"1\" - if no, please type \"2\": " type_choice
-      else
-        read -rp "Do you plan to utilise ""${type,,}""? If yes, please type \"1\" - if no, please type \"2\": " type_choice
-      fi
+      read -rp "Do you plan to utilise ""${type,,}""? If yes, please type \"1\" - if no, please type \"2\": " type_choice
       echo
       if [[ $type_choice == "2" ]]; then
         print yellow ""$1" will therefore not be configured"
@@ -194,9 +134,6 @@
       ENCRYPTION_choice=$type_choice
     elif [[ $type == "Subvolumes" ]]; then
       SUBVOLUMES_choice=$type_choice
-    elif [[ $type == "AUR" ]]; then
-      AUR_choice=$type_choice
-    fi
     type=""
     type_choice=""
     VALID_ENTRY_choices=""
