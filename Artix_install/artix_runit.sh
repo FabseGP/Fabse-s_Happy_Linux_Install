@@ -442,7 +442,7 @@
 
 # Installing parted to format drives
 
-  pacman -Syq parted
+  pacman -Syq --noconfirm parted
 
   lines
 
