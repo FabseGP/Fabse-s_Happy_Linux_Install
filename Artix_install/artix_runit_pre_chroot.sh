@@ -600,5 +600,5 @@
 # Chroot
 
   mkdir /mnt/install_script
-  cp {artix_runit_after_chroot.sh,hostname.txt,users.txt,GRUB.txt,initramfs.txt,locals.txt,time.txt} /mnt/install_script
+  cp {artix_runit_after_chroot.sh,AUR.txt,farewell.txt,packages.txt,hostname.txt,users.txt,GRUB.txt,initramfs.txt,locals.txt,time.txt} /mnt/install_script
   artix-chroot /mnt /install_script/artix_runit_after_chroot.sh
