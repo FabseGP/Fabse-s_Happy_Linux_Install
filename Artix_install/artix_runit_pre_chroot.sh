@@ -134,6 +134,7 @@
       ENCRYPTION_choice=$type_choice
     elif [[ $type == "Subvolumes" ]]; then
       SUBVOLUMES_choice=$type_choice
+    fi
     type=""
     type_choice=""
     VALID_ENTRY_choices=""
