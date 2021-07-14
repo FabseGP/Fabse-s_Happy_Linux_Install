@@ -2,6 +2,11 @@
 
 # Parameters
 
+  AUR_choice=""
+  VALID_ENTRY_choices=""
+  VALID_ENTRY_intro_check=""
+  INTRO_proceed=""
+
   VALID_ENTRY_timezone=""
   TIMEZONE_1=""
   TIMEZONE_2=""
