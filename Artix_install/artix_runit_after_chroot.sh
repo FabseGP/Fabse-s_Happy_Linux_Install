@@ -2,59 +2,6 @@
 
 # Parameters
 
-  LOADKEY=""
-
-  SWAP_choice=""
-  ENCRYPTION_choice=""
-  SUBVOLUMES_choice=""
-  WIFI_choice=""
-  AUR_choice=""
-  INTRO_choice=""
-
-  VALID_ENTRY_choices=""
-  VALID_ENTRY_intro_check=""
-  INTRO_proceed=""
-
-  WIFI_SSID=""
-  WIFI_check=""
-  VALID_ENTRY_wifi_check=""
-  WIFI_proceed=""
-  WIFI_ID=""
-
-  VALID_ENTRY_drive=""
-  VALID_ENTRY_drive_choice=""
-  OUTPUT=""
-  DRIVE_check=""
-  DRIVE_proceed=""
-
-  VALID_ENTRY_drive_size_format=""
-  VALID_ENTRY_drive_size=""
-  VALID_ENTRY_drive_size_check=""
-  BOOT_size=""
-  SWAP_size=""
-  BOOT_size_check=""
-  SWAP_size_check=""
-
-  VALID_ENTRY_drive_name=""
-  VALID_ENTRY_drive_name_check=""
-  BOOT_label=""
-  SWAP_label=""
-  PRIMARY_label=""
-  BOOT_label_check=""
-  SWAP_label_check=""
-  PRIMARY_label_check=""
-
-  DRIVE_LABEL=""
-  DRIVE_LABEL_boot=""
-  DRIVE_LABEL_swap=""
-  DRIVE_LABEL_primary=""
-
-  FSTAB_check=""
-  VALID_ENTRY_fstab_check=""
-  FSTAB_proceed=""
-  FSTAB_confirm=""
-  VALID_ENTRY_fstab_confirm_check=""
-
   VALID_ENTRY_timezone=""
   TIMEZONE_1=""
   TIMEZONE_2=""
