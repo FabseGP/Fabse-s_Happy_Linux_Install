@@ -2,6 +2,8 @@
 
 # Parameters
 
+  LOADKEY=""
+
   SWAP_choice=""
   ENCRYPTION_choice=""
   SUBVOLUMES_choice=""
@@ -267,12 +269,12 @@
         drive_size=""
         VALID_ENTRY_drive_size_format=false
       elif [ "$drive" == "BOOT" ]; then
-        if ! [[ "$drive_size" -ge 255 ]]; then
+        if ! [[ "$drive_size" -ge 10 ]]; then
           print red "Sorry, the ""$drive""-partition will not be large enough"
           echo
           drive_size=""
           VALID_ENTRY_drive_size_format=false
-        elif [[ "$drive_size" -ge 255 ]]; then
+        elif [[ "$drive_size" -ge 10 ]]; then
           VALID_ENTRY_drive_size_format=true
         fi
       else 
@@ -325,6 +327,19 @@
   fi
 
 #----------------------------------------------------------------------------------------------------------------------------------
+
+# Loadkeys
+
+  ls -R /usr/share/kbd/keymaps
+  echo
+  print blue "Which keymap do you want to use during the install"?
+  echo
+  read -r LOADKEY
+  loadkeys "$LOADKEY"
+  echo
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
 
 # Introduction
 
@@ -473,9 +488,10 @@
       until_loop_drive_name boot BOOT_label BOOT_label_check
       until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
     done
-    parted -s -a optimal /dev/"$DRIVE_LABEL" mklabel gpt
-    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart BOOT fat32 1MiB "$BOOT_size"MiB set 1 ESP on
-    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart PRIMARY btrfs "$BOOT_size"MiB 100%
+    parted --script -a optimal /dev/"$DRIVE_LABEL" \
+      mklabel gpt \
+      mkpart BOOT fat32 1MiB "$BOOT_size"MiB set 1 ESP on \
+      mkpart PRIMARY btrfs "$BOOT_size"MiB 100%   
     echo
 
   elif [[ $SWAP_choice == "1" ]]; then
@@ -489,10 +505,11 @@
       until_loop_drive_name SWAP SWAP_label SWAP_label_check
       until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
     done
-    parted -s -a optimal /dev/"$DRIVE_LABEL" mklabel gpt
-    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart BOOT fat32 1MiB "$BOOT_size"MiB set 1 ESP on
-    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart SWAP linux-swap "$BOOT_size"MiB "$SWAP_size"MiB
-    parted -s -a optimal /dev/"$DRIVE_LABEL" mkpart PRIMARY btrfs "$SWAP_size"MiB 100%
+    parted --script -a optimal /dev/"$DRIVE_LABEL" \
+      mklabel gpt \
+      mkpart BOOT fat32 1MiB "$BOOT_size"MiB set 1 ESP on \
+      mkpart SWAP linux-swap "$BOOT_size"MiB "$SWAP_size"MiB  \
+      mkpart PRIMARY btrfs "$SWAP_size"MiB 100%      
     echo
   fi
 
@@ -970,10 +987,10 @@ EOF
   if [[ $AUR_choice == 1 ]]; then
     more AUR.txt
     echo
-    cd /opt
+    cd /opt || return
     git clone https://aur.archlinux.org/yay-git.git
     chown -R "$USERNAME":wheel ./yay-git
-    cd yay-git
+    cd yay-git || return
     makepkg -si
   fi
 
