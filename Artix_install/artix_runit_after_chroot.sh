@@ -2,11 +2,6 @@
 
 # Parameters
 
-  AUR_choice=""
-  VALID_ENTRY_choice=""
-  VALID_ENTRY_intro_check=""
-  INTRO_proceed=""
-
   VALID_ENTRY_timezone=""
   TIMEZONE_1=""
   TIMEZONE_2=""
@@ -117,19 +112,19 @@
   lines
   /bin/bash
 
-  until [ "$VALID_ENTRY_choice" == "true" ]; do 
+  until [ "$VALID_ENTRY_choices" == "true" ]; do 
     read -rp "Do you plan to utilise "AUR"? If yes, please type \"1\" - if no, please type \"2\": " AUR_choice
     echo
     if [[ $AUR_choice == "2" ]]; then
       print yellow "AUR will therefore not be configured"
       echo
-      VALID_ENTRY_choice=true
+      VALID_ENTRY_choices=true
     elif [[ $AUR_choice == "1" ]]; then
       print green "AUR will therefore be configured"
       echo
-      VALID_ENTRY_choice=true
+      VALID_ENTRY_choices=true
     elif [[ $AUR_choice -ne "1" ]] && [[ $AUR_choice -ne "2" ]]; then 
-      VALID_ENTRY_choice=false
+      VALID_ENTRY_choices=false
       print red "Invalid answer. Please try again"
       echo
     fi
@@ -191,7 +186,6 @@
   echo
   print blue "$LANGUAGE_how_many languages will be generated"
   echo
-  
   if [[ "$LANGUAGE_how_many" == "0" ]] || [[ "$LANGUAGE_how_many" -gt "3" ]]; then
     print cyan "Please try again; I don't have time for this!"
     echo
@@ -200,7 +194,6 @@
     print blue "$LANGUAGE_how_many languages will be generated"
     echo
   fi
-
   if [[ $LANGUAGE_how_many == "1" ]]; then
     print blue "What language do you wish to generate?"
     print purple "Example: da_DK.UTF-8"
@@ -229,7 +222,6 @@
      sed -i 's/^# *\($LANGUAGE_GEN2\)/\1/' /etc/locale.gen
      sed -i 's/^# *\($LANGUAGE_GEN3\)/\1/' /etc/locale.gen
   fi
-
   echo
   locale-gen
   echo
