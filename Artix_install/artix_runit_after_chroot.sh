@@ -534,7 +534,7 @@ EOF
 
 # Setting NetworkManager to start on boot
 
-  ln -s /etc/runit/sv/NetworkManager /run/runit/service 
+  ln -s /etc/runit/sv/NetworkManager /etc/runit/runsvdir/default
   echo
 
   lines
