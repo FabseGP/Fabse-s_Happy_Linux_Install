@@ -115,6 +115,7 @@
 # Until-loop; intro
 
   lines
+  cd /install_script
 
   until [ "$VALID_ENTRY_choice" == "true" ]; do 
     read -rp "Do you plan to utilise "AUR"? If yes, please type \"1\" - if no, please type \"2\": " AUR_choice
@@ -374,7 +375,7 @@
         echo
       elif [[ $USER_check == "YES" ]]; then
         VALID_ENTRY_user_check_username=true
-        useradd -m -G users -g video,audio,input,power,storage,optical,lp,scanner,dbus,daemon,disk,uucp,wheel,realtime "$USERNAME"
+        useradd -m -G users -g video,audio,input,power,storage,optical,lp,scanner,dbus,daemon,disk,uucp,dialout,wheel,realtime "$USERNAME"
         USER_proceed_name=true
       elif [[ $USER_check -ne "NO" ]] && [[ $USER_check -ne "YES" ]]; then 
         VALID_ENTRY_user_check_username=false
