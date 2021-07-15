@@ -118,17 +118,17 @@
   cd /install_script
 
   until [ "$VALID_ENTRY_choice" == "true" ]; do 
-    read -rp "Do you plan to utilise "AUR"? If yes, please type \"1\" - if no, please type \"2\": " AUR_choice
+    read -rp "Do you plan to utilise AUR? Please type \"1\" for yes, \"1\" if not: " AUR_choice
     echo
-    if [[ $AUR_choice == "2" ]]; then
-      print yellow "AUR will therefore not be configured"
+    if [[ "$AUR_choice" == "2" ]]; then
+      print yellow "AUR will not be configured"
       echo
       VALID_ENTRY_choice==true
-    elif [[ $AUR_choice == "1" ]]; then
-      print green "AUR will therefore be configured"
+    elif [[ "$AUR_choice" == "1" ]]; then
+      print green "Access to AUR will be configured"
       echo
       VALID_ENTRY_choice=true
-    elif [[ $AUR_choice -ne "1" ]] && [[ $AUR_choice -ne "2" ]]; then 
+    else
       VALID_ENTRY_choice=false
       print red "Invalid answer. Please try again"
       echo
@@ -144,7 +144,7 @@
 
   until [ "$TIME_proceed" == "true" ]; do 
     VALID_ENTRY_time_check=false # Necessary for trying again
-    print blue "Please choose your locale time"
+    print blue "Please choose your locale time; if two-part (such as Europe/Copenhagen) choose the first part "
     select TIMEZONE_1 in $(ls /usr/share/zoneinfo);do
       if [ -d "/usr/share/zoneinfo/$TIME" ];then
         select TIMEZONE_2 in $(ls /usr/share/zoneinfo/"$TIMEZONE_1");do
@@ -157,19 +157,19 @@
     break
     done
     until [ "$VALID_ENTRY_time_check" == "true" ]; do 
-      read -rp "You have chosen $TIMEZONE_1/$TIMEZONE_2 . Are you sure that's the correct timezone? Type \"YES\" if yes, \"NO\" if no: " TIME_check
+      read -rp "You have chosen \""$TIMEZONE_1"/"$TIMEZONE_2"\" . Are you sure that's the correct timezone? Type either \"YES\" or \"NO\": " TIME_check
       echo
-      if [[ $TIME_check == "NO" ]]; then
+      if [[ "$TIME_check" == "NO" ]]; then
         print yellow "You'll get a new prompt"
         TIMEZONE_1=""
         TIMEZONE_2=""
         TIME_proceed=false
         VALID_ENTRY_time_check=true
         echo
-      elif [[ $TIME_check == "YES" ]]; then
+      elif [[ "$TIME_check" == "YES" ]]; then
         TIME_proceed=true
         VALID_ENTRY_time_check=true
-      elif [[ $TIME_check -ne "NO" ]] && [[ $TIME_check -ne "YES" ]]; then 
+      else
         VALID_ENTRY_time_check=false
         print red "Invalid answer. Please try again"
         echo
@@ -189,22 +189,14 @@
   echo
   read -rp "How many languages do you plan to use? No wrong answers, unless it is above 3!: " LANGUAGE_how_many
   echo
-  print blue "$LANGUAGE_how_many languages will be generated"
+  print blue ""$LANGUAGE_how_many" languages will be generated"
   echo
-  if [[ "$LANGUAGE_how_many" == "0" ]] || [[ "$LANGUAGE_how_many" -gt "3" ]]; then
-    print cyan "Please try again; I don't have time for this!"
-    echo
-    read -rp "How many languages do you plan to use? No wrong answers, unless it is above 3!: " LANGUAGE_how_many
-    echo
-    print blue "$LANGUAGE_how_many languages will be generated"
-    echo
-  fi
-  if [[ $LANGUAGE_how_many == "1" ]]; then
+  if [[ "$LANGUAGE_how_many" == "1" ]]; then
     print blue "What language do you wish to generate?"
     print purple "Example: da_DK.UTF-8"
     read -r LANGUAGE_GEN1
     sed -i 's/^# *\($LANGUAGE_GEN1\)/\1/' /etc/locale.gen
-  elif [[ $LANGUAGE_how_many == "2" ]]; then
+  elif [[ "$LANGUAGE_how_many" == "2" ]]; then
     print blue "Which languages do you wish to generate?"
     print purple "Example: da_DK.UTF-8"
     read -r LANGUAGE_GEN1
@@ -213,19 +205,26 @@
     read -r LANGUAGE_GEN2
     sed -i 's/^# *\($LANGUAGE_GEN1\)/\1/' /etc/locale.gen
     sed -i 's/^# *\($LANGUAGE_GEN2\)/\1/' /etc/locale.gen
-  elif [[ $LANGUAGE_how_many == "3" ]]; then
-     print blue "Which languages do you wish to generate?"
-     print purple "Example: da_DK.UTF-8"
-     read -r LANGUAGE_GEN1
-     echo
-     print blue "Second language"
-     read -r LANGUAGE_GEN2
-     echo
-     print blue "Third language"
-     read -r LANGUAGE_GEN3
-     sed -i 's/^# *\($LANGUAGE_GEN1\)/\1/' /etc/locale.gen
-     sed -i 's/^# *\($LANGUAGE_GEN2\)/\1/' /etc/locale.gen
-     sed -i 's/^# *\($LANGUAGE_GEN3\)/\1/' /etc/locale.gen
+  elif [[ "$LANGUAGE_how_many" == "3" ]]; then
+    print blue "Which languages do you wish to generate?"
+    print purple "Example: da_DK.UTF-8"
+    read -r LANGUAGE_GEN1
+    echo
+    print blue "Second language"
+    read -r LANGUAGE_GEN2
+    echo
+    print blue "Third language"
+    read -r LANGUAGE_GEN3
+    sed -i 's/^# *\($LANGUAGE_GEN1\)/\1/' /etc/locale.gen
+    sed -i 's/^# *\($LANGUAGE_GEN2\)/\1/' /etc/locale.gen
+    sed -i 's/^# *\($LANGUAGE_GEN3\)/\1/' /etc/locale.gen
+  else
+    print cyan "Please choose again; I don't have time for this!"
+    echo
+    read -r LANGUAGE_how_many
+    echo
+    print blue ""$LANGUAGE_how_many" languages will be generated"
+    echo
   fi
   echo
   locale-gen
@@ -251,18 +250,18 @@
     read -r KEYMAP
     echo
     until [ "$VALID_ENTRY_keymap_check" == "true" ]; do 
-      read -rp "You have chosen $KEYMAP. Are you sure that's the correct keymap? Type \"YES\" if yes, \"NO\" if no: " KEYMAP_check
+      read -rp "You have chosen \""$KEYMAP"\". Are you sure that's the correct keymap? Type either \"YES\" or \"NO\": " KEYMAP_check
       echo
-      if [[ $KEYMAP_check == "NO" ]]; then
+      if [[ "$KEYMAP_check" == "NO" ]]; then
         print yellow "You'll get a new prompt"
         KEYMAP=""
         KEYMAP_proceed=false
         VALID_ENTRY_keymap_check=true
         echo
-      elif [[ $KEYMAP_check == "YES" ]]; then
+      elif [[ "$KEYMAP_check" == "YES" ]]; then
         KEYMAP_proceed=true
         VALID_ENTRY_keymap_check=true
-      elif [[ $KEYMAP_check -ne "NO" ]] && [[ $KEYMAP_check -ne "YES" ]]; then 
+      else
         VALID_ENTRY_keymap_check=false
         print red "Invalid answer. Please try again"
         echo
@@ -298,18 +297,18 @@
     read -rp "Any fitting name for the bootloader? " BOOTLOADER_label
     echo
     until [ "$VALID_ENTRY_bootloader_check" == "true" ]; do 
-      read -rp "You have chosen $BOOTLOADER_label. Are you sure that's the correct name? Type \"YES\" if yes, \"NO\" if no: " BOOTLOADER_check
+      read -rp "You have chosen \""$BOOTLOADER_label"\". Are you sure that's the correct name? Type either \"YES\" or \"NO\": " BOOTLOADER_check
       echo
-      if [[ $BOOTLOADER_check == "NO" ]]; then
+      if [[ "$BOOTLOADER_check" == "NO" ]]; then
         print yellow "You'll get a new prompt"
         BOOTLOADER_label=""
         BOOTLOADER_proceed=false
         VALID_ENTRY_bootloader_check=true
         echo
-      elif [[ $BOOTLOADER_check == "YES" ]]; then
+      elif [[ "$BOOTLOADER_check" == "YES" ]]; then
         BOOTLOADER_proceed=true
         VALID_ENTRY_bootloader_check=true
-      elif [[ $BOOTLOADER_check -ne "NO" ]] && [[ $BOOTLOADER_check -ne "YES" ]]; then 
+      else
         VALID_ENTRY_bootloader_check=false
         print red "Invalid answer. Please try again"
         echo
@@ -317,7 +316,7 @@
     done
   done
 
-  print blue "The bootloader will be viewed as $BOOTLOADER_label in the BIOS"
+  print blue "The bootloader will be viewed as "$BOOTLOADER_label" in the BIOS"
   echo
   grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id="$BOOTLOADER_label" --recheck
   sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="cryptdevice=\/dev\/$DRIVE_LABEL_root:cryptroot\ root=\/dev\/mapper\/cryptroot\ rootflags=subvol=@\/rootvol\ quiet"/' /etc/default/grub
@@ -341,17 +340,17 @@
     passwd
     echo
     until [ "$VALID_ENTRY_root_check" == "true" ]; do 
-      read -rp "You have chosen $ROOT_passwd. Do you want to change that? Type \"YES\" if yes, \"NO\" if no: " ROOT_check
+      read -rp "You have chosen \""$ROOT_passwd"\". Do you want to change that? Type either \"YES\" or \"NO\": " ROOT_check
       echo
-      if [[ $ROOT_check == "YES" ]]; then
+      if [[ "$ROOT_check" == "YES" ]]; then
         print yellow "You'll get a new prompt"
         ROOT_passwd=""
         VALID_ENTRY_root_check=true
         echo
-      elif [[ $ROOT_check == "NO" ]]; then
+      elif [[ "$ROOT_check" == "NO" ]]; then
         ROOT_proceed=true
         VALID_ENTRY_root_check=true
-      elif [[ $ROOT_check -ne "NO" ]] && [[ $ROOT_check -ne "YES" ]]; then 
+      else
         VALID_ENTRY_root_check=false
         print red "Invalid answer. Please try again"
         echo
@@ -366,7 +365,7 @@
     print blue "Can I suggest a username for a new user?"
     read -r USERNAME
     until [ "$VALID_ENTRY_user_check_username" == "true" ]; do 
-      read -rp "You have chosen $USERNAME as username. Are you sure that's correct? Type \"YES\" if yes, \"NO\" if no: " USER_check
+      read -rp "You have chosen \""$USERNAME"\" as username. Are you sure that's correct? Type either \"YES\" or \"NO\": " USER_check
       echo
       if [[ $USER_check == "NO" ]]; then
         print yellow "You'll get a new prompt"
@@ -394,7 +393,7 @@
     echo
     USER_check=""
     until [ "$VALID_ENTRY_user_check_passwd" == "true" ]; do 
-      read -rp "You have chosen $USERNAME_passwd as password. Are you sure that's correct? Type \"YES\" if yes, \"NO\" if no: " USER_check
+      read -rp "You have chosen \""$USERNAME_passwd"\" as password. Are you sure that's correct? Type \"YES\" if yes, \"NO\" if no: " USER_check
       echo
       if [[ $USER_check == "NO" ]]; then
         print yellow "You'll get a new prompt"
@@ -429,18 +428,18 @@
     read -r HOSTNAME
     echo
     until [ "$VALID_ENTRY_hostname_check" == "true" ]; do 
-      read -rp "You have chosen $HOSTNAME. Are you sure that's the correct hostname? Type \"YES\" if yes, \"NO\" if no: " HOSTNAME_check
+      read -rp "You have chosen \""$HOSTNAME"\". Are you sure that's the correct hostname? Type \"YES\" if yes, \"NO\" if no: " HOSTNAME_check
       echo
-      if [[ $HOSTNAME_check == "NO" ]]; then
+      if [[ "$HOSTNAME_check" == "NO" ]]; then
         print yellow "You'll get a new prompt"
         HOSTNAME=""
         LOCALS_proceed=false
         VALID_ENTRY_hostname_check=true
         echo
-      elif [[ $HOSTNAME_check == "YES" ]]; then
+      elif [[ "$HOSTNAME_check" == "YES" ]]; then
         LOCALS_proceed=true
         VALID_ENTRY_hostname_check=true
-      elif [[ $HOSTNAME_check -ne "NO" ]] && [[ $HOSTNAME_check -ne "YES" ]]; then 
+      else
         VALID_ENTRY_hostname_check=false
         print red "Invalid answer. Please try again"
         echo
@@ -473,7 +472,6 @@ EOF
   fi
 
 #----------------------------------------------------------------------------------------------------------------------------------
-
 
 # Choice of DE/VM, Wayland/Xorg and other packages/services
 
