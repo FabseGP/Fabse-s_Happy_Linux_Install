@@ -465,11 +465,7 @@ EOF
   if [[ $AUR_choice == "1" ]]; then
     more AUR.txt
     echo
-    cd /opt || return
-    git clone https://aur.archlinux.org/yay-git.git
-    chown -R "$USERNAME":wheel ./yay-git
-    cd yay-git || return
-    makepkg -si
+    pacman -U --noconfirm yay-10.3.0-1-x86_64.pkg.tar.zst
   fi
   
   lines
@@ -482,7 +478,7 @@ EOF
   echo
 
   until [ "$PACKAGES_proceed" == "true" ]; do 
-    print blue "If you want to install any other packages/services or desktop environments / window managers now, type \"YES\" - otherwise type \"No\" "
+    print blue "If you want to install any other packages/services or desktop environments / window managers from either AUR or with pacman now, type \"YES\" - otherwise type \"No\" "
     read -r PACKAGES_choice
     echo
     if [[ "$PACKAGES_choice" == "NO" ]]; then
@@ -505,7 +501,7 @@ EOF
           VALID_ENTRY_packages_check=true
           echo
         elif [[ "$PACKAGES_check" == "YES" ]]; then
-          pacman -Syq --noconfirm "$PACKAGES"
+          yay -S "$PACKAGES"
           VALID_ENTRY_packages_check=true
         else
           VALID_ENTRY_packages_check=false
