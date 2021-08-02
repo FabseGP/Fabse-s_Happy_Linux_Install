@@ -412,6 +412,7 @@
 
 # Partitions
 
+  swapoff -a
   more partitions.txt
   echo
   fdisk -l
