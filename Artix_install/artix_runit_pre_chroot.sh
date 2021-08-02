@@ -643,5 +643,5 @@
 # Chroot
 
   mkdir /mnt/install_script
-  cp {artix_runit_after_chroot.sh,AUR.txt,farewell.txt,packages.txt,hostname.txt,users.txt,pacman.txt,GRUB.txt,initramfs.txt,locals.txt,time.txt} /mnt/install_script
+  cp {artix_runit_after_chroot.sh,AUR.txt,farewell.txt,packages.txt,hostname.txt,users.txt,yay-10.3.0-1-x86_64.pkg.tar.zst,pacman.txt,GRUB.txt,initramfs.txt,locals.txt,time.txt} /mnt/install_script
   artix-chroot /mnt /install_script/artix_runit_after_chroot.sh
