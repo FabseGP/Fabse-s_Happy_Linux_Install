@@ -453,9 +453,9 @@
     echo
 
   elif [[ $SWAP_choice == "1" ]]; then
-    DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
-    DRIVE_LABEL_swap=/dev/"$DRIVE_LABEL""2"
-    DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""3"
+    DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL"p"1"
+    DRIVE_LABEL_swap=/dev/"$DRIVE_LABEL"p"2"
+    DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL"p"3"
     until [ "$DRIVE_proceed" == "true" ]; do 
       until_loop_drive_size BOOT BOOT_size BOOT_size_check
       until_loop_drive_name boot BOOT_label BOOT_label_check
