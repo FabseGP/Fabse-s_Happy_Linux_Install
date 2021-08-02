@@ -119,7 +119,7 @@
   cd /install_script
 
   until [ "$VALID_ENTRY_choice" == "true" ]; do 
-    read -rp "Do you plan to utilise AUR? Please type \"1\" for yes, \"1\" if not: " AUR_choice
+    read -rp "Do you plan to utilise AUR? Please type \"1\" for yes, \"2\" if not: " AUR_choice
     echo
     if [[ "$AUR_choice" == "2" ]]; then
       print yellow "AUR will not be configured"
