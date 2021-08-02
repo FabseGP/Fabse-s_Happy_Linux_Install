@@ -375,7 +375,7 @@
         echo
       elif [[ $USER_check == "YES" ]]; then
         VALID_ENTRY_user_check_username=true
-        useradd -m -g users -G video,audio,input,power,storage,optical,lp,scanner,dbus,daemon,disk,uucp,dialout,wheel,realtime "$USERNAME"
+        useradd -m -g users -G video,audio,input,power,storage,optical,lp,scanner,dbus,daemon,disk,uucp,wheel,realtime "$USERNAME"
         USER_proceed_name=true
       elif [[ $USER_check -ne "NO" ]] && [[ $USER_check -ne "YES" ]]; then 
         VALID_ENTRY_user_check_username=false
