@@ -616,10 +616,10 @@
         until [ "$VALID_ENTRY_fstab_confirm_check" == "true" ]; do 
           read -rp "Does everything seems right? Type either \"YES\" or \"NO\": " FSTAB_confirm
           echo
-          if [[ $FSTAB_confirm == "2" ]]; then
+          if [[ $FSTAB_confirm == "NO" ]]; then
             print cyan "Sorry, you have to execute the scipt again :("
             exit 1
-          elif [[ $FSTAB_confirm == "1" ]]; then
+          elif [[ $FSTAB_confirm == "YES" ]]; then
             VALID_ENTRY_fstab_confirm_check=true
             FSTAB_proceed=true
           else
