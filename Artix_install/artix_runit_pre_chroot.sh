@@ -402,19 +402,7 @@
 # Installing parted to format drives + support for lz4-compression + configuring Arch's repo
 
   pacman -Syq --noconfirm parted artix-archlinux-support
-  
-  cat >>/etc/pacman.conf<<EOF
-> #ARCHLINUX
-> [extra]
-> Include = /etc/pacman.d/mirrorlist-arch
-> 
-> [community]
-> Include = /etc/pacman.d/mirrorlist-arch
-> 
-> [multilib]
-> Include = /etc/pacman.d/mirrorlist-arch
-> EOF
-
+  cat pacman.txt >> /etc/pacman.conf
   pacman-key --populate archlinux
   pacman -Sy
 
