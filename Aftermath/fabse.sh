@@ -36,7 +36,7 @@
 
 # Installation of packages from AUR
 
-  yay -S spicetify-cli spotify stm32cubemx stm32flash bastet cbonsai stm32cubeprog qemu-user-static-bin stm32cubeide openrgb osp-tracker balena-etcher bitwarden-bin onlyoffice-bin standardnotes-bin toilet
+  yay -S spicetify-cli spotify stm32cubemx stm32flash bastet cbonsai stm32cubeprog qemu-user-static-bin stm32cubeide openrgb osp-tracker etcher-bin bitwarden-bin onlyoffice-bin standardnotes-bin toilet
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -88,15 +88,8 @@
 # Maple + chemsketch
 
   xdg-open https://www.acdlabs.com/resources/freeware/chemsketch/download.php
-  xdg-open https://portfolio.otg.dk/otgnet/adm/restr/portfolio_v2/swdl.asp?sw=\Linux\Maple\Maple2020\Software\Maple2020.0LinuxX64Installer.run
-  xdg-open https://portfolio.otg.dk/otgnet/adm/restr/portfolio_v2/swdl.asp?sw=\Linux\Maple\Maple2020\Gympakken\Maple2020LinuxX64GYMUpgrade.run
-  xdg-open https://portfolio.otg.dk/otgnet/adm/restr/portfolio_v2/swdl.asp?sw=\Linux\Maple\Maple2020\Software\Kode2020.txt
-
+ 
   read -rp "Are you ready again? Type anything for yes: " Science_ready
-
-  chmod u+x Hentet/*
-  ./Hentet/Maple2020.0LinuxX64Installer.run
-  ./Hentet/Maple2020LinuxX64GYMUpgrade.run
 
   unzip /home/fabse/Hentet/ACDLabs202021_ChemSketchFree_Install.zip
   wine /home/fabse/Hentet/ACDLabs202021_ChemSketchFree_Install/setup.exe
