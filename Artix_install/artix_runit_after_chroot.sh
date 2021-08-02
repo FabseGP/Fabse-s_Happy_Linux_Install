@@ -478,7 +478,7 @@ EOF
   echo
 
   until [ "$PACKAGES_proceed" == "true" ]; do 
-    print blue "If you want to install any other packages/services or desktop environments / window managers from either AUR or with pacman now, type \"YES\" - otherwise type \"No\" "
+    print blue "If you want to install any other packages/services or desktop environments / window managers from either AUR or with pacman now, type \"YES\" - otherwise type \"NO\" "
     read -r PACKAGES_choice
     echo
     if [[ "$PACKAGES_choice" == "NO" ]]; then
