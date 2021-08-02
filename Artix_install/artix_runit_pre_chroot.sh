@@ -588,7 +588,7 @@
 
 # Base-install
 
-  basestrap /mnt base base-devel neovim nano runit linux linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 cryptsetup realtime-privileges elogind-runit mkinitcpio xudev libxudev
+  basestrap /mnt base base-devel neovim nano runit linux linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 cryptsetup realtime-privileges elogind-runit mkinitcpio xudev artix-archlinux-support libxudev
   echo
 
   lines
