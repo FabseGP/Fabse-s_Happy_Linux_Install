@@ -403,8 +403,8 @@
 
   pacman -Syq --noconfirm parted artix-archlinux-support
   
-  cat >>/etc/pacman.conf<s<EOF
-> # ARCHLINUX
+  cat >>/etc/pacman.conf<<EOF
+> #ARCHLINUX
 > [extra]
 > Include = /etc/pacman.d/mirrorlist-arch
 > 
@@ -415,6 +415,7 @@
 > Include = /etc/pacman.d/mirrorlist-arch
 > EOF
 
+  pacman-key --populate archlinux
   pacman -Sy
 
   lines
