@@ -3,6 +3,8 @@
 # Parameters
 
   AUR_choice=""
+  ENCRYPTION_choice=""
+  DRIVE_LABEL=""
   VALID_ENTRY_choice=""
   VALID_ENTRY_intro_check=""
   INTRO_proceed=""
@@ -124,9 +126,31 @@
     if [[ "$AUR_choice" == "2" ]]; then
       print yellow "AUR will not be configured"
       echo
-      VALID_ENTRY_choice==true
+      VALID_ENTRY_choice=true
     elif [[ "$AUR_choice" == "1" ]]; then
       print green "Access to AUR will be configured"
+      echo
+      VALID_ENTRY_choice=true
+    else
+      VALID_ENTRY_choice=false
+      print red "Invalid answer. Please try again"
+      echo
+    fi
+  done
+  
+  VALID_ENTRY_choice=""
+  until [ "$VALID_ENTRY_choice" == "true" ]; do 
+    read -rp "Did you set up encryption previously? Please type \"1\" for yes, \"2\" if not: " ENCRYPTION_choice
+    echo
+    if [[ "$ENCRYPTION_choice" == "2" ]]; then
+      print yellow "Forget this question..."
+      echo
+      VALID_ENTRY_choice==true
+    elif [[ "$ENCRYPTION_choice" == "1" ]]; then
+      fdisk -l
+      echo
+      print blue "Which drive was set up for encryption, for example \"sda\"?"
+      read -r DRIVE_LABEL
       echo
       VALID_ENTRY_choice=true
     else
@@ -319,7 +343,9 @@
   print blue "The bootloader will be viewed as "$BOOTLOADER_label" in the BIOS"
   echo
   grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id="$BOOTLOADER_label" --recheck
-  sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="cryptdevice=\/dev\/$DRIVE_LABEL_root:cryptroot\ root=\/dev\/mapper\/cryptroot\ rootflags=subvol=@\/rootvol\ quiet"/' /etc/default/grub
+  if [[ "$ENCRYPTION_choice" == "1" ]]; then
+    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="cryptdevice=\/dev\/$DRIVE_LABEL_root:cryptroot\ root=\/dev\/mapper\/cryptroot\ rootflags=subvol=@\/rootvol\ quiet"/' /etc/default/grub
+  fi
   echo
   grub-mkconfig -o /boot/grub/grub.cfg
   echo
