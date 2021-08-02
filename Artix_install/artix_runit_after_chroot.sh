@@ -158,7 +158,7 @@
     elif [[ "$ENCRYPTION_choice" == "1" ]]; then
       fdisk -l
       echo
-      print blue "Which drive was set up for encryption, for example \"sda\"?"
+      print blue "Which drive was set up for encryption, for example \"sda3\"?"
       read -r DRIVE_LABEL
       echo
       VALID_ENTRY_choice=true
