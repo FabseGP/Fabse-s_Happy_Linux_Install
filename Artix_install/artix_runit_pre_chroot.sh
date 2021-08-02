@@ -162,6 +162,15 @@
       VALID_ENTRY_drive_name_check=false # Necessary for trying again
       read -rp "A special name for the "$drive"-partition? " drive_name
       echo
+      if [ "$drive" == "BOOT" ]; then
+        if [[ "${#drive_name}" -ge "11" ]]; then
+          print red "Sorry, the boot-name is too long; maximum 11 characters is allowed with FAT32"
+          echo
+          drive_name=""
+          VALID_ENTRY_drive_name_=false
+          VALID_ENTRY_drive_name_check=true
+        fi
+      fi
       until [ "$VALID_ENTRY_drive_name_check" == "true" ]; do 
         read -rp "The "$drive"-partition will be named \""$drive_name"\". Are you sure that's the correct name? Type either \"YES\" or \"NO\": " drive_name_check
         echo
@@ -392,7 +401,7 @@
 
 # Installing parted to format drives + support for lz4-compression
 
-  pacman -Syq --noconfirm parted
+  pacman -Syq --noconfirm parted artix-archlinux-support
 
   lines
 
@@ -438,9 +447,17 @@
     fi
   done
 
-  if [[ $SWAP_choice == "2" ]]; then
-    DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
-    DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""2"
+  dd if=/dev/zero of=/dev/"$DRIVE_LABEL" bs=512 count=1 status=progress
+  echo
+
+  if [[ "$SWAP_choice" == "2" ]]; then
+    if [[ "$DRIVE_LABEL" == "nvme0n1" ]]; then
+      DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL"p"1"
+      DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL"p"2"
+    else
+      DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
+      DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""2"
+    fi
     until [ "$DRIVE_proceed" == "true" ]; do 
       until_loop_drive_size BOOT BOOT_size BOOT_size_check
       until_loop_drive_name boot BOOT_label BOOT_label_check
@@ -452,10 +469,16 @@
       mkpart PRIMARY btrfs "$BOOT_size"MiB 100%   
     echo
 
-  elif [[ $SWAP_choice == "1" ]]; then
-    DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
-    DRIVE_LABEL_swap=/dev/"$DRIVE_LABEL""2"
-    DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""3"
+  elif [[ "$SWAP_choice" == "1" ]]; then
+    if [[ "$DRIVE_LABEL" == "nvme0n1" ]]; then
+      DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL"p"1"
+      DRIVE_LABEL_swap=/dev/"$DRIVE_LABEL"p"2"
+      DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL"p"3"
+    else
+      DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
+      DRIVE_LABEL_swap=/dev/"$DRIVE_LABEL""2"
+      DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""3"
+    fi
     until [ "$DRIVE_proceed" == "true" ]; do 
       until_loop_drive_size BOOT BOOT_size BOOT_size_check
       until_loop_drive_name boot BOOT_label BOOT_label_check
@@ -478,7 +501,7 @@
 # ROOT-encryption
 
   if [[ "$ENCRYPTION_choice" == "1" ]]; then
-    more encryptions.txt
+    more encryption.txt
     echo
     print blue "Please have your encryption-password ready "
     echo
@@ -522,6 +545,7 @@
     btrfs subvolume create @home
     btrfs subvolume create @pkg
     btrfs subvolume create @snapshots
+    btrfs subvolume create @boot
     cd /
     umount /mnt
     mount -o noatime,nodiratime,compress=lzo,space_cache,ssd,subvol=@ /dev/mapper/cryptroot /mnt
@@ -529,6 +553,7 @@
     mount -o noatime,nodiratime,compress=lzo,space_cache,ssd,subvol=@home /dev/mapper/cryptroot /mnt/home
     mount -o noatime,nodiratime,compress=lzo,space_cache,ssd,subvol=@pkg /dev/mapper/cryptroot /mnt/var/cache/pacman/pkg
     mount -o noatime,nodiratime,compress=lzo,space_cache,ssd,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots
+    mount -o noatime,nodiratime,compress=lzo,space_cache,ssd,subvol=@boot /dev/mapper/cryptroot /mnt/boot
     sync
   elif [[ "$SUBVOLUMES_choice" == "2" ]]; then
     if [[ "$ENCRYPTION_choice" == "1" ]]; then
