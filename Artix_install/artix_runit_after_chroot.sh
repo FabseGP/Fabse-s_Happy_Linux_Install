@@ -355,7 +355,7 @@
   echo
   grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id="$BOOTLOADER_label" --recheck
   if [[ "$ENCRYPTION_choice" == "1" ]]; then
-    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="cryptdevice=\/dev\/nvme0n1p3:cryptroot\ root=\/dev\/mapper\/cryptroot\ quiet"/' /etc/default/grub
+    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="cryptdevice=\/dev\/"$DRIVE_LABEL":cryptroot\ root=\/dev\/mapper\/cryptroot\ quiet"/' /etc/default/grub
   fi
   echo
   grub-mkconfig -o /boot/grub/grub.cfg
