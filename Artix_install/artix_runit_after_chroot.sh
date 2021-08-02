@@ -270,8 +270,7 @@
     done
   done
 
-  echo "keymap=""$KEYMAP""" >> /etc/conf.d/keymaps  
-  echo "keymap=""$KEYMAP""" >> /etc/vconsole.conf
+  echo "keymap="$KEYMAP"" >> /etc/vconsole.conf
   echo
 
   lines
