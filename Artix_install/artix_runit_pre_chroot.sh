@@ -556,7 +556,6 @@
     mount -o noatime,nodiratime,compress=lzo,space_cache,ssd,subvol=@home /dev/mapper/cryptroot /mnt/home
     mount -o noatime,nodiratime,compress=lzo,space_cache,ssd,subvol=@pkg /dev/mapper/cryptroot /mnt/var/cache/pacman/pkg
     mount -o noatime,nodiratime,compress=lzo,space_cache,ssd,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots
-    mount -o noatime,nodiratime,compress=lzo,space_cache,ssd,subvol=@boot /dev/mapper/cryptroot /mnt/boot
     sync
   elif [[ "$SUBVOLUMES_choice" == "2" ]]; then
     if [[ "$ENCRYPTION_choice" == "1" ]]; then
