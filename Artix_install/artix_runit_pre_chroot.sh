@@ -120,7 +120,7 @@
     type="$1"
     type_choice="$2"
     until [ "$VALID_ENTRY_choices" == "true" ]; do 
-      read -rp "Do you plan to utilise "${type,,}"? Please type \"1\" for yes, \"1\" if not: " type_choice
+      read -rp "Do you plan to utilise "${type,,}"? Please type \"1\" for yes, \"2\" if not: " type_choice
       echo
       if [[ "$type_choice" == "2" ]]; then
         print yellow ""$1" will not be configured"
