@@ -270,7 +270,7 @@
   print purple "Example: da_DK.UTF-8"
   read -r LANGUAGE
   echo
-  echo "LANG=$LANGUAGE" >> /etc/locale.conf
+  echo -e "LANG="$LANGUAGE"\LC_COLLATE="C""
   echo
 
   lines
