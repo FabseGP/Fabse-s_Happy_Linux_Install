@@ -306,6 +306,7 @@
   done
 
   echo "KEYMAP="$KEYMAP"" >> /etc/vconsole.conf
+  echo "KEYMAP="$KEYMAP"" >> /etc/conf.d/keymaps
   echo
 
   lines
