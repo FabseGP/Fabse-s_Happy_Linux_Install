@@ -15,3 +15,4 @@
 # Create new snapshot:
   yay="btrfs subvolume snapshot / /.snapshots/backup-"$time_stamp""
   "$yay" > /dev/null
+  
