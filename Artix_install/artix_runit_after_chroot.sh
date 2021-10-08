@@ -117,11 +117,11 @@
 # Configuring Arch's repository
 
   cd /install_script || exit
-  mv pacman.conf /etc/pacman.conf
   pacman -Sy --noconfirm archlinux-keyring artix-keyring
   pacman-key --init
   pacman-key --populate archlinux artix
-  pacman -Scc --noconfirm
+  mv pacman.conf /etc/pacman.conf
+  pacman -Syy
   lines
 #----------------------------------------------------------------------------------------------------------------------------------
 
