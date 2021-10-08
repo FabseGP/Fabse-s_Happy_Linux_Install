@@ -536,7 +536,7 @@
   fi
   mount -o noatime,compress=zstd,discard,ssd,defaults "$MOUNT" /mnt
   cd /mnt || return
-  mkdir -p /mnt/{boot,home,srv,var_log,.snapshots/packages_list,var/{abs,tmp,cache/pacman/pkg}}
+  mkdir -p /mnt/{boot,home,srv,var_log,.snapshots/{home,root,packages_list},var/{abs,tmp,cache/pacman/pkg}}
   btrfs subvolume create @
   btrfs subvolume create @home
   btrfs subvolume create @var_log
@@ -545,20 +545,20 @@
   btrfs subvolume create @var/abs
   btrfs subvolume create @var/cache/pacman/pkg
   btrfs subvolume create @.snapshots
-  btrfs subvolume create .snapshots/home
-  btrfs subvolume create .snapshots/root
+  btrfs subvolume create @.snapshots/home
+  btrfs subvolume create @.snapshots/root
   cd /
   umount /mnt
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@ "$MOUNT" /mnt
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@home "$MOUNT" /mnt/home
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var/cache/pacman/pkg "$MOUNT" /mnt/var/cache/pacman/pkg
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_log "$MOUNT" /mnt/var_log
-  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@abs "$MOUNT" /mnt/var/abs
-  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@tmp "$MOUNT" /mnt/var/tmp
+  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var/abs "$MOUNT" /mnt/var/abs
+  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var/tmp "$MOUNT" /mnt/var/tmp
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@srv "$MOUNT" /mnt/srv
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots "$MOUNT" /mnt/.snapshots
-  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=.snapshots/home "$MOUNT" /mnt/.snapshots/home
-  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=.snapshots/root "$MOUNT" /mnt/.snapshots/root
+  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots/home "$MOUNT" /mnt/.snapshots/home
+  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots/root "$MOUNT" /mnt/.snapshots/root
   sync
   echo
   lines
