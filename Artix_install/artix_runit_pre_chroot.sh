@@ -569,9 +569,6 @@
   mount "$DRIVE_LABEL_boot" /mnt/boot
   if [[ "$SWAP_choice" == "1" ]]; then
     swapon "$DRIVE_LABEL_swap"
-    cat << EOF | tee -a /mnt/etc/crypttab > /dev/null
-swap     LABEL="$SWAP_label"  /dev/urandom  swap,offset=2048,cipher=aes-xts-plain64,size=512
-EOF
   fi
   echo
   lines
