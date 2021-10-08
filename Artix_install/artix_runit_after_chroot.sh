@@ -7,7 +7,6 @@
   DRIVE_LABEL=""
   VALID_ENTRY_choice=""
   VALID_ENTRY_intro_check=""
-  INTRO_proceed=""
 
   VALID_ENTRY_timezone=""
   TIMEZONE_1=""
@@ -18,9 +17,7 @@
  
   LANGUAGES=""
   VALID_ENTRY_languages=""
-  LOCALS_check=""
   VALID_ENTRY_locals_check=""
-  LOCALS_proceed=""
 
   KEYMAP=""
   VALID_ENTRY_keymap=""
@@ -364,7 +361,7 @@
 
   more hostname.txt
   echo
-  until [ "$LOCALS_proceed" == "true" ]; do 
+  until [ "$HOSTNAME_proceed" == "true" ]; do 
     VALID_ENTRY_hostname_check=false # Necessary for trying again
     print blue "What name do you want to host?"
     read -r HOSTNAME
@@ -375,11 +372,11 @@
       if [ "$HOSTNAME_check" == "NO" ]; then
         print yellow "You'll get a new prompt"
         HOSTNAME=""
-        LOCALS_proceed=false
+        HOSTNAME_proceed=false
         VALID_ENTRY_hostname_check=true
         echo
       elif [ "$HOSTNAME_check" == "YES" ]; then
-        LOCALS_proceed=true
+        HOSTNAME_proceed=true
         VALID_ENTRY_hostname_check=true
       else
         VALID_ENTRY_hostname_check=false
@@ -552,7 +549,7 @@ EOF
   echo
   grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id="$BOOTLOADER_label" --recheck
   if [ "$ENCRYPTION_choice" == "1" ]; then
-    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="lsm=landlock,lockdown,yama,apparmor,bpf\ cryptdevice=\/dev\/'"$DRIVE_LABEL"':cryptroot\ root=\/dev\/mapper\/cryptroot\ loglevel=3\ quiet"/' /etc/default/grub
+    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="lsm=landlock,lockdown,yama,apparmor,bpf\ cryptdevice=\/dev\/'"$DRIVE_LABEL"':cryptroot:allow-discards\ root=\/dev\/mapper\/cryptroot\ loglevel=3\ quiet"/' /etc/default/grub
     sed -i -e "/GRUB_ENABLE_CRYPTODISK/s/^#//" /etc/grub/default
     touch grub-pre.cfg
     UUID=$(lsblk -no TYPE,UUID /dev/"$DRIVE_LABEL" | awk '$1=="part"{print $2}' | tr -d -)
@@ -569,6 +566,8 @@ EOF
   fi
   echo
   grub-mkconfig -o /boot/grub/grub.cfg
+  cd /install_script || exit
+  mv grub-btrfs-update.stop /etc/local.d
   echo
   lines
 
