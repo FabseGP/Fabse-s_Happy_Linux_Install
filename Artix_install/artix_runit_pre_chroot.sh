@@ -390,13 +390,14 @@
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Installing parted to format drives + support for lz4-compression + configuring Arch's repo
+# Installing parted to format drives + support for zstd-compression + configuring Arch's repo
 
-  pacman -Sy --noconfirm archlinux-keyring artix-keyring artix-archlinux-support
+  pacman -S --noconfirm archlinux-keyring artix-keyring artix-archlinux-support
   pacman-key --init
   pacman-key --populate archlinux artix
   cp pacman.conf /etc/pacman.conf
   pacman -Syy
+  pacman -S --noconfirm parted zstd
   lines
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -440,9 +441,9 @@
        echo
     fi
   done
-  dd if=/dev/zero of=/dev/"$DRIVE_LABEL" bs=512 count=1 status=progress
+  print blue "Erasing your drive! This might take some time depending on your drive size - you are hereby permitted to exit using Ctrl+C"
   echo
-  print blue "This might take some time depending on your drive size - you are hereby permitted to exit using Ctrl+C"
+  dd if=/dev/zero of=/dev/"$DRIVE_LABEL" bs=512 count=1 status=progresss
   echo
   if [ "$SWAP_choice" == "2" ]; then
     if [ "$DRIVE_LABEL" == "nvme0n1" ]; then
@@ -588,7 +589,7 @@ EOF
   elif grep -q AMD "/proc/cpuinfo"; then
     basestrap /mnt amd-ucode
   fi
-  basestrap /mnt fcron-runit apparmor-runit libressl bat base base-devel neovim nano runit linux-zen zstd linux-zen-firmware grub-btrfs linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 cryptsetup realtime-privileges elogind-runit mkinitcpio artix-archlinux-support
+  basestrap /mnt fcron-runit apparmor-runit libressl bat base base-devel neovim nano runit linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 cryptsetup realtime-privileges elogind-runit mkinitcpio artix-archlinux-support
   echo
   lines
 
