@@ -392,7 +392,7 @@
 
 # Installing parted to format drives + support for lz4-compression + configuring Arch's repo
 
-  pacman -Sy --noconfirm archlinux-keyring artix-keyring
+  pacman -Sy --noconfirm archlinux-keyring artix-keyring artix-archlinux-support
   pacman-key --init
   pacman-key --populate archlinux artix
   cp pacman.conf /etc/pacman.conf
