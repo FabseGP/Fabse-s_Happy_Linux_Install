@@ -546,8 +546,6 @@
   btrfs subvolume create @var_abs
   btrfs subvolume create @var_pkg
   btrfs subvolume create @.snapshots
-  btrfs subvolume create @.snapshots_home
-  btrfs subvolume create @.snapshots_root
   cd /
   umount /mnt
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@ "$MOUNT" /mnt
@@ -559,8 +557,6 @@
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_tmp "$MOUNT" /mnt/var/tmp
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@srv "$MOUNT" /mnt/srv
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots "$MOUNT" /mnt/.snapshots
-  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots_home "$MOUNT" /mnt/.snapshots/home
-  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots_root "$MOUNT" /mnt/.snapshots/root
   sync
   echo
   lines
