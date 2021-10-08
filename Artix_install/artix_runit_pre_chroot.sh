@@ -441,9 +441,9 @@
        echo
     fi
   done
-  print blue "Erasing your drive! This might take some time depending on your drive size - you are hereby permitted to exit using Ctrl+C"
+  print yellow "Erasing your drive! This might take some time depending on your drive size - you are hereby permitted to exit using Ctrl+C"
   echo
-  dd if=/dev/zero of=/dev/"$DRIVE_LABEL" bs=512 count=1 status=progresss
+  dd if=/dev/zero of=/dev/"$DRIVE_LABEL" bs=512 count=1 status=progress
   echo
   if [ "$SWAP_choice" == "2" ]; then
     if [ "$DRIVE_LABEL" == "nvme0n1" ]; then
