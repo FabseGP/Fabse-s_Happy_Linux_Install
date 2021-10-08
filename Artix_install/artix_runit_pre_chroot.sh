@@ -547,9 +547,9 @@
   btrfs subvolume create @.snapshots_home
   btrfs subvolume create @.snapshots_root
   cd /
-  mkdir -p /mnt/{boot,home,srv,.snapshots/{home,root,packages_list},var/{abs,tmp,log,cache/pacman/pkg}}
   umount /mnt
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@ "$MOUNT" /mnt
+  mkdir -p /mnt/{boot,home,srv,.snapshots/{home,root,packages_list},var/{abs,tmp,log,cache/pacman/pkg}}
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@home "$MOUNT" /mnt/home
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_pkg "$MOUNT" /mnt/var/cache/pacman/pkg
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_log "$MOUNT" /mnt/var/log
@@ -580,16 +580,21 @@ EOF
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Base-install
+# Base-install + encrypted swap (if swap is chosen)
 
   if grep -q Intel "/proc/cpuinfo"; then
     basestrap /mnt intel-ucode
   elif grep -q AMD "/proc/cpuinfo"; then
     basestrap /mnt amd-ucode
   fi
-  basestrap /mnt fcron-runit apparmor-runit libressl bat base base-devel neovim nano runit linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 cryptsetup realtime-privileges elogind-runit mkinitcpio artix-archlinux-support
+  basestrap /mnt fcron-runit crypttab apparmor-runit libressl bat base base-devel neovim nano runit linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 cryptsetup realtime-privileges elogind-runit mkinitcpio artix-archlinux-support
   echo
   lines
+  if [[ "$SWAP_choice" == "1" ]]; then
+    cat << EOF | tee -a /mnt/etc/crypttab > /dev/null
+swap     LABEL="$SWAP_label"  /dev/urandom  swap,offset=2048,cipher=aes-xts-plain64,size=512
+EOF
+  fi
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
