@@ -2,6 +2,8 @@
 
 # Parameters
 
+  BEGINNER_DIR=$(pwd)
+
   AUR_choice=""
   ENCRYPTION_choice=""
   DRIVE_LABEL=""
@@ -116,7 +118,7 @@
 
 # Configuring Arch's repository
 
-  cd /install_script || exit
+  cd "$BEGINNER_DIR" || exit
   pacman -Sy --noconfirm archlinux-keyring artix-keyring
   pacman-key --init
   pacman-key --populate archlinux artix
@@ -208,7 +210,7 @@
       fi
     done
   done
-  hwclock --systoch
+  hwclock --systohc
   lines
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -224,8 +226,8 @@
   read -rp "Languages: " LANGUAGES
   set -- junk "$LANGUAGES"
   shift
-  for word; do
-    echo -e "$word UTF-8" >> /etc/locale.gen
+  for LANGUAGES; do
+    echo -e "$LANGUAGES UTF-8" >> /etc/locale.gen
   done
   echo
   locale-gen
@@ -295,7 +297,7 @@
       elif [ "$ROOT_check" == "NO" ]; then
         ROOT_proceed=true
         VALID_ENTRY_root_check=true
-        sudo sh -c 'echo root:$ROOT_passwd | chpasswd'
+        echo "root:$ROOT_passwd" | chpasswd
       else
         VALID_ENTRY_root_check=false
         print red "Invalid answer. Please try again"
@@ -404,7 +406,7 @@ EOF
     pacman -U --noconfirm paru-1.8.2-1-x86_64.pkg.tar.zst
     pacman -Syu --noconfirm
     echo "alias yay=paru" >> /etc/profile
-    cd /install_script || exit
+    cd "$BEGINNER_DIR" || exit
     mv paru.conf /etc/paru.conf # Links sudo to doas + more
   fi
   lines
@@ -473,7 +475,7 @@ EOF
     read -rp "Doas is a lightweight and more secure alternative to sudo with similar commands. If you wish to replace sudo with doas, type \"YES\" - otherwise type \"NO\": " DOAS_choice
     echo
     until [ "$VALID_ENTRY_doas_confirm" == "true" ]; do 
-      read -rp "You have chosen \""$HOSTNAME"\" regarding replacing sudo. Type \"YES\" if correct or \"NO\" if not: " DOAS_confirm
+      read -rp "You have chosen \""$DOAS_choice"\" regarding replacing sudo. Type \"YES\" if correct or \"NO\" if not: " DOAS_confirm
       if [ "$DOAS_confirm" == "YES" ]; then
         if [ "$DOAS_choice" == "YES" ]; then
           pacman -Rns --noconfirm sudo
@@ -566,7 +568,7 @@ EOF
   fi
   echo
   grub-mkconfig -o /boot/grub/grub.cfg
-  cd /install_script || exit
+  cd "$BEGINNER_DIR" || exit
   mv grub-btrfs-update.stop /etc/local.d
   echo
   lines
@@ -580,8 +582,7 @@ auth optional pam_faildelay.so delay=4000000
 EOF
   ln -s /etc/runit/sv/apparmor /etc/runit/runsvdir/default # Apparmor
   sed -i 's/APPARMOR=disable/APPARMOR=enforce/' /etc/rc/apparmor.conf
-  sv start fcron
-  cd /install_script || exit
+  cd "$BEGINNER_DIR" || exit
   mv btrfs_snapshot.sh /etc/cron.daily # Maximum 3 snapshots stored
   chmod u+x /etc/cron.daily/btrfs_snapshot.sh
 
