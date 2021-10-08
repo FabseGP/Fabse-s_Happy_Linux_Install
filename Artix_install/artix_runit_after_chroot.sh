@@ -474,6 +474,7 @@ EOF
   until [ "$VALID_ENTRY_doas_check" == "true" ]; do 
     read -rp "Doas is a lightweight and more secure alternative to sudo with similar commands. If you wish to replace sudo with doas, type \"YES\" - otherwise type \"NO\": " DOAS_choice
     echo
+    VALID_ENTRY_doas_confirm=false # Neccessary for trying again
     until [ "$VALID_ENTRY_doas_confirm" == "true" ]; do 
       read -rp "You have chosen \""$DOAS_choice"\" regarding replacing sudo. Type \"YES\" if correct or \"NO\" if not: " DOAS_confirm
       if [ "$DOAS_confirm" == "YES" ]; then
