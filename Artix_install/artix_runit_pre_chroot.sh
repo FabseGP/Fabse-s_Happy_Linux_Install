@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+# If testing, enter "script hejsa.txt" beforehand to record screen outputs
+
 # Parameters
 
   BEGINNER_DIR=$(pwd)
@@ -587,7 +589,7 @@ EOF
   elif grep -q AMD "/proc/cpuinfo"; then
     basestrap /mnt amd-ucode
   fi
-  basestrap /mnt fcron-runit crypttab apparmor-runit libressl bat base base-devel neovim nano runit linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 cryptsetup realtime-privileges elogind-runit mkinitcpio artix-archlinux-support
+  basestrap /mnt fcron-runit cryptsetup apparmor-runit libressl bat base base-devel neovim nano runit linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 cryptsetup realtime-privileges elogind-runit mkinitcpio artix-archlinux-support
   echo
   lines
   if [[ "$SWAP_choice" == "1" ]]; then
