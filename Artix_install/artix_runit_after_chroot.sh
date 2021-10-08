@@ -559,7 +559,7 @@ EOF
   grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id="$BOOTLOADER_label" --recheck
   if [ "$ENCRYPTION_choice" == "1" ]; then
     sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="lsm=landlock,lockdown,yama,apparmor,bpf\ cryptdevice=\/dev\/'"$DRIVE_LABEL"':cryptroot:allow-discards\ root=\/dev\/mapper\/cryptroot\ loglevel=3\ quiet"/' /etc/default/grub
-    sed -i -e "/GRUB_ENABLE_CRYPTODISK/s/^#//" /etc/grub/default
+    sed -i -e "/GRUB_ENABLE_CRYPTODISK/s/^#//" /etc/default/grub
     touch grub-pre.cfg
     UUID=$(lsblk -no TYPE,UUID /dev/"$DRIVE_LABEL" | awk '$1=="part"{print $2}' | tr -d -)
     cat << EOF | tee -a grub-pre.cfg > /dev/null
