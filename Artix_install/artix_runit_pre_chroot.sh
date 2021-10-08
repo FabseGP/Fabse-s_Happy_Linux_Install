@@ -392,11 +392,11 @@
 
 # Installing parted to format drives + support for lz4-compression + configuring Arch's repo
 
-  cp pacman.conf /etc/pacman.conf
   pacman -Sy --noconfirm archlinux-keyring artix-keyring
   pacman-key --init
   pacman-key --populate archlinux artix
-  pacman -Scc --noconfirm
+  cp pacman.conf /etc/pacman.conf
+  pacman -Syy
   lines
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -530,7 +530,7 @@
     more subvolumes.txt
     mount -o noatime,compress=zstd,discard,ssd,defaults /dev/mapper/cryptroot /mnt
     cd /mnt || return
-    mkdir -p /mnt/{boot,home,srv,var_log,.snapshots,var/{abs,tmp,cache/pacman/pkg}}
+    mkdir -p /mnt/{boot,home,srv,var_log,.snapshots/packages_list,var/{abs,tmp,cache/pacman/pkg}}
     btrfs subvolume create @
     btrfs subvolume create @home
     btrfs subvolume create @var_log
@@ -539,6 +539,8 @@
     btrfs subvolume create @var/abs
     btrfs subvolume create @var/cache/pacman/pkg
     btrfs subvolume create @.snapshots
+    btrfs subvolume create @.snapshots/home
+    btrfs subvolume create @.snapshots/root
     cd /
     umount /mnt
     mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@ /dev/mapper/cryptroot /mnt
@@ -549,6 +551,8 @@
     mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_log /dev/mapper/cryptroot /mnt/var/tmp
     mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_log /dev/mapper/cryptroot /mnt/srv
     mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots /dev/mapper/cryptroot /mnt/.snapshots
+    mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots/home /dev/mapper/cryptroot /mnt/.snapshots/home
+    mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots/root /dev/mapper/cryptroot /mnt/.snapshots/root
     sync
     if [ "$ENCRYPTION_choice" == "1" ]; then
       mount /dev/mapper/cryptroot /mnt
@@ -642,5 +646,5 @@ EOF
 # Chroot
 
   mkdir /mnt/install_script
-  cp {artix_runit_after_chroot.sh,AUR.txt,farewell.txt,packages.txt,hostname.txt,btrfs_snapshot.sh,users.txt,paru-1.8.2-1-x86_64.pkg.tar.zst,pacman.conf,paru.conf,GRUB.txt,initramfs.txt,locals.txt,time.txt} /mnt/install_script
+  cp {artix_runit_after_chroot.sh,AUR.txt,farewell.txt,grub-btrfs-update.stop,packages.txt,hostname.txt,btrfs_snapshot.sh,users.txt,paru-1.8.2-1-x86_64.pkg.tar.zst,pacman.conf,paru.conf,GRUB.txt,initramfs.txt,locals.txt,time.txt} /mnt/install_script
   artix-chroot /mnt /install_script/artix_runit_after_chroot.sh
