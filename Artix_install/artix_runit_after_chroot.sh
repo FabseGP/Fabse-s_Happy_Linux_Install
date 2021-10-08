@@ -24,6 +24,8 @@
   TIME_proceed=""
  
   LANGUAGES=""
+  LANGUAGES_array=""
+  LANGUAGE=""
   VALID_ENTRY_languages=""
   VALID_ENTRY_locals_check=""
 
