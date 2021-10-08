@@ -528,40 +528,38 @@
 
 # BTRFS-subvolumes
 
-    more subvolumes.txt
-    mount -o noatime,compress=zstd,discard,ssd,defaults /dev/mapper/cryptroot /mnt
-    cd /mnt || return
-    mkdir -p /mnt/{boot,home,srv,var_log,.snapshots/packages_list,var/{abs,tmp,cache/pacman/pkg}}
-    btrfs subvolume create @
-    btrfs subvolume create @home
-    btrfs subvolume create @var_log
-    btrfs subvolume create @srv
-    btrfs subvolume create @var/tmp
-    btrfs subvolume create @var/abs
-    btrfs subvolume create @var/cache/pacman/pkg
-    btrfs subvolume create @.snapshots
-    btrfs subvolume create @.snapshots/home
-    btrfs subvolume create @.snapshots/root
-    cd /
-    umount /mnt
-    mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@ /dev/mapper/cryptroot /mnt
-    mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@home /dev/mapper/cryptroot /mnt/home
-    mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var/cache/pacman/pkg /dev/mapper/cryptroot /mnt/var/cache/pacman/pkg
-    mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_log /dev/mapper/cryptroot /mnt/var_log
-    mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_log /dev/mapper/cryptroot /mnt/var/abs
-    mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_log /dev/mapper/cryptroot /mnt/var/tmp
-    mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_log /dev/mapper/cryptroot /mnt/srv
-    mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots /dev/mapper/cryptroot /mnt/.snapshots
-    mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots/home /dev/mapper/cryptroot /mnt/.snapshots/home
-    mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots/root /dev/mapper/cryptroot /mnt/.snapshots/root
-    sync
-    if [ "$ENCRYPTION_choice" == "1" ]; then
-      mount /dev/mapper/cryptroot /mnt
-      mkdir /mnt/boot
-    else
-      mount "$DRIVE_LABEL_primary" /mnt
-      mkdir /mnt/boot
-    fi
+  more subvolumes.txt
+  if [ "$ENCRYPTION_choice" == "1" ]; then
+    MOUNT="/dev/mapper/cryptroot"
+  else
+    MOUNT="$DRIVE_LABEL_primary"
+  fi
+  mount -o noatime,compress=zstd,discard,ssd,defaults "$MOUNT" /mnt
+  cd /mnt || return
+  mkdir -p /mnt/{boot,home,srv,var_log,.snapshots/packages_list,var/{abs,tmp,cache/pacman/pkg}}
+  btrfs subvolume create @
+  btrfs subvolume create @home
+  btrfs subvolume create @var_log
+  btrfs subvolume create @srv
+  btrfs subvolume create @var/tmp
+  btrfs subvolume create @var/abs
+  btrfs subvolume create @var/cache/pacman/pkg
+  btrfs subvolume create @.snapshots
+  btrfs subvolume create @.snapshots/home
+  btrfs subvolume create @.snapshots/root
+  cd /
+  umount /mnt
+  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@ "$MOUNT" /mnt
+  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@home "$MOUNT" /mnt/home
+  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var/cache/pacman/pkg "$MOUNT" /mnt/var/cache/pacman/pkg
+  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_log "$MOUNT" /mnt/var_log
+  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_log "$MOUNT" /mnt/var/abs
+  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_log "$MOUNT" /mnt/var/tmp
+  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_log "$MOUNT" /mnt/srv
+  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots "$MOUNT" /mnt/.snapshots
+  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots/home "$MOUNT" /mnt/.snapshots/home
+  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots/root "$MOUNT" /mnt/.snapshots/root
+  sync
   echo
   lines
 
