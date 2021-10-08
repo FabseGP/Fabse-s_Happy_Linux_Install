@@ -535,8 +535,8 @@
     MOUNT="$DRIVE_LABEL_primary"
   fi
   mount -o noatime,compress=zstd,discard,ssd,defaults "$MOUNT" /mnt
-  cd /mnt || return
   mkdir -p /mnt/{boot,home,srv,.snapshots/{home,root,packages_list},var/{abs,tmp,log,cache/pacman/pkg}}
+  cd /mnt || return
   btrfs subvolume create @
   btrfs subvolume create @home
   btrfs subvolume create @var_log
