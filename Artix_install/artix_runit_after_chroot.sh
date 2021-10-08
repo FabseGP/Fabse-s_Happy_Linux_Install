@@ -229,11 +229,11 @@
   echo
   print purple "Example: da_DK.UTF-8 en_GB.UTF-8 en_US.UTF-8"
   echo
-  read -rp "Languages: " LANGUAGES
-  set -- junk "$LANGUAGES"
-  shift
-  for LANGUAGES; do
-    echo -e "$LANGUAGES UTF-8" >> /etc/locale.gen
+  read -rp "Languages: " LANGUAGES 
+  IFS=' ' read -ra LANGUAGES_array <<< "$LANGUAGES"
+  for val in "${LANGUAGES_array[@]}";
+  do
+    sed -i '/'"$val"'/s/^#//g' /etc/locale.gen
   done
   echo
   locale-gen
@@ -344,12 +344,12 @@
     until [ "$VALID_ENTRY_user_check_passwd" == "true" ]; do 
       read -rp "You have chosen \""$USER_passwd"\" as password. Type \"YES\" if you wish to change it or \"NO\" if not: " USER_check
       echo
-      if [ "$USER_check" == "NO" ]; then
+      if [ "$USER_check" == "YES" ]; then
         print yellow "You'll get a new prompt"
         USER_passwd=""
         VALID_ENTRY_user_check_passwd=true
         echo
-      elif [ "$USER_check" == "YES" ]; then
+      elif [ "$USER_check" == "NO" ]; then
         VALID_ENTRY_user_check_passwd=true
         USER_proceed_passwd=true
         useradd -m -g users -G video,audio,input,power,storage,optical,lp,scanner,dbus,daemon,disk,uucp,wheel,realtime -p "$(openssl passwd -crypt "$USER_passwd")" "$USERNAME"
@@ -565,7 +565,7 @@ EOF
     cat << EOF | tee -a grub-pre.cfg > /dev/null
 set crypto_uuid=$UUID
 cryptomount -u $UUID
-set root=crypt0
+set root=crypto0
 set prefix=crypto0/boot/grub
 insmod normal
 normal
