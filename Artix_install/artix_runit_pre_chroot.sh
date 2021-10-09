@@ -2,7 +2,7 @@
 
 # 'Logs' of script
 
-  script SCRIPT.log
+#  script SCRIPT.log
 
 #----------------------------------------------------------------------------------------------------------------------------------
  
@@ -411,7 +411,7 @@
       print blue "You have chosen the following labels / sizes: "
       echo
       print green "BOOT_size = \""$BOOT_size"\" and BOOT_label = \""$BOOT_label"\""
-      print green "ROOT_label = \""$ROOT_label"\""
+      print green "ROOT_label = \""$PRIMARY_label"\""
       echo
       VALID_ENTRY_drive_check="" # Neccessary for trying again
       until [ "$VALID_ENTRY_drive_check" == "true" ]; do 
@@ -461,7 +461,7 @@
       echo
       print green "BOOT_size = \""$BOOT_size"\" and BOOT_label = \""$BOOT_label"\""
       print green "SWAP_size = \""$SWAP_size"\" and SWAP_label = \""$SWAP_label"\""
-      print green "ROOT_label = \""$ROOT_label"\""
+      print green "ROOT_label = \""$PRIMARY_label"\""
       echo
       VALID_ENTRY_drive_check="" # Neccessary for trying again
       until [ "$VALID_ENTRY_drive_check" == "true" ]; do 
