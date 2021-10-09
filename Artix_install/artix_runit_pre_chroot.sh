@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-# If testing, execute "script --timing=time.txt hello.log" beforehand to record screen outputs
+# If testing, execute "script hello.log" beforehand to record screen outputs
 
 # Parameters
 
