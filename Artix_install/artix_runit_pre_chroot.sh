@@ -1,7 +1,11 @@
 #!/usr/bin/bash
 
-# If testing, execute "script hello.log" beforehand to record screen outputs
+# 'Logs' of script
 
+  script SCRIPT.log
+
+#----------------------------------------------------------------------------------------------------------------------------------
+ 
 # Parameters
 
   BEGINNER_DIR=$(pwd)
@@ -406,8 +410,8 @@
       echo
       print blue "You have chosen the following labels / sizes: "
       echo
-      echo -n "BOOT_size = \""$BOOT_size"\" and BOOT_label = \""$BOOT_label"\""
-      echo -n "ROOT_label = \""$ROOT_label"\""
+      print green "BOOT_size = \""$BOOT_size"\" and BOOT_label = \""$BOOT_label"\""
+      print green "ROOT_label = \""$ROOT_label"\""
       echo
       VALID_ENTRY_drive_check="" # Neccessary for trying again
       until [ "$VALID_ENTRY_drive_check" == "true" ]; do 
@@ -415,7 +419,7 @@
         echo
         if [ "$DRIVE_choice" == "YES" ]; then 
           VALID_ENTRY_drive_check=true
-          DRIVE_proceed=false
+          DRIVE_proceed=true
         elif [ "$DRIVE_choice" == "NO" ]; then  
           BOOT_size=""
           BOOT_label=""
@@ -455,9 +459,9 @@
       echo
       print blue "You have chosen the following labels / sizes: "
       echo
-      echo -n "BOOT_size = \""$BOOT_size"\" and BOOT_label = \""$BOOT_label"\""
-      echo -n "SWAP_size = \""$SWAP_size"\" and SWAP_label = \""$SWAP_label"\""
-      echo -n "ROOT_label = \""$ROOT_label"\""
+      print green "BOOT_size = \""$BOOT_size"\" and BOOT_label = \""$BOOT_label"\""
+      print green "SWAP_size = \""$SWAP_size"\" and SWAP_label = \""$SWAP_label"\""
+      print green "ROOT_label = \""$ROOT_label"\""
       echo
       VALID_ENTRY_drive_check="" # Neccessary for trying again
       until [ "$VALID_ENTRY_drive_check" == "true" ]; do 
@@ -465,7 +469,7 @@
         echo
         if [ "$DRIVE_choice" == "YES" ]; then 
           VALID_ENTRY_drive_check=true
-          DRIVE_proceed=false
+          DRIVE_proceed=true
         elif [ "$DRIVE_choice" == "NO" ]; then  
           BOOT_size=""
           BOOT_label=""
@@ -501,7 +505,7 @@
     echo
     print blue "Please have your encryption-password ready "
     echo
-    cryptsetup luksFormat --batch-mode --verify-passphrase --type luks2 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL_primary"
+    cryptsetup luksFormat --batch-mode --verify-passphrase --type luks2 --pbkdf=pbkdf2 --pbkdf-force-iterations=500000 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL_primary" # --pbkdf=pbkdf2 --pbkdf-force-iterations=500000 due to GRUB lacking support for ARGON2d
     cryptsetup open "$DRIVE_LABEL_primary" cryptroot
     echo
   fi
