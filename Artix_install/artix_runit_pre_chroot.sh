@@ -407,6 +407,7 @@
 # Partitions
 
   swapoff -a
+  umount -R /mnt # In case of executing the script again
   more partitions.txt
   echo
   fdisk -l
@@ -569,7 +570,7 @@
 # Drive-mount
 
   cd "$BEGINNER_DIR" || exit
-  mount "$DRIVE_LABEL_boot" /mnt/EFI
+  mount "$DRIVE_LABEL_boot" /mnt/boot/EFI
   if [[ "$SWAP_choice" == "1" ]]; then
     swapon "$DRIVE_LABEL_swap"
   fi
