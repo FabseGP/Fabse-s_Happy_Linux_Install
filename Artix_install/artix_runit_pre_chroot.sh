@@ -229,7 +229,7 @@
         drive_size=""
         VALID_ENTRY_drive_size_format=false
       elif [ "$drive" == "BOOT" ]; then
-        if ! [[ "$drive_size" -ge "255" ]]; then
+        if ! [[ "$drive_size" -ge "260" ]]; then
           print red "Sorry, the "$drive"-partition will not be large enough"
           echo
           drive_size=""
@@ -500,7 +500,7 @@
     echo
     print blue "Please have your encryption-password ready "
     echo
-    cryptsetup luksFormat --batch-mode --verify-passphrase --type luks2 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL_primary"
+    cryptsetup luksFormat --batch-mode --verify-passphrase --type luks2 --pbkdf=pbkdf2 --pbkdf-force-iterations=500000 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL_primary"
     cryptsetup open "$DRIVE_LABEL_primary" cryptroot
     echo
   fi
@@ -546,10 +546,11 @@
   btrfs subvolume create @var_abs
   btrfs subvolume create @var_pkg
   btrfs subvolume create @.snapshots
+  btrfs subvolume create @boot
   cd /
   umount /mnt
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@ "$MOUNT" /mnt
-  mkdir -p /mnt/{boot,home,srv,.snapshots/{home,root,packages_list},var/{abs,tmp,log,cache/pacman/pkg}}
+  mkdir -p /mnt/{boot,efi,home,srv,.snapshots,var/{abs,tmp,log,cache/pacman/pkg}}
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@home "$MOUNT" /mnt/home
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_pkg "$MOUNT" /mnt/var/cache/pacman/pkg
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_log "$MOUNT" /mnt/var/log
@@ -557,6 +558,8 @@
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_tmp "$MOUNT" /mnt/var/tmp
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@srv "$MOUNT" /mnt/srv
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots "$MOUNT" /mnt/.snapshots
+  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@boot "$MOUNT" /mnt/boot
+  mkdir -p /mnt/.snapshots/{home,root,packages_list}
   sync
   echo
   lines
@@ -566,7 +569,7 @@
 # Drive-mount
 
   cd "$BEGINNER_DIR" || exit
-  mount "$DRIVE_LABEL_boot" /mnt/boot
+  mount "$DRIVE_LABEL_boot" /mnt/efi
   if [[ "$SWAP_choice" == "1" ]]; then
     swapon "$DRIVE_LABEL_swap"
   fi
@@ -577,7 +580,7 @@
 
 # Base-install + encrypted swap (if swap is chosen)
 
-  if grep -q Intel "/proc/cpuinfo"; then
+  if grep -q Intel "/proc/cpuinfo"; then # Poor soul :(
     basestrap /mnt intel-ucode
   elif grep -q AMD "/proc/cpuinfo"; then
     basestrap /mnt amd-ucode
