@@ -501,7 +501,7 @@
     echo
     print blue "Please have your encryption-password ready "
     echo
-    cryptsetup luksFormat --batch-mode --verify-passphrase --type luks2 --pbkdf=pbkdf2 --pbkdf-force-iterations=500000 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL_primary"
+    cryptsetup luksFormat --batch-mode --verify-passphrase --type luks2 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL_primary"
     cryptsetup open "$DRIVE_LABEL_primary" cryptroot
     echo
   fi
