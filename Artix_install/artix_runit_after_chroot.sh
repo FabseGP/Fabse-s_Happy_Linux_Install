@@ -430,12 +430,12 @@ EOF
   echo
   until [ "$PACKAGES_proceed" == "true" ]; do 
     print blue "If you want to install any other packages/services or desktop environments / window managers from either AUR or with pacman now, type \"YES\" - otherwise type \"NO\" "
-    read -rp "Packages: " PACKAGES_choice
+    read -rp PACKAGES_choice
     echo
     if [ "$PACKAGES_choice" == "YES" ]; then
       until [ "$VALID_ENTRY_packages_check" == "true" ]; do 
         print blue "Please enter all packages/services which should be installed now; all must be separated by space: "
-        read -r PACKAGES
+        read -rp "Packages: " PACKAGES
         echo
         print cyan "These packages/services will be installed: "
         echo "$PACKAGES"
@@ -521,11 +521,16 @@ EOF
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Regenerating initramfs with encrypt-hook
+# Regenerating initramfs with encrypt-hook + keyfile
 
   more initramfs.txt
   sed -i 's/HOOKS=(base\ udev\ autodetect\ modconf\ block\ filesystems\ keyboard\ fsck)/HOOKS=(base\ udev\ keymap\ keyboard\ autodetect\ modconf\ block\ encrypt\ filesystems\ fsck)/' /etc/mkinitcpio.conf
   sed -i 's/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/' /etc/mkinitcpio.conf
+  dd bs=512 count=4 if=/dev/random of=/.crypto_keyfile.bin iflag=fullblock
+  chmod 600 /.crypto_keyfile.bin
+  chmod 600 /boot/initramfs-linux*
+  cryptsetup luksAddKey /dev/"$DRIVE_LABEL" /.crypto_keyfile.bin
+  sed -i 's/FILES=()/FILES=(\/.crypto_keyfile.bin)/' /etc/mkinitcpio.conf
   mkinitcpio -p linux-zen
   echo
   lines
@@ -595,8 +600,26 @@ EOF
   cat << EOF | tee -a /etc/pam.d/system-login > /dev/null # 4 second delay, when system login failes
 auth optional pam_faildelay.so delay=4000000
 EOF
-  ln -s /etc/runit/sv/apparmor /etc/runit/runsvdir/default # Apparmor
-  sed -i 's/APPARMOR=disable/APPARMOR=enforce/' /etc/rc/apparmor.conf
+  firecfg
+  firecfg --fix
+  mkdir /etc/pacman.d/hooks
+  touch /etc/pacman.d/hooks/firejail.hook
+  cat << EOF | tee -a /etc/pacman.d/hooks/firejail.hook > /dev/null
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Operation = Remove
+Target = usr/bin/*
+Target = usr/local/bin/*
+Target = usr/share/applications/*.desktop
+
+[Action]
+Description = Configure symlinks in /usr/local/bin based on firecfg.config...
+When = PostTransaction
+Depends = firejail
+Exec = /bin/bash -c 'firecfg >/dev/null 2>&1'
+EOF
   cd "$BEGINNER_DIR" || exit
   mv btrfs_snapshot.sh /etc/cron.daily # Maximum 3 snapshots stored
   chmod u+x /etc/cron.daily/btrfs_snapshot.sh
