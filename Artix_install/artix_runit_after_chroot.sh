@@ -132,6 +132,7 @@
   pacman-key --populate archlinux artix
   mv pacman.conf /etc/pacman.conf
   pacman -Syy
+  echo
   lines
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -243,7 +244,7 @@
   print blue "Any thoughts on the system-wide language?"
   print purple "Example: da_DK.UTF-8"
   echo
-  read -r LANGUAGE
+  read -rp "Language: " LANGUAGE
   echo
   echo LANG="$LANGUAGE" > /etc/locale.conf
   echo
@@ -260,7 +261,7 @@
     print blue "Any thoughts on the system-wide keymap?"
     print purple "Example: dk-latin1"
     echo
-    read -r KEYMAP
+    read -rp "Keymap: " KEYMAP
     echo
     until [ "$VALID_ENTRY_keymap_check" == "true" ]; do 
       read -rp "You have chosen \""$KEYMAP"\". Type \"YES\" if correct or \"NO\" if not: " KEYMAP_check
@@ -292,7 +293,6 @@
   more users.txt
   echo
   until [ "$ROOT_proceed" == "true" ]; do 
-    ROOT_passwd=$1
     VALID_ENTRY_root_check=false # Necessary for trying again
     read -rp "Any thoughts on a root-password? Please enter it here; it will later be hashed using libressl: " ROOT_passwd
     echo
@@ -377,7 +377,7 @@
   until [ "$HOSTNAME_proceed" == "true" ]; do 
     VALID_ENTRY_hostname_check=false # Necessary for trying again
     print blue "What name do you wish to host?"
-    read -r HOSTNAME
+    read -rp "Hostname: " HOSTNAME
     echo
     until [ "$VALID_ENTRY_hostname_check" == "true" ]; do 
       read -rp "You have chosen \""$HOSTNAME"\" as hostname. Type \"YES\" if correct or \"NO\" if not: " HOSTNAME_check
@@ -430,7 +430,7 @@ EOF
   echo
   until [ "$PACKAGES_proceed" == "true" ]; do 
     print blue "If you want to install any other packages/services or desktop environments / window managers from either AUR or with pacman now, type \"YES\" - otherwise type \"NO\" "
-    read -r PACKAGES_choice
+    read -rp "Packages: " PACKAGES_choice
     echo
     if [ "$PACKAGES_choice" == "YES" ]; then
       until [ "$VALID_ENTRY_packages_check" == "true" ]; do 
@@ -573,7 +573,7 @@ set gfxmode=auto
 terminal_input console
 terminal_output gfxterm
 cryptomount -u $UUID
-set prefix='(crypto0)/@boot/grub'
+set prefix='(crypto0)/@grub'
 set root='(crypto0)'
 insmod normal
 normal
