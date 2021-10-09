@@ -578,7 +578,7 @@ set root='(crypto0)'
 insmod normal
 normal
 EOF
-    grub-mkimage -p '(crypto0)/@boot/grub' -O x86_64-efi -c grub-pre.cfg -o /boot/EFI/EFI/"$BOOTLOADER_label"/grubx64.efi luks2 fat all_video jpeg png part_gpt gfxterm gfxmenu pbkdf2 gfxterm_background cryptodisk gcry_rijndael gcry_sha512 btrfs
+    grub-mkimage -p '(crypto0)/@grub' -O x86_64-efi -c grub-pre.cfg -o /boot/EFI/EFI/"$BOOTLOADER_label"/grubx64.efi luks2 fat all_video jpeg png part_gpt gfxterm gfxmenu pbkdf2 gfxterm_background cryptodisk gcry_rijndael gcry_sha512 btrfs
     rm grub-pre.cfg
   fi
   echo
