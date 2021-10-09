@@ -566,7 +566,7 @@
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@srv "$MOUNT" /mnt/srv
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots "$MOUNT" /mnt/.snapshots
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@boot "$MOUNT" /mnt/boot
-  mkdir -p /mnt/{boot/{EFI,grub},.snapshots/{home,root,packages_list}}
+  mkdir -p /mnt/{boot/{EFI,grub},.snapshots/{home,root,packages_list},.secret}
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@grub "$MOUNT" /mnt/boot/grub
   sync
   echo
@@ -597,7 +597,7 @@
   echo
   lines
   if [[ "$SWAP_choice" == "1" ]]; then
-    UUID_swap=$(lsblk -no TYPE,UUID /dev/"$DRIVE_LABEL_swap" | awk '$1=="part"{print $2}')
+    UUID_swap=$(lsblk -no TYPE,UUID "$DRIVE_LABEL_swap" | awk '$1=="part"{print $2}')
     cat << EOF | tee -a /mnt/etc/crypttab > /dev/null
 swap     UUID="$UUID_swap"  /dev/urandom  swap,offset=2048,cipher=aes-xts-plain64,size=512
 EOF
