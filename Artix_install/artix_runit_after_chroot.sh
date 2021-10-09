@@ -615,4 +615,4 @@ EOF
   exit
   exit
   umount -R /mnt
-  reboot
+  
