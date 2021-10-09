@@ -500,6 +500,7 @@ EOF
           echo
         elif [ "$DOAS_choice" == "NO" ]; then
           echo "%wheel ALL=(ALL) ALL" | (EDITOR="tee -a" visudo)
+          sed -i -e "/Sudo = doas/s/^#//" /etc/doas.conf
           VALID_ENTRY_doas_confirm=true
           VALID_ENTRY_doas_check=true
         fi
@@ -558,22 +559,26 @@ EOF
   done
   print blue "The bootloader will be viewed as "$BOOTLOADER_label" in the BIOS"
   echo
-  grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id="$BOOTLOADER_label" --recheck
+  grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id="$BOOTLOADER_label" --modules="luks2 fat all_video jpeg png gfxterm gfxmenu gfxterm_background part_gpt cryptodisk gcry_rijndael pbkdf2 gcry_sha512 btrfs" --recheck
   if [ "$ENCRYPTION_choice" == "1" ]; then
-    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="lsm=landlock,lockdown,yama,apparmor,bpf\ cryptdevice=\/dev\/'"$DRIVE_LABEL"':cryptroot:allow-discards\ root=\/dev\/mapper\/cryptroot\ loglevel=3\ quiet"/' /etc/default/grub
+    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="lsm=landlock,lockdown,yama,apparmor,bpf\ loglevel=3\ quiet\ cryptdevice=\/dev\/'"$DRIVE_LABEL"':cryptroot:allow-discards\ root=\/dev\/mapper\/cryptroot\"/' /etc/default/grub
     sed -i -e "/GRUB_ENABLE_CRYPTODISK/s/^#//" /etc/default/grub
     touch grub-pre.cfg
     UUID=$(lsblk -no TYPE,UUID /dev/"$DRIVE_LABEL" | awk '$1=="part"{print $2}' | tr -d -)
     cat << EOF | tee -a grub-pre.cfg > /dev/null
+insmod all_video
+set gfxmode=auto
+terminal_input console
+terminal_output gfxterm
 set crypto_uuid=$UUID
 cryptomount -u $UUID
 set root=crypto0
-set prefix=crypto0/boot/grub
+set prefix=(crypto0)/@/boot/grub
 insmod normal
 normal
 EOF
-    grub-mkimage -p /boot/grub -O x86_64-efi -c grub-pre.cfg -o /tmp/grubx64.efi luks2 part_gpt cryptodisk gcry_rijndael pbkdf2 gcry_sha512 btrfs
-    install -v /tmp/grubx64.efi /boot/EFI/"$BOOTLOADER_label"/grubx64.efi
+    grub-mkimage -p /boot/grub -O x86_64-efi -c grub-pre.cfg -o /tmp/grubx64.efi luks2 fat all_video jpeg png part_gpt gfxterm gfxmenu gfxterm_background cryptodisk gcry_rijndael pbkdf2 gcry_sha512 btrfs
+    install -v /tmp/grubx64.efi /efi/EFI/"$BOOTLOADER_label"/grubx64.efi
   fi
   echo
   grub-mkconfig -o /boot/grub/grub.cfg
