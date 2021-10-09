@@ -526,11 +526,16 @@ EOF
   more initramfs.txt
   sed -i 's/HOOKS=(base\ udev\ autodetect\ modconf\ block\ filesystems\ keyboard\ fsck)/HOOKS=(base\ udev\ keymap\ keyboard\ autodetect\ modconf\ block\ encrypt\ filesystems\ fsck)/' /etc/mkinitcpio.conf
   sed -i 's/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/' /etc/mkinitcpio.conf
-  dd bs=512 count=4 if=/dev/random of=/.crypto_keyfile.bin iflag=fullblock
-  chmod 600 /.crypto_keyfile.bin
-  chmod 600 /boot/initramfs-linux*
-  cryptsetup luksAddKey /dev/"$DRIVE_LABEL" /.crypto_keyfile.bin
-  sed -i 's/FILES=()/FILES=(\/.crypto_keyfile.bin)/' /etc/mkinitcpio.conf
+  if [ "$ENCRYPTION_choice" == "1" ]; then
+    dd bs=512 count=4 if=/dev/random of=/.secret/crypto_keyfile.bin iflag=fullblock
+    chmod 600 /.secret/crypto_keyfile.bin
+    chmod 600 /boot/initramfs-linux*
+    echo
+    print yellow "Please have your encryption-password ready"
+    echo
+    cryptsetup luksAddKey /dev/"$DRIVE_LABEL" /.secret/crypto_keyfile.bin
+    sed -i 's/FILES=()/FILES=(\/.secret\/crypto_keyfile.bin)/' /etc/mkinitcpio.conf
+  fi
   mkinitcpio -p linux-zen
   echo
   lines
@@ -600,8 +605,6 @@ EOF
   cat << EOF | tee -a /etc/pam.d/system-login > /dev/null # 4 second delay, when system login failes
 auth optional pam_faildelay.so delay=4000000
 EOF
-  firecfg
-  firecfg --fix
   mkdir /etc/pacman.d/hooks
   touch /etc/pacman.d/hooks/firejail.hook
   cat << EOF | tee -a /etc/pacman.d/hooks/firejail.hook > /dev/null
