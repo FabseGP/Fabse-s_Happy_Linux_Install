@@ -295,14 +295,14 @@
     read -rp "Any thoughts on a root-password? Please enter it here; it will later be hashed using libressl: " ROOT_passwd
     echo
     until [ "$VALID_ENTRY_root_check" == "true" ]; do 
-      read -rp "You have chosen \""$ROOT_passwd"\". Type \"YES\" if you wish to change it or \"NO\" if not: " ROOT_check
+      read -rp "You have chosen \""$ROOT_passwd"\". Type \"YES\" if fine or \"NO\" if you wish to change it: " ROOT_check
       echo
-      if [ "$ROOT_check" == "YES" ]; then
+      if [ "$ROOT_check" == "NO" ]; then
         print yellow "You'll get a new prompt"
         ROOT_passwd=""
         VALID_ENTRY_root_check=true
         echo
-      elif [ "$ROOT_check" == "NO" ]; then
+      elif [ "$ROOT_check" == "YES" ]; then
         ROOT_proceed=true
         VALID_ENTRY_root_check=true
         echo "root:$ROOT_passwd" | chpasswd
@@ -344,14 +344,14 @@
     echo
     USER_check=""
     until [ "$VALID_ENTRY_user_check_passwd" == "true" ]; do 
-      read -rp "You have chosen \""$USER_passwd"\" as password. Type \"YES\" if you wish to change it or \"NO\" if not: " USER_check
+      read -rp "You have chosen \""$USER_passwd"\" as password. Type \"YES\" if fine or \"NO\" if you wish to change it:: " USER_check
       echo
-      if [ "$USER_check" == "YES" ]; then
+      if [ "$USER_check" == "NO" ]; then
         print yellow "You'll get a new prompt"
         USER_passwd=""
         VALID_ENTRY_user_check_passwd=true
         echo
-      elif [ "$USER_check" == "NO" ]; then
+      elif [ "$USER_check" == "YES" ]; then
         VALID_ENTRY_user_check_passwd=true
         USER_proceed_passwd=true
         useradd -m -g users -G video,audio,input,power,storage,optical,lp,scanner,dbus,daemon,disk,uucp,wheel,realtime -p "$(openssl passwd -crypt "$USER_passwd")" "$USERNAME"
@@ -373,7 +373,7 @@
   echo
   until [ "$HOSTNAME_proceed" == "true" ]; do 
     VALID_ENTRY_hostname_check=false # Necessary for trying again
-    print blue "What name do you want to host?"
+    print blue "What name do you wish to host?"
     read -r HOSTNAME
     echo
     until [ "$VALID_ENTRY_hostname_check" == "true" ]; do 
@@ -559,7 +559,7 @@ EOF
   done
   print blue "The bootloader will be viewed as "$BOOTLOADER_label" in the BIOS"
   echo
-  grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id="$BOOTLOADER_label" --modules="luks2 fat all_video jpeg png gfxterm gfxmenu gfxterm_background part_gpt cryptodisk gcry_rijndael pbkdf2 gcry_sha512 btrfs" --recheck
+  grub-install --target=x86_64-efi --efi-directory=/boot/EFI --bootloader-id="$BOOTLOADER_label" --modules="luks2 fat all_video jpeg png gfxterm gfxmenu gfxterm_background part_gpt cryptodisk gcry_rijndael pbkdf2 gcry_sha512 btrfs" --recheck
   if [ "$ENCRYPTION_choice" == "1" ]; then
     sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="lsm=landlock,lockdown,yama,apparmor,bpf\ loglevel=3\ quiet\ cryptdevice=\/dev\/'"$DRIVE_LABEL"':cryptroot:allow-discards\ root=\/dev\/mapper\/cryptroot\"/' /etc/default/grub
     sed -i -e "/GRUB_ENABLE_CRYPTODISK/s/^#//" /etc/default/grub
@@ -573,12 +573,12 @@ terminal_output gfxterm
 set crypto_uuid=$UUID
 cryptomount -u $UUID
 set root=crypto0
-set prefix=(crypto0)/@/boot/grub
+set prefix=(crypto0)/boot/grub
 insmod normal
 normal
 EOF
     grub-mkimage -p /boot/grub -O x86_64-efi -c grub-pre.cfg -o /tmp/grubx64.efi luks2 fat all_video jpeg png part_gpt gfxterm gfxmenu gfxterm_background cryptodisk gcry_rijndael pbkdf2 gcry_sha512 btrfs
-    install -v /tmp/grubx64.efi /efi/EFI/"$BOOTLOADER_label"/grubx64.efi
+    install -v /tmp/grubx64.efi /boot/EFI/"$BOOTLOADER_label"/grubx64.efi
   fi
   echo
   grub-mkconfig -o /boot/grub/grub.cfg
