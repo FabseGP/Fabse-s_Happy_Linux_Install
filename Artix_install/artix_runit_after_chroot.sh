@@ -137,7 +137,6 @@
 
 # Until-loop; intro
 
-  lines
   until [ "$VALID_ENTRY_choice" == "true" ]; do 
     read -rp "Do you plan to utilise AUR? Please type \"1\" for yes, \"2\" if not: " AUR_choice
     echo
@@ -229,9 +228,8 @@
 
   more locals.txt
   echo
-  print blue "Which languages do you wish to generate? Please follow the example below; by default UTF-8 languages will be generated: "
-  echo
-  print purple "Example: da_DK en_GB en_US"
+  print blue "Which languages do you wish to generate? Please follow the example below: "
+  print purple "Example: da_DK.UTF-8 en_GB.UTF-8 en_US.UTF-8"
   echo
   read -rp "Languages: " LANGUAGES 
   IFS=' ' read -ra LANGUAGES_array <<< "$LANGUAGES"
@@ -244,6 +242,7 @@
   echo
   print blue "Any thoughts on the system-wide language?"
   print purple "Example: da_DK.UTF-8"
+  echo
   read -r LANGUAGE
   echo
   echo LANG="$LANGUAGE" > /etc/locale.conf
@@ -260,6 +259,7 @@
     VALID_ENTRY_keymap_check=false # Necessary for trying again
     print blue "Any thoughts on the system-wide keymap?"
     print purple "Example: dk-latin1"
+    echo
     read -r KEYMAP
     echo
     until [ "$VALID_ENTRY_keymap_check" == "true" ]; do 
@@ -476,7 +476,6 @@ EOF
   ln -s /etc/runit/sv/NetworkManager /etc/runit/runsvdir/default
   ln -s /etc/runit/sv/fcron /etc/runit/runsvdir/default
   echo
-  lines
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
