@@ -189,6 +189,7 @@
     print blue "Please choose your locale time; if two-part (such as Europe/Copenhagen) choose the first part "
     select TIMEZONE_1 in $(ls /usr/share/zoneinfo); do
       if [ -d "/usr/share/zoneinfo/$TIME" ]; then
+        echo
         select TIMEZONE_2 in $(ls /usr/share/zoneinfo/"$TIMEZONE_1"); do
           ln -sf /usr/share/zoneinfo/"$TIMEZONE_1"/"$TIMEZONE_2" /etc/localtime
         break
@@ -198,6 +199,7 @@
       fi
     break
     done
+    echo
     until [ "$VALID_ENTRY_time_check" == "true" ]; do 
       read -rp "You have chosen \""$TIMEZONE_1"/"$TIMEZONE_2"\" . Type \"YES\" if correct or \"NO\" if not: " TIME_check
       echo
@@ -344,7 +346,7 @@
     echo
     USER_check=""
     until [ "$VALID_ENTRY_user_check_passwd" == "true" ]; do 
-      read -rp "You have chosen \""$USER_passwd"\" as password. Type \"YES\" if fine or \"NO\" if you wish to change it:: " USER_check
+      read -rp "You have chosen \""$USER_passwd"\" as password. Type \"YES\" if fine or \"NO\" if you wish to change it: " USER_check
       echo
       if [ "$USER_check" == "NO" ]; then
         print yellow "You'll get a new prompt"
@@ -578,7 +580,7 @@ insmod normal
 normal
 EOF
     grub-mkimage -p /boot/grub -O x86_64-efi -c grub-pre.cfg -o /tmp/grubx64.efi luks2 fat all_video jpeg png part_gpt gfxterm gfxmenu gfxterm_background cryptodisk gcry_rijndael pbkdf2 gcry_sha512 btrfs
-    install -v /tmp/grubx64.efi /boot/EFI/"$BOOTLOADER_label"/grubx64.efi
+    install -v /tmp/grubx64.efi /boot/EFI/EFI/"$BOOTLOADER_label"/grubx64.efi
   fi
   echo
   grub-mkconfig -o /boot/grub/grub.cfg
@@ -613,6 +615,5 @@ EOF
   more farewell.txt
   echo
   exit
-  exit
   umount -R /mnt
-  
+  exit
