@@ -1,67 +1,79 @@
 #!/usr/bin/bash
 
-# 'Logs' of script
+# Correct start
 
-#  script SCRIPT.log
+  cd /install_script || exit
 
 #----------------------------------------------------------------------------------------------------------------------------------
- 
+
 # Parameters
 
   BEGINNER_DIR=$(pwd)
-  LOADKEY=""
 
-  type=""
-  type_choice=""
-
-  SWAP_choice=""
+  AUR_choice=""
   ENCRYPTION_choice=""
-  WIFI_choice=""
-  INTRO_choice=""
-
-  VALID_ENTRY_choices=""
-  VALID_ENTRY_intro_check=""
-  INTRO_proceed=""
-
-  WIFI_SSID=""
-  WIFI_check=""
-  VALID_ENTRY_wifi_check=""
-  WIFI_proceed=""
-  WIFI_ID=""
-
-  VALID_ENTRY_drive=""
-  VALID_ENTRY_drive_choice=""
-  OUTPUT=""
-  DRIVE_check=""
-  DRIVE_proceed=""
-
-  drive=""
-  drive_size=""
-  drive_name=""
-
-  VALID_ENTRY_drive_size_format=""
-  BOOT_size=""
-  SWAP_size=""
-
-  VALID_ENTRY_drive_name=""
-  BOOT_label=""
-  SWAP_label=""
-  PRIMARY_label=""
-
-  DRIVE_choice=""
-  VALID_ENTRY_drive_check=""
-
   DRIVE_LABEL=""
-  DRIVE_LABEL_boot=""
-  DRIVE_LABEL_swap=""
-  DRIVE_LABEL_primary=""
+  VALID_ENTRY_choice=""
+  VALID_ENTRY_intro_check=""
 
-  RAM_size=""
-  FSTAB_check=""
-  VALID_ENTRY_fstab_check=""
-  FSTAB_proceed=""
-  FSTAB_confirm=""
-  VALID_ENTRY_fstab_confirm_check=""
+  VALID_ENTRY_timezone=""
+  TIMEZONE_1=""
+  TIMEZONE_2=""
+  TIME_check=""
+  VALID_ENTRY_time_check=""
+  TIME_proceed=""
+ 
+  LANGUAGES=""
+  LANGUAGES_array=""
+  LANGUAGE=""
+  VALID_ENTRY_languages=""
+  VALID_ENTRY_locals_check=""
+
+  KEYMAP=""
+  VALID_ENTRY_keymap=""
+  KEYMAP_check=""
+  VALID_ENTRY_keymap_check=""
+  KEYMAP_proceed=""
+
+  HOSTNAME=""
+  HOSTNAME_check=""
+  VALID_ENTRY_hostname_check=""
+  HOSTNAME_proceed=""
+
+  ROOT_passwd=""
+  ROOT_check=""
+  VALID_ENTRY_root_check=""
+  ROOT_proceed=""
+
+  USERNAME=""
+  USER_passwd=""
+  USER_check=""
+  VALID_ENTRY_user_check_username=""
+  VALID_ENTRY_user_check_passwd=""
+  USER_proceed_username=""
+  USER_proceed_passwd=""
+
+  DOAS_choice=""
+  DOAS_confirm=""
+  VALID_ENTRY_doas_check=""
+  VALID_ENTRY_doas_confirm=""
+
+  BOOTLOADER_label=""
+  BOOTLOADER_check=""
+  VALID_ENTRY_bootloader_check=""
+  BOOTLOADER_proceed=""
+  UUID=""
+
+  PACKAGES=""
+  PACKAGES_check=""
+  PACKAGES_choice=""
+  VALID_ENTRY_packages_check=""
+  PACKAGES_proceed=""
+
+  SUMMARY=""
+  SUMMARY_check=""
+  VALID_ENTRY_summary_check=""
+  SUMMARY_proceed="" # Rebooting if true
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -112,548 +124,521 @@
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
+# Configuring Arch's repository
+
+  cd "$BEGINNER_DIR" || exit
+  pacman -Sy --noconfirm archlinux-keyring artix-keyring
+  pacman-key --init
+  pacman-key --populate archlinux artix
+  mv pacman.conf /etc/pacman.conf
+  pacman -Syy
+  echo
+  lines
+#----------------------------------------------------------------------------------------------------------------------------------
+
 # Until-loop; intro
 
-  until_loop_intro() {
-    type="$1"
-    type_choice="$2"
-    until [ "$VALID_ENTRY_choices" == "true" ]; do 
-      read -rp "Do you plan to utilise "${type,,}"? Please type \"1\" for yes, \"2\" if not: " type_choice
-      echo
-      if [ "$type_choice" == "2" ]; then
-        print yellow ""$1" will not be configured"
-        echo
-        VALID_ENTRY_choices=true
-      elif [ "$type_choice" == "1" ]; then
-        print green ""$1" will be configured"
-        echo
-        VALID_ENTRY_choices=true
-      else
-        VALID_ENTRY_choices=false
-        print red "Invalid answer. Please try again"
-        echo
-      fi
-    done
-    if [ "$type" == "WiFi" ]; then
-      WIFI_choice="$type_choice"
-    elif [ "$type" == "SWAP" ]; then
-      SWAP_choice="$type_choice"
-    elif [ "$type" == "Encryption" ]; then
-      ENCRYPTION_choice="$type_choice"
-    fi
-    type=""
-    type_choice=""
-    VALID_ENTRY_choices=""
-}
-
-#----------------------------------------------------------------------------------------------------------------------------------
-
-# Until-loop; disk-name
-
-  until_loop_drive_name() {
-    drive="$1"
-    drive_name="$2"
-    until [ "$VALID_ENTRY_drive_name" == "true" ]; do 
-      read -rp "A special name for the "$drive"-partition? " drive_name
-      echo
-      if [ "$drive" == "BOOT" ]; then
-        if [[ "${#drive_name}" -ge "11" ]]; then
-          print red "Sorry, the boot-name is too long; maximum 11 characters is allowed with FAT32"
-          echo
-          drive_name=""
-          VALID_ENTRY_drive_name=false
-        else
-          VALID_ENTRY_drive_name=true
-        fi
-      else
-        VALID_ENTRY_drive_name=true
-      fi
-    done
-    if [ "$drive" == "BOOT" ]; then
-      BOOT_label="$drive_name"
-    elif [ "$drive" == "SWAP" ]; then
-      SWAP_label="$drive_name"
-    elif [ "$drive" == "primary" ]; then
-      PRIMARY_label="$drive_name"
-    fi
-    drive=""
-    drive_name=""
-    VALID_ENTRY_drive_name=""
-}
-
-#----------------------------------------------------------------------------------------------------------------------------------
-
-# Until-loop; drive-size
-
-  until_loop_drive_size() {
-    drive="$1"
-    drive_size="$2"
-    until [ "$VALID_ENTRY_drive_size_format" == "true" ]; do 
-      VALID_ENTRY_drive_size_format=false # Necessary for trying again
-      if [ "$drive" == "BOOT" ]; then
-        read -rp "Any favourite size for the "$drive"-partition in MB? Though minimum 261MB; only type the size without units: " drive_size
-      else
-        read -rp "Any favourite size for the "$drive"-partition in MB? Please only type the size without units: " drive_size
-      fi
-      echo
-      if ! [[ "$drive_size" =~ ^[0-9]+$ ]]; then
-        print red "Sorry, only numbers please"
-        echo
-        drive_size=""
-        VALID_ENTRY_drive_size_format=false
-      elif [ "$drive" == "BOOT" ]; then
-        if ! [[ "$drive_size" -ge "260" ]]; then
-          print red "Sorry, the "$drive"-partition will not be large enough"
-          echo
-          drive_size=""
-          VALID_ENTRY_drive_size_format=false
-        else
-          VALID_ENTRY_drive_size_format=true
-        fi
-      else 
-        VALID_ENTRY_drive_size_format=true
-      fi
-    done
-    if [ "$drive" == "BOOT" ]; then
-      BOOT_size=$drive_size
-    elif [ "$drive" == "SWAP" ]; then
-      SWAP_size=$((drive_size+BOOT_size))
-    fi
-    drive=""
-    drive_size=""
-    VALID_ENTRY_drive_size_format=""
-}
-
-#----------------------------------------------------------------------------------------------------------------------------------
-
-# Insure that the script is run as root-user
-
-  if ! [ "$USER" = 'root' ]; then
+  until [ "$VALID_ENTRY_choice" == "true" ]; do 
+    read -rp "Do you plan to utilise AUR? Please type \"1\" for yes, \"2\" if not: " AUR_choice
     echo
-    print red "Sorry, this script must be run as root-user"
-    exit 1
-  fi
-
-#----------------------------------------------------------------------------------------------------------------------------------
-
-# Loadkeys
-
-  ls -R /usr/share/kbd/keymaps
-  echo
-  print blue "Which keymap do you want to use during the install"?
-  echo
-  read -r LOADKEY
-  loadkeys "$LOADKEY"
+    if [ "$AUR_choice" == "2" ]; then
+      print yellow "AUR will not be configured"
+      echo
+      VALID_ENTRY_choice=true
+    elif [ "$AUR_choice" == "1" ]; then
+      print green "Access to AUR will be configured"
+      echo
+      VALID_ENTRY_choice=true
+    else
+      VALID_ENTRY_choice=false
+      print red "Invalid answer. Please try again"
+      echo
+    fi
+  done
+  VALID_ENTRY_choice=""
+  until [ "$VALID_ENTRY_choice" == "true" ]; do 
+    read -rp "Did you set up encryption previously? Please type \"1\" for yes, \"2\" if not: " ENCRYPTION_choice
+    echo
+    if [ "$ENCRYPTION_choice" == "2" ]; then
+      print yellow "Forget this question..."
+      echo
+      VALID_ENTRY_choice=true
+    elif [ "$ENCRYPTION_choice" == "1" ]; then
+      fdisk -l
+      echo
+      print blue "Which drive was set up for encryption, for example \"sda3\"?"
+      read -r DRIVE_LABEL
+      echo
+      VALID_ENTRY_choice=true
+    else
+      VALID_ENTRY_choice=false
+      print red "Invalid answer. Please try again"
+      echo
+    fi
+  done
   lines
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Introduction
+# Setting up time
 
-  more welcome.txt # Prints the content of the file
+  more time.txt
   echo
-  print blue "To tailor the installation to your needs, you have the following choices: "
-  echo
-  until [ "$INTRO_proceed" == "true" ]; do 
-    VALID_ENTRY_intro_check=false # Necessary for trying again
-    until_loop_intro WiFi WIFI_choice
-    until_loop_intro Encryption ENCRYPTION_choice
-    until_loop_intro SWAP SWAP_choice
-    print blue "You have chosen the following options: "
+  until [ "$TIME_proceed" == "true" ]; do 
+    VALID_ENTRY_time_check=false # Necessary for trying again
+    print blue "Please choose your locale time; if two-part (such as Europe/Copenhagen) choose the first part "
+    select TIMEZONE_1 in $(ls /usr/share/zoneinfo); do
+      if [ -d "/usr/share/zoneinfo/$TIME" ]; then
+        echo
+        select TIMEZONE_2 in $(ls /usr/share/zoneinfo/"$TIMEZONE_1"); do
+          ln -sf /usr/share/zoneinfo/"$TIMEZONE_1"/"$TIMEZONE_2" /etc/localtime
+        break
+        done
+      else
+        ln -sf /usr/share/zoneinfo/"$TIMEZONE_1" /etc/localtime
+      fi
+    break
+    done
     echo
-    echo -n "WIFI = " && checkbox "$WIFI_choice"
-    echo -n "SWAP = " && checkbox "$SWAP_choice"
-    echo -n "ENCRYPTION = " && checkbox "$ENCRYPTION_choice"
-    echo
-    print white "Where [X] = YES and [ ] = NO"
-    echo
-    until [ "$VALID_ENTRY_intro_check" == "true" ]; do 
-      read -rp "Is everything fine? Please type either \"YES\" or \"NO\": " INTRO_choice
+    until [ "$VALID_ENTRY_time_check" == "true" ]; do 
+      read -rp "You have chosen \""$TIMEZONE_1"/"$TIMEZONE_2"\" . Type \"YES\" if correct or \"NO\" if not: " TIME_check
       echo
-        if [ "$INTRO_choice" == "YES" ]; then 
-          VALID_ENTRY_intro_check=true
-          INTRO_proceed=true
-        elif [ "$INTRO_choice" == "NO" ]; then  
-          SWAP_choice=""
-          ENCRYPTION_choice=""
-          WIFI_choice=""
-          INTRO_choice=""
-          VALID_ENTRY_intro_check=true
-          INTRO_proceed=false
-          print cyan "Back to square one!"
+      if [ "$TIME_check" == "NO" ]; then
+        print yellow "You'll get a new prompt"
+        TIMEZONE_1=""
+        TIMEZONE_2=""
+        TIME_proceed=false
+        VALID_ENTRY_time_check=true
+        echo
+      elif [ "$TIME_check" == "YES" ]; then
+        TIME_proceed=true
+        VALID_ENTRY_time_check=true
+      else
+        VALID_ENTRY_time_check=false
+        print red "Invalid answer. Please try again"
+        echo
+      fi
+    done
+  done
+  hwclock --systohc
+  lines
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# Setting up locals_languages
+
+  more locals.txt
+  echo
+  print blue "Which languages do you wish to generate? Please follow the example below: "
+  print purple "Example: da_DK.UTF-8 en_GB.UTF-8 en_US.UTF-8"
+  echo
+  read -rp "Languages: " LANGUAGES 
+  IFS=' ' read -ra LANGUAGES_array <<< "$LANGUAGES"
+  for val in "${LANGUAGES_array[@]}";
+  do
+    sed -i '/'"$val"'/s/^#//g' /etc/locale.gen
+  done
+  echo
+  locale-gen
+  echo
+  print blue "Any thoughts on the system-wide language?"
+  print purple "Example: da_DK.UTF-8"
+  echo
+  read -rp "Language: " LANGUAGE
+  echo
+  echo LANG="$LANGUAGE" > /etc/locale.conf
+  echo
+  echo "export LANG="$LANGUAGE"" >> /etc/profile
+  echo "export LC_ALL="$LANGUAGE"" >> /etc/profile
+  lines
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# Setting up keymap
+
+  until [ "$KEYMAP_proceed" == "true" ]; do 
+    VALID_ENTRY_keymap_check=false # Necessary for trying again
+    print blue "Any thoughts on the system-wide keymap?"
+    print purple "Example: dk-latin1"
+    echo
+    read -rp "Keymap: " KEYMAP
+    echo
+    until [ "$VALID_ENTRY_keymap_check" == "true" ]; do 
+      read -rp "You have chosen \""$KEYMAP"\". Type \"YES\" if correct or \"NO\" if not: " KEYMAP_check
+      echo
+      if [ "$KEYMAP_check" == "NO" ]; then
+        print yellow "You'll get a new prompt"
+        KEYMAP=""
+        KEYMAP_proceed=false
+        VALID_ENTRY_keymap_check=true
+        echo
+      elif [ "$KEYMAP_check" == "YES" ]; then
+        KEYMAP_proceed=true
+        VALID_ENTRY_keymap_check=true
+      else
+        VALID_ENTRY_keymap_check=false
+        print red "Invalid answer. Please try again"
+        echo
+      fi
+    done
+  done
+  echo "KEYMAP="$KEYMAP"" >> /etc/vconsole.conf
+  echo
+  lines
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# Setting root-password + creating personal user
+
+  more users.txt
+  echo
+  until [ "$ROOT_proceed" == "true" ]; do 
+    VALID_ENTRY_root_check=false # Necessary for trying again
+    read -rp "Any thoughts on a root-password? Please enter it here; it will later be hashed using libressl: " ROOT_passwd
+    echo
+    until [ "$VALID_ENTRY_root_check" == "true" ]; do 
+      read -rp "You have chosen \""$ROOT_passwd"\" as the root-password. Type \"YES\" if fine or \"NO\" if you wish to change it: " ROOT_check
+      echo
+      if [ "$ROOT_check" == "NO" ]; then
+        print yellow "You'll get a new prompt"
+        ROOT_passwd=""
+        VALID_ENTRY_root_check=true
+        echo
+      elif [ "$ROOT_check" == "YES" ]; then
+        ROOT_proceed=true
+        VALID_ENTRY_root_check=true
+        echo "root:$ROOT_passwd" | chpasswd
+      else
+        VALID_ENTRY_root_check=false
+        print red "Invalid answer. Please try again"
+        echo
+      fi
+    done
+  done
+  echo
+  until [ "$USER_proceed_name" == "true" ]; do 
+    VALID_ENTRY_user_check_username=false # Necessary for trying again
+    print blue "Can I suggest a username for a new user?"
+    read -rp "Username: " USERNAME
+    echo
+    until [ "$VALID_ENTRY_user_check_username" == "true" ]; do 
+      read -rp "You have chosen \""$USERNAME"\" as username. Type \"YES\" if correct or \"NO\" if not: " USER_check
+      echo
+      if [ "$USER_check" == "NO" ]; then
+        print yellow "You'll get a new prompt"
+        USERNAME=""
+        VALID_ENTRY_user_check_username=true
+        echo
+      elif [ "$USER_check" == "YES" ]; then
+        VALID_ENTRY_user_check_username=true
+        USER_proceed_name=true
+      elif [ "$USER_check" != "YES" ] && [ "$USER_check" != "NO" ]; then 
+        VALID_ENTRY_user_check_username=false
+        print red "Invalid answer. Please try again"
+        echo
+      fi
+    done
+  done
+  until [ "$USER_proceed_passwd" == "true" ]; do 
+    VALID_ENTRY_user_check_passwd=false # Necessary for trying again
+    echo
+    print blue "A password too for \"$USERNAME\"?"
+    read -rp "Password: " USER_passwd
+    echo
+    USER_check=""
+    until [ "$VALID_ENTRY_user_check_passwd" == "true" ]; do 
+      read -rp "You have chosen \""$USER_passwd"\" as the user-password. Type \"YES\" if fine or \"NO\" if you wish to change it: " USER_check
+      echo
+      if [ "$USER_check" == "NO" ]; then
+        print yellow "You'll get a new prompt"
+        USER_passwd=""
+        VALID_ENTRY_user_check_passwd=true
+        echo
+      elif [ "$USER_check" == "YES" ]; then
+        VALID_ENTRY_user_check_passwd=true
+        USER_proceed_passwd=true
+        useradd -m -g users -G video,audio,input,power,storage,optical,lp,scanner,dbus,daemon,disk,uucp,wheel,realtime -p "$(openssl passwd -crypt "$USER_passwd")" "$USERNAME"
+      elif [ "$USER_check" != "NO" ] && [ "$USER_check" != "YES" ]; then 
+        VALID_ENTRY_user_check_passwd=false
+        print red "Invalid answer. Please try again"
+        echo
+      fi
+    done
+  done
+  echo
+  lines
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# Setting up hostname
+
+  more hostname.txt
+  echo
+  until [ "$HOSTNAME_proceed" == "true" ]; do 
+    VALID_ENTRY_hostname_check=false # Necessary for trying again
+    print blue "What name do you wish to host?"
+    read -rp "Hostname: " HOSTNAME
+    echo
+    until [ "$VALID_ENTRY_hostname_check" == "true" ]; do 
+      read -rp "You have chosen \""$HOSTNAME"\" as hostname. Type \"YES\" if correct or \"NO\" if not: " HOSTNAME_check
+      echo
+      if [ "$HOSTNAME_check" == "NO" ]; then
+        print yellow "You'll get a new prompt"
+        HOSTNAME=""
+        HOSTNAME_proceed=false
+        VALID_ENTRY_hostname_check=true
+        echo
+      elif [ "$HOSTNAME_check" == "YES" ]; then
+        HOSTNAME_proceed=true
+        VALID_ENTRY_hostname_check=true
+      else
+        VALID_ENTRY_hostname_check=false
+        print red "Invalid answer. Please try again"
+        echo
+      fi
+    done
+  done
+  echo "$HOSTNAME" >> /etc/hostname
+  cat << EOF | tee -a /etc/hosts > /dev/null
+127.0.0.1 localhost
+::1 localhost
+127.0.1.1 "$HOSTNAME".localdomain "$HOSTNAME" 
+EOF
+  echo
+  lines
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# AUR-configuration
+
+  if [ "$AUR_choice" == "1" ]; then
+    more AUR.txt
+    echo
+    pacman -U --noconfirm paru-1.8.2-1-x86_64.pkg.tar.zst
+    pacman -Syu --noconfirm
+    echo "alias yay=paru" >> /etc/profile
+    cd "$BEGINNER_DIR" || exit
+    mv paru.conf /etc/paru.conf # Links sudo to doas + more
+  fi
+  lines
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# Choice of DE/VM, Wayland/Xorg and other packages/services
+
+  more packages.txt
+  echo
+  until [ "$PACKAGES_proceed" == "true" ]; do 
+    print blue "If you want to install any other packages/services or desktop environments / window managers from either AUR or with pacman now, type \"YES\" - otherwise type \"NO\" "
+    read -rp PACKAGES_choice
+    echo
+    if [ "$PACKAGES_choice" == "YES" ]; then
+      until [ "$VALID_ENTRY_packages_check" == "true" ]; do 
+        print blue "Please enter all packages/services which should be installed now; all must be separated by space: "
+        read -rp "Packages: " PACKAGES
+        echo
+        print cyan "These packages/services will be installed: "
+        echo "$PACKAGES"
+        echo
+        read -rp "If that's correct, type \"YES\" - otherwise type \"NO\": " PACKAGES_check
+        if [ "$PACKAGES_check" == "NO" ]; then
+          print yellow "You'll get a new prompt"
+          PACKAGES=""
+          PACKAGES_check=false
+          VALID_ENTRY_packages_check=true
           echo
+        elif [ "$PACKAGES_check" == "YES" ]; then
+          yay -S "$PACKAGES"
+          VALID_ENTRY_packages_check=true
         else
-          VALID_ENTRY_intro_check=true
+          VALID_ENTRY_packages_check=false
           print red "Invalid answer. Please try again"
           echo
         fi
+      done
+      PACKAGES_proceed=true
+    elif [ "$PACKAGES_choice" == "NO" ]; then
+      print yellow "No additional packages will be installed"
+      PACKAGES_proceed=true
+      echo
+    else
+      PACKAGES_proceed=false
+      print red "Invalid answer. Please try again"
+      echo
+    fi
+  done
+  lines
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# Setting NetworkManager + fcron to start on boot
+
+  ln -s /etc/runit/sv/NetworkManager /etc/runit/runsvdir/default
+  ln -s /etc/runit/sv/fcron /etc/runit/runsvdir/default
+  echo
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# Choosing either doas or sudo + allowing users to use the respective command
+
+  until [ "$VALID_ENTRY_doas_check" == "true" ]; do 
+    read -rp "Doas is a lightweight and more secure alternative to sudo with similar commands. If you wish to replace sudo with doas, type \"YES\" - otherwise type \"NO\": " DOAS_choice
+    echo
+    VALID_ENTRY_doas_confirm=false # Neccessary for trying again
+    until [ "$VALID_ENTRY_doas_confirm" == "true" ]; do 
+      read -rp "You have chosen \""$DOAS_choice"\" regarding replacing sudo. Type \"YES\" if correct or \"NO\" if not: " DOAS_confirm
+      if [ "$DOAS_confirm" == "YES" ]; then
+        if [ "$DOAS_choice" == "YES" ]; then
+          pacman -Rns --noconfirm sudo
+          pacman -S --noconfirm opendoas
+          touch /etc/doas.conf
+          cat << EOF | tee -a /etc/doas.conf > /dev/null
+permit persist :wheel
+EOF
+          chown -c root:root /etc/doas.conf
+          chmod -c 0400 /etc/doas.conf
+          VALID_ENTRY_doas_confirm=true
+          VALID_ENTRY_doas_check=true
+          echo
+        elif [ "$DOAS_choice" == "NO" ]; then
+          echo "%wheel ALL=(ALL) ALL" | (EDITOR="tee -a" visudo)
+          sed -i -e "/Sudo = doas/s/^#//" /etc/doas.conf
+          VALID_ENTRY_doas_confirm=true
+          VALID_ENTRY_doas_check=true
+        fi
+      elif [ "$DOAS_confirm" == "NO" ]; then
+        print yellow "Roger roger - back to square one again!"
+        VALID_ENTRY_doas_confirm=true
+        VALID_ENTRY_doas_check=false
+      else
+        print red "I don't have that much time to deal with you, okay? Please answer correct!"
+        VALID_ENTRY_doas_confirm=false
+        VALID_ENTRY_doas_check=false  
+      fi
     done
   done 
   lines
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Network-configuration
+# Regenerating initramfs with encrypt-hook + keyfile
 
-  if [ "$WIFI_choice" == "1" ]; then
-    more network.txt
+  more initramfs.txt
+  sed -i 's/HOOKS=(base\ udev\ autodetect\ modconf\ block\ filesystems\ keyboard\ fsck)/HOOKS=(base\ udev\ keymap\ keyboard\ autodetect\ modconf\ block\ encrypt\ filesystems\ fsck)/' /etc/mkinitcpio.conf
+  sed -i 's/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/' /etc/mkinitcpio.conf
+  dd bs=512 count=4 if=/dev/random of=/.crypto_keyfile.bin iflag=fullblock
+  chmod 600 /.crypto_keyfile.bin
+  chmod 600 /boot/initramfs-linux*
+  cryptsetup luksAddKey /dev/"$DRIVE_LABEL" /.crypto_keyfile.bin
+  sed -i 's/FILES=()/FILES=(\/.crypto_keyfile.bin)/' /etc/mkinitcpio.conf
+  mkinitcpio -p linux-zen
+  echo
+  lines
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# Setting up GRUB
+
+  more GRUB.txt
+  echo
+  until [ "$BOOTLOADER_proceed" == "true" ]; do 
+    VALID_ENTRY_bootloader_check=false # Necessary for trying again
+    read -rp "Any fitting name for the bootloader? " BOOTLOADER_label
     echo
-    print blue "You're wifi-card is about to be activated"
-    echo
-    rfkill unblock wifi
-    connmanctl enable wifi
-    connmanctl scan wifi
-    connmanctl services
-    connmanctl services > wifi_list
-    connmanctl agent on
-    echo
-    until [ "$WIFI_proceed" == "true" ]; do 
-      VALID_ENTRY_wifi_check=false # Necessary for trying again
-      read -rp "Which WiFi-network from the list above should be connected to? " WIFI_SSID
+    until [ "$VALID_ENTRY_bootloader_check" == "true" ]; do 
+      read -rp "You have chosen \""$BOOTLOADER_label"\". Type \"YES\" if correct or \"NO\" if not: " BOOTLOADER_check
       echo
-      until [ "$VALID_ENTRY_wifi_check" == "true" ]; do 
-        read -rp "You have chosen "$WIFI_SSID". Type \"YES\" if correct or \"NO\" if not: " WIFI_check
+      if [ "$BOOTLOADER_check" == "NO" ]; then
+        print yellow "You'll get a new prompt"
+        BOOTLOADER_label=""
+        BOOTLOADER_proceed=false
+        VALID_ENTRY_bootloader_check=true
         echo
-        if [ "$WIFI_check" == "NO" ]; then
-          print yellow "You'll get a new prompt"
-          WIFI_SSID=""
-          WIFI_proceed=false
-          VALID_ENTRY_wifi_check=true
-          echo
-        elif [ "$WIFI_check" == "YES" ]; then
-          WIFI_proceed=true
-          VALID_ENTRY_wifi_check=true
-        else
-          VALID_ENTRY_wifi_check=false
-          print red "Invalid answer. Please try again"
-          echo
-        fi
-      done
-    done
-    WIFI_ID=$(sed -n "s //^.*$WIFI_SSID\s*\(\S*\)/\1/p" wifi_list)
-    rm wifi_list
-    connmanctl connect "$WIFI_ID" 
-    echo
-  fi
-  lines
-
-#----------------------------------------------------------------------------------------------------------------------------------
-
-# Installing parted to format drives + support for zstd-compression + configuring Arch's repo
-
-  pacman -S --noconfirm archlinux-keyring artix-keyring artix-archlinux-support
-  pacman-key --init
-  pacman-key --populate archlinux artix
-  cp pacman.conf /etc/pacman.conf
-  pacman -Syy
-  pacman -S --noconfirm parted zstd
-  lines
-
-#----------------------------------------------------------------------------------------------------------------------------------
-
-# Partitions
-
-  swapoff -a
-  umount -f -R /mnt # In case of executing the script again
-  more partitions.txt
-  echo
-  fdisk -l
-  echo
-  until [ "$VALID_ENTRY_drive" == "true" ]; do
-    print blue "Which drive do you want to partition? Please only enter the part after \"/dev/\": " 
-    VALID_ENTRY_drive_choice=false # Necessary for trying again
-    read -r DRIVE_LABEL
-    OUTPUT=$(fdisk -l | sed -n "s/^.*\("$DRIVE_LABEL"\).*$/\1/p")
-    if [[ "$OUTPUT" == *"$DRIVE_LABEL"* ]]; then 
-      until [ "$VALID_ENTRY_drive_choice" == "true" ]; do 
-        echo
-        read -rp "You have chosen \""$DRIVE_LABEL"\" . Type \"YES\" if correct or \"NO\" if not: " DRIVE_check
-        echo
-        if [ "$DRIVE_check" == "NO" ]; then
-          print yellow "You'll get a new prompt"
-          echo
-          VALID_ENTRY_drive_choice=true
-          VALID_ENTRY_drive=false
-        elif [ "$DRIVE_check" == "YES" ]; then
-          VALID_ENTRY_drive_choice=true
-          VALID_ENTRY_drive=true
-        else
-          VALID_ENTRY_drive_choice=false
-          print red "Invalid answer. Please try again"
-          echo
-        fi
-      done
-    else
-       echo
-       fdisk -l
-       echo
-       print red "Invalid drive. Please try again"
-       echo
-    fi
-  done
-  print yellow "Erasing your drive! This might take some time depending on your drive size - you are hereby permitted to exit using Ctrl+C"
-  echo
-  dd if=/dev/zero of=/dev/"$DRIVE_LABEL" bs=512 count=1 status=progress
-  echo
-  if [ "$SWAP_choice" == "2" ]; then
-    if [ "$DRIVE_LABEL" == "nvme0n1" ]; then
-      DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL"p"1"
-      DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL"p"2"
-    else
-      DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
-      DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""2"
-    fi
-    until [ "$DRIVE_proceed" == "true" ]; do 
-      until_loop_drive_size BOOT BOOT_size
-      until_loop_drive_name BOOT BOOT_label
-      until_loop_drive_name primary PRIMARY_label
-      echo
-      print blue "You have chosen the following labels / sizes: "
-      echo
-      print green "BOOT_size = \""$BOOT_size"\" and BOOT_label = \""$BOOT_label"\""
-      print green "ROOT_label = \""$PRIMARY_label"\""
-      echo
-      VALID_ENTRY_drive_check="" # Neccessary for trying again
-      until [ "$VALID_ENTRY_drive_check" == "true" ]; do 
-        read -rp "Is everything fine? Please type either \"YES\" or \"NO\": " DRIVE_choice
-        echo
-        if [ "$DRIVE_choice" == "YES" ]; then 
-          VALID_ENTRY_drive_check=true
-          DRIVE_proceed=true
-        elif [ "$DRIVE_choice" == "NO" ]; then  
-          BOOT_size=""
-          BOOT_label=""
-          ROOT_label=""
-          VALID_ENTRY_drive_check=true
-          DRIVE_proceed=false
-          print cyan "Back to square one!"
-          echo
-        else
-          VALID_ENTRY_drive_check=false
-          print red "Invalid answer. Please try again"
-          echo
-        fi
-      done
-    done
-    parted --script -a optimal /dev/"$DRIVE_LABEL" \
-      mklabel gpt \
-      mkpart BOOT fat32 1MiB "$BOOT_size"MiB set 1 ESP on \
-      mkpart PRIMARY btrfs "$BOOT_size"MiB 100%   
-    echo
-  elif [ "$SWAP_choice" == "1" ]; then
-    if [ "$DRIVE_LABEL" == "nvme0n1" ]; then
-      DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL"p"1"
-      DRIVE_LABEL_swap=/dev/"$DRIVE_LABEL"p"2"
-      DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL"p"3"
-    else
-      DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
-      DRIVE_LABEL_swap=/dev/"$DRIVE_LABEL""2"
-      DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""3"
-    fi
-    until [ "$DRIVE_proceed" == "true" ]; do 
-      until_loop_drive_size BOOT BOOT_size
-      until_loop_drive_name BOOT BOOT_label
-      until_loop_drive_size SWAP SWAP_size
-      until_loop_drive_name SWAP SWAP_label
-      until_loop_drive_name primary PRIMARY_label
-      echo
-      print blue "You have chosen the following labels / sizes: "
-      echo
-      print green "BOOT_size = \""$BOOT_size"\" and BOOT_label = \""$BOOT_label"\""
-      print green "SWAP_size = \""$SWAP_size"\" and SWAP_label = \""$SWAP_label"\""
-      print green "ROOT_label = \""$PRIMARY_label"\""
-      echo
-      VALID_ENTRY_drive_check="" # Neccessary for trying again
-      until [ "$VALID_ENTRY_drive_check" == "true" ]; do 
-        read -rp "Is everything fine? Please type either \"YES\" or \"NO\": " DRIVE_choice
-        echo
-        if [ "$DRIVE_choice" == "YES" ]; then 
-          VALID_ENTRY_drive_check=true
-          DRIVE_proceed=true
-        elif [ "$DRIVE_choice" == "NO" ]; then  
-          BOOT_size=""
-          BOOT_label=""
-          SWAP_size=""
-          SWAP_label=""
-          ROOT_label=""
-          VALID_ENTRY_drive_check=true
-          DRIVE_proceed=false
-          print cyan "Back to square one!"
-          echo
-        else
-          VALID_ENTRY_drive_check=false
-          print red "Invalid answer. Please try again"
-          echo
-        fi
-      done
-    done
-    parted --script -a optimal /dev/"$DRIVE_LABEL" \
-      mklabel gpt \
-      mkpart BOOT fat32 1MiB "$BOOT_size"MiB set 1 ESP on \
-      mkpart SWAP linux-swap "$BOOT_size"MiB "$SWAP_size"MiB  \
-      mkpart PRIMARY btrfs "$SWAP_size"MiB 100%      
-    echo
-  fi
-  lines
-
-#----------------------------------------------------------------------------------------------------------------------------------
-
-# ROOT-encryption
-
-  if [ "$ENCRYPTION_choice" == "1" ]; then
-    more encryption.txt
-    echo
-    print blue "Please have your encryption-password ready "
-    echo
-    cryptsetup luksFormat --batch-mode --verify-passphrase --type luks2 --pbkdf=pbkdf2 --pbkdf-force-iterations=500000 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL_primary" # --pbkdf=pbkdf2 --pbkdf-force-iterations=500000 due to GRUB lacking support for ARGON2d
-    cryptsetup open "$DRIVE_LABEL_primary" cryptroot
-    echo
-  fi
-  lines
-
-#----------------------------------------------------------------------------------------------------------------------------------
-
-# Drive-formatting
-
-  more formatting.txt
-  mkfs.vfat -F32 -n "$BOOT_label" "$DRIVE_LABEL_boot" 
-  echo
-  if [ "$SWAP_choice" == "1" ]; then
-    mkswap -L "$SWAP_label" "$DRIVE_LABEL_swap"
-  fi
-  print blue "Currently BTRFS is the only real filesystem for your root-partition!"
-  echo
-  if [ "$ENCRYPTION_choice" == "1" ]; then
-    mkfs.btrfs -f -L "$PRIMARY_label" /dev/mapper/cryptroot
-  else
-    mkfs.btrfs -f -L "$PRIMARY_label" "$DRIVE_LABEL_primary"
-  fi
-  echo
-  lines
-
-#----------------------------------------------------------------------------------------------------------------------------------
-
-# BTRFS-subvolumes
-
-  more subvolumes.txt
-  if [ "$ENCRYPTION_choice" == "1" ]; then
-    MOUNT="/dev/mapper/cryptroot"
-  else
-    MOUNT="$DRIVE_LABEL_primary"
-  fi
-  mount -o noatime,compress=zstd,discard,ssd,defaults "$MOUNT" /mnt
-  cd /mnt || return
-  btrfs subvolume create @
-  btrfs subvolume create @home
-  btrfs subvolume create @var_log
-  btrfs subvolume create @srv
-  btrfs subvolume create @var_tmp
-  btrfs subvolume create @var_abs
-  btrfs subvolume create @var_pkg
-  btrfs subvolume create @.snapshots
-  btrfs subvolume create @boot
-  btrfs subvolume create @grub
-  cd /
-  umount /mnt
-  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@ "$MOUNT" /mnt
-  mkdir -p /mnt/{boot,home,srv,.snapshots,var/{abs,tmp,log,cache/pacman/pkg}}
-  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@home "$MOUNT" /mnt/home
-  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_pkg "$MOUNT" /mnt/var/cache/pacman/pkg
-  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_log "$MOUNT" /mnt/var/log
-  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_abs "$MOUNT" /mnt/var/abs
-  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_tmp "$MOUNT" /mnt/var/tmp
-  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@srv "$MOUNT" /mnt/srv
-  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots "$MOUNT" /mnt/.snapshots
-  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@boot "$MOUNT" /mnt/boot
-  mkdir -p /mnt/{boot/{EFI,grub},.snapshots/{home,root,packages_list}}
-  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@grub "$MOUNT" /mnt/boot/grub
-  sync
-  echo
-  lines
-
-#----------------------------------------------------------------------------------------------------------------------------------
-
-# Drive-mount
-
-  cd "$BEGINNER_DIR" || exit
-  mount "$DRIVE_LABEL_boot" /mnt/boot/EFI
-  if [[ "$SWAP_choice" == "1" ]]; then
-    swapon "$DRIVE_LABEL_swap"
-  fi
-  echo
-  lines
-
-#----------------------------------------------------------------------------------------------------------------------------------
-
-# Base-install + encrypted swap (if swap is chosen)
-
-  if grep -q Intel "/proc/cpuinfo"; then # Poor soul :(
-    basestrap /mnt intel-ucode
-  elif grep -q AMD "/proc/cpuinfo"; then
-    basestrap /mnt amd-ucode
-  fi
-  basestrap /mnt fcron-runit cryptsetup apparmor-runit libressl bat base base-devel neovim nano runit linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 cryptsetup realtime-privileges elogind-runit mkinitcpio artix-archlinux-support
-  echo
-  lines
-  if [[ "$SWAP_choice" == "1" ]]; then
-    cat << EOF | tee -a /mnt/etc/crypttab > /dev/null
-swap     LABEL="$SWAP_label"  /dev/urandom  swap,offset=2048,cipher=aes-xts-plain64,size=512
-EOF
-  fi
-
-#----------------------------------------------------------------------------------------------------------------------------------
-
-# fstab-generation with UUID; it can be a good idea to do a double check with "fdisk -l"
-
-  more fstab.txt
-  fstabgen -U /mnt >> /mnt/etc/fstab
-  sed -i '/swap/c\\/dev\/mapper\/swap  none   swap    defaults   0       0' /mnt/etc/fstab
-  RAM_size="$((($(free -g | grep Mem: | awk '{print $2}') + 1) / 2))G" # tmpfs will fill half the RAM-size
-  cat << EOF | tee -a /mnt/etc/fstab > /dev/null
-tmpfs	/tmp	tmpfs	rw_size=$RAM_size,nr_inodes=5k,noexec,nodev,nousid	0	0  
-EOF
-  echo
-  until [ "$FSTAB_proceed" == "true" ]; do 
-    until [ "$VALID_ENTRY_fstab_check" == "true" ]; do 
-      read -rp "If you want to check whether the UUIDs in fstab is correct, enter \"YES\"; if not, enter \"NO\": " FSTAB_check
-      echo
-      if [ "$FSTAB_check" == "NO" ]; then
-        VALID_ENTRY_fstab_check=true
-        FSTAB_proceed=true
-      elif [ "$FSTAB_check" == "YES" ]; then
-        VALID_ENTRY_fstab_check=true
-        fdisk -l
-        FSTAB_proceed=false
-        more /mnt/etc/fstab
-        echo
-        until [ "$VALID_ENTRY_fstab_confirm_check" == "true" ]; do 
-          read -rp "Does everything seems right? Type either \"YES\" or \"NO\": " FSTAB_confirm
-          echo
-          if [ "$FSTAB_confirm" == "NO" ]; then
-            print cyan "Sorry, you have to execute the scipt again :("
-            exit 1
-          elif [ "$FSTAB_confirm" == "YES" ]; then
-            VALID_ENTRY_fstab_confirm_check=true
-            FSTAB_proceed=true
-          else
-            VALID_ENTRY_fstab_confirm_check=false
-            print red "Invalid answer. Please try again"
-            echo
-          fi
-        done
+      elif [ "$BOOTLOADER_check" == "YES" ]; then
+        BOOTLOADER_proceed=true
+        VALID_ENTRY_bootloader_check=true
       else
-        VALID_ENTRY_fstab_check=false
+        VALID_ENTRY_bootloader_check=false
         print red "Invalid answer. Please try again"
         echo
       fi
-    done 
+    done
   done
+  print blue "The bootloader will be viewed as "$BOOTLOADER_label" in the BIOS"
+  echo
+  grub-install --target=x86_64-efi --efi-directory=/boot/EFI --bootloader-id="$BOOTLOADER_label" --modules="luks2 fat all_video jpeg png pbkdf2 gfxterm gfxmenu gfxterm_background part_gpt cryptodisk gcry_rijndael gcry_sha512 btrfs" --recheck
+  if [ "$ENCRYPTION_choice" == "1" ]; then
+    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="lsm=landlock,lockdown,yama,apparmor,bpf\ loglevel=3\ quiet\ cryptdevice=\/dev\/'"$DRIVE_LABEL"':cryptroot:allow-discards\ root=\/dev\/mapper\/cryptroot\"/' /etc/default/grub
+    sed -i -e "/GRUB_ENABLE_CRYPTODISK/s/^#//" /etc/default/grub
+    touch grub-pre.cfg
+    UUID=$(lsblk -no TYPE,UUID /dev/"$DRIVE_LABEL" | awk '$1=="part"{print $2}' | tr -d -)
+    cat << EOF | tee -a grub-pre.cfg > /dev/null
+insmod all_video
+set gfxmode=auto
+terminal_input console
+terminal_output gfxterm
+cryptomount -u $UUID
+set prefix='(crypto0)/@grub'
+set root='(crypto0)'
+insmod normal
+normal
+EOF
+    grub-mkimage -p '(crypto0)/@grub' -O x86_64-efi -c grub-pre.cfg -o /boot/EFI/EFI/"$BOOTLOADER_label"/grubx64.efi luks2 fat all_video jpeg png part_gpt gfxterm gfxmenu pbkdf2 gfxterm_background cryptodisk gcry_rijndael gcry_sha512 btrfs
+    rm grub-pre.cfg
+  fi
+  echo
+  grub-mkconfig -o /boot/grub/grub.cfg
+  cd "$BEGINNER_DIR" || exit
+  mv grub-btrfs-update.stop /etc/local.d
+  echo
   lines
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Chroot
+# Security enhancements + BTRFS-snapshot
 
-  mkdir /mnt/install_script
-  cp {artix_runit_after_chroot.sh,AUR.txt,farewell.txt,grub-btrfs-update.stop,packages.txt,hostname.txt,btrfs_snapshot.sh,users.txt,paru-1.8.2-1-x86_64.pkg.tar.zst,pacman.conf,paru.conf,GRUB.txt,initramfs.txt,locals.txt,time.txt} /mnt/install_script
-  artix-chroot /mnt /install_script/artix_runit_after_chroot.sh
+  cat << EOF | tee -a /etc/pam.d/system-login > /dev/null # 4 second delay, when system login failes
+auth optional pam_faildelay.so delay=4000000
+EOF
+  firecfg
+  firecfg --fix
+  mkdir /etc/pacman.d/hooks
+  touch /etc/pacman.d/hooks/firejail.hook
+  cat << EOF | tee -a /etc/pacman.d/hooks/firejail.hook > /dev/null
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Operation = Remove
+Target = usr/bin/*
+Target = usr/local/bin/*
+Target = usr/share/applications/*.desktop
+
+[Action]
+Description = Configure symlinks in /usr/local/bin based on firecfg.config...
+When = PostTransaction
+Depends = firejail
+Exec = /bin/bash -c 'firecfg >/dev/null 2>&1'
+EOF
+  cd "$BEGINNER_DIR" || exit
+  mv btrfs_snapshot.sh /etc/cron.daily # Maximum 3 snapshots stored
+  chmod u+x /etc/cron.daily/btrfs_snapshot.sh
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# Summary before restart
+
+  more summary.txt
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# Farewell
+
+  more farewell.txt
+  echo
+  exit
+  umount -f -R /mnt
+  echo
+  print yellow "You might want to delete /install_script "
+  echo
+  exit
