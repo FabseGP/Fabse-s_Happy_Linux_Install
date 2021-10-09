@@ -34,25 +34,18 @@
   drive=""
   drive_size=""
   drive_name=""
-  drive_size_check=""
-  drive_name_check=""
 
   VALID_ENTRY_drive_size_format=""
-  VALID_ENTRY_drive_size=""
-  VALID_ENTRY_drive_size_check=""
   BOOT_size=""
   SWAP_size=""
-  BOOT_size_check=""
-  SWAP_size_check=""
 
   VALID_ENTRY_drive_name=""
-  VALID_ENTRY_drive_name_check=""
   BOOT_label=""
   SWAP_label=""
   PRIMARY_label=""
-  BOOT_label_check=""
-  SWAP_label_check=""
-  PRIMARY_label_check=""
+
+  DRIVE_choice=""
+  VALID_ENTRY_drive_check=""
 
   DRIVE_LABEL=""
   DRIVE_LABEL_boot=""
@@ -156,9 +149,7 @@
   until_loop_drive_name() {
     drive="$1"
     drive_name="$2"
-    drive_name_check="$3"
     until [ "$VALID_ENTRY_drive_name" == "true" ]; do 
-      VALID_ENTRY_drive_name_check=false # Necessary for trying again
       read -rp "A special name for the "$drive"-partition? " drive_name
       echo
       if [ "$drive" == "BOOT" ]; then
@@ -167,31 +158,12 @@
           echo
           drive_name=""
           VALID_ENTRY_drive_name=false
-          VALID_ENTRY_drive_name_check=true
-        fi
-      fi
-      until [ "$VALID_ENTRY_drive_name_check" == "true" ]; do 
-        read -rp "The "$drive"-partition will be named \""$drive_name"\". Type \"YES\" if correct or \"NO\" if not: " drive_name_check
-        echo
-        if [ "$drive_name_check" == "NO" ]; then
-          print yellow "You'll get a new prompt"
-          VALID_ENTRY_drive_name_check=true
-          VALID_ENTRY_drive_name=false
-          echo
-        elif [ "$drive_name_check" == "YES" ]; then
-          VALID_ENTRY_drive_name_check=true
+        else
           VALID_ENTRY_drive_name=true
-          print green "Roger roger - the "$drive"-partition will be named "$drive_name""
-          if [ "$drive" == "primary" ]; then
-            DRIVE_proceed=true
-          fi
-          echo
-        else 
-          print red "Invalid answer. Please try again"
-          VALID_ENTRY_drive_name_check=false
-          echo
         fi
-      done
+      else
+        VALID_ENTRY_drive_name=true
+      fi
     done
     if [ "$drive" == "BOOT" ]; then
       BOOT_label="$drive_name"
@@ -202,9 +174,7 @@
     fi
     drive=""
     drive_name=""
-    drive_name_check=""
     VALID_ENTRY_drive_name=""
-    VALID_ENTRY_drive_name_check=""
 }
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -214,9 +184,8 @@
   until_loop_drive_size() {
     drive="$1"
     drive_size="$2"
-    drive_size_check="$3"
-    until [ "$VALID_ENTRY_drive_size_format" == "true" ] && [ "$VALID_ENTRY_drive_size" == "true" ]; do 
-      VALID_ENTRY_drive_size_check=false # Necessary for trying again
+    until [ "$VALID_ENTRY_drive_size_format" == "true" ]; do 
+      VALID_ENTRY_drive_size_format=false # Necessary for trying again
       if [ "$drive" == "BOOT" ]; then
         read -rp "Any favourite size for the "$drive"-partition in MB? Though minimum 261MB; only type the size without units: " drive_size
       else
@@ -240,29 +209,6 @@
       else 
         VALID_ENTRY_drive_size_format=true
       fi
-      if [ "$VALID_ENTRY_drive_size_format" == "true" ]; then
-        until [ "$VALID_ENTRY_drive_size_check" == "true" ]; do
-          VALID_ENTRY_drive_size_check=false # Necessary for trying again 
-          read -rp "The "$drive"-partition will fill "$drive_size"MB. Type \"YES\" if correct or \"NO\" if not: " drive_size_check
-          echo
-          if [ "$drive_size_check" == "NO" ]; then
-            print yellow "You'll get a new prompt"
-            VALID_ENTRY_drive_size_check=true
-            VALID_ENTRY_drive_size_format=false
-            VALID_ENTRY_drive_size=false
-            echo
-          elif [ "$drive_size_check" == "YES" ]; then
-            VALID_ENTRY_drive_size_check=true
-            VALID_ENTRY_drive_size=true
-            print green "The "$drive"-partition is set to be $drive_size MiB"
-            echo
-          else
-            VALID_ENTRY_drive_size_check=false
-            print red "Invalid answer. Please try again"
-            echo
-          fi
-        done
-      fi
     done
     if [ "$drive" == "BOOT" ]; then
       BOOT_size=$drive_size
@@ -271,10 +217,7 @@
     fi
     drive=""
     drive_size=""
-    drive_size_check=""
     VALID_ENTRY_drive_size_format=""
-    VALID_ENTRY_drive_size=""
-    VALID_ENTRY_drive_size_check=""
 }
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -407,7 +350,7 @@
 # Partitions
 
   swapoff -a
-  umount -R /mnt # In case of executing the script again
+  umount -f -R /mnt # In case of executing the script again
   more partitions.txt
   echo
   fdisk -l
@@ -457,9 +400,36 @@
       DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""2"
     fi
     until [ "$DRIVE_proceed" == "true" ]; do 
-      until_loop_drive_size BOOT BOOT_size BOOT_size_check
-      until_loop_drive_name BOOT BOOT_label BOOT_label_check
-      until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
+      until_loop_drive_size BOOT BOOT_size
+      until_loop_drive_name BOOT BOOT_label
+      until_loop_drive_name primary PRIMARY_label
+      echo
+      print blue "You have chosen the following labels / sizes: "
+      echo
+      echo -n "BOOT_size = \""$BOOT_size"\" and BOOT_label = \""$BOOT_label"\""
+      echo -n "ROOT_label = \""$ROOT_label"\""
+      echo
+      VALID_ENTRY_drive_check="" # Neccessary for trying again
+      until [ "$VALID_ENTRY_drive_check" == "true" ]; do 
+        read -rp "Is everything fine? Please type either \"YES\" or \"NO\": " DRIVE_choice
+        echo
+        if [ "$DRIVE_choice" == "YES" ]; then 
+          VALID_ENTRY_drive_check=true
+          DRIVE_proceed=false
+        elif [ "$DRIVE_choice" == "NO" ]; then  
+          BOOT_size=""
+          BOOT_label=""
+          ROOT_label=""
+          VALID_ENTRY_drive_check=true
+          DRIVE_proceed=false
+          print cyan "Back to square one!"
+          echo
+        else
+          VALID_ENTRY_drive_check=false
+          print red "Invalid answer. Please try again"
+          echo
+        fi
+      done
     done
     parted --script -a optimal /dev/"$DRIVE_LABEL" \
       mklabel gpt \
@@ -477,11 +447,41 @@
       DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""3"
     fi
     until [ "$DRIVE_proceed" == "true" ]; do 
-      until_loop_drive_size BOOT BOOT_size BOOT_size_check
-      until_loop_drive_name BOOT BOOT_label BOOT_label_check
-      until_loop_drive_size SWAP SWAP_size SWAP_size_check
-      until_loop_drive_name SWAP SWAP_label SWAP_label_check
-      until_loop_drive_name primary PRIMARY_label PRIMARY_label_check
+      until_loop_drive_size BOOT BOOT_size
+      until_loop_drive_name BOOT BOOT_label
+      until_loop_drive_size SWAP SWAP_size
+      until_loop_drive_name SWAP SWAP_label
+      until_loop_drive_name primary PRIMARY_label
+      echo
+      print blue "You have chosen the following labels / sizes: "
+      echo
+      echo -n "BOOT_size = \""$BOOT_size"\" and BOOT_label = \""$BOOT_label"\""
+      echo -n "SWAP_size = \""$SWAP_size"\" and SWAP_label = \""$SWAP_label"\""
+      echo -n "ROOT_label = \""$ROOT_label"\""
+      echo
+      VALID_ENTRY_drive_check="" # Neccessary for trying again
+      until [ "$VALID_ENTRY_drive_check" == "true" ]; do 
+        read -rp "Is everything fine? Please type either \"YES\" or \"NO\": " DRIVE_choice
+        echo
+        if [ "$DRIVE_choice" == "YES" ]; then 
+          VALID_ENTRY_drive_check=true
+          DRIVE_proceed=false
+        elif [ "$DRIVE_choice" == "NO" ]; then  
+          BOOT_size=""
+          BOOT_label=""
+          SWAP_size=""
+          SWAP_label=""
+          ROOT_label=""
+          VALID_ENTRY_drive_check=true
+          DRIVE_proceed=false
+          print cyan "Back to square one!"
+          echo
+        else
+          VALID_ENTRY_drive_check=false
+          print red "Invalid answer. Please try again"
+          echo
+        fi
+      done
     done
     parted --script -a optimal /dev/"$DRIVE_LABEL" \
       mklabel gpt \
