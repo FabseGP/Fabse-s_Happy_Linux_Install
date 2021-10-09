@@ -297,7 +297,7 @@
     read -rp "Any thoughts on a root-password? Please enter it here; it will later be hashed using libressl: " ROOT_passwd
     echo
     until [ "$VALID_ENTRY_root_check" == "true" ]; do 
-      read -rp "You have chosen \""$ROOT_passwd"\". Type \"YES\" if fine or \"NO\" if you wish to change it: " ROOT_check
+      read -rp "You have chosen \""$ROOT_passwd"\" as the root-password. Type \"YES\" if fine or \"NO\" if you wish to change it: " ROOT_check
       echo
       if [ "$ROOT_check" == "NO" ]; then
         print yellow "You'll get a new prompt"
@@ -346,7 +346,7 @@
     echo
     USER_check=""
     until [ "$VALID_ENTRY_user_check_passwd" == "true" ]; do 
-      read -rp "You have chosen \""$USER_passwd"\" as password. Type \"YES\" if fine or \"NO\" if you wish to change it: " USER_check
+      read -rp "You have chosen \""$USER_passwd"\" as the user-password. Type \"YES\" if fine or \"NO\" if you wish to change it: " USER_check
       echo
       if [ "$USER_check" == "NO" ]; then
         print yellow "You'll get a new prompt"
@@ -379,7 +379,7 @@
     read -r HOSTNAME
     echo
     until [ "$VALID_ENTRY_hostname_check" == "true" ]; do 
-      read -rp "You have chosen \""$HOSTNAME"\". Type \"YES\" if correct or \"NO\" if not: " HOSTNAME_check
+      read -rp "You have chosen \""$HOSTNAME"\" as hostname. Type \"YES\" if correct or \"NO\" if not: " HOSTNAME_check
       echo
       if [ "$HOSTNAME_check" == "NO" ]; then
         print yellow "You'll get a new prompt"
@@ -561,25 +561,22 @@ EOF
   done
   print blue "The bootloader will be viewed as "$BOOTLOADER_label" in the BIOS"
   echo
-  grub-install --target=x86_64-efi --efi-directory=/boot/EFI --bootloader-id="$BOOTLOADER_label" --modules="luks2 fat all_video jpeg png gfxterm gfxmenu gfxterm_background part_gpt cryptodisk gcry_rijndael pbkdf2 gcry_sha512 btrfs" --recheck
+  grub-install --target=x86_64-efi --efi-directory=/boot/EFI --bootloader-id="$BOOTLOADER_label" --modules="luks2 fat all_video jpeg png gfxterm gfxmenu gfxterm_background part_gpt cryptodisk gcry_rijndael gcry_sha512 btrfs" --recheck
   if [ "$ENCRYPTION_choice" == "1" ]; then
     sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="lsm=landlock,lockdown,yama,apparmor,bpf\ loglevel=3\ quiet\ cryptdevice=\/dev\/'"$DRIVE_LABEL"':cryptroot:allow-discards\ root=\/dev\/mapper\/cryptroot\"/' /etc/default/grub
     sed -i -e "/GRUB_ENABLE_CRYPTODISK/s/^#//" /etc/default/grub
     touch grub-pre.cfg
-    UUID=$(lsblk -no TYPE,UUID /dev/"$DRIVE_LABEL" | awk '$1=="part"{print $2}' | tr -d -)
+    UUID_root=$(lsblk -no TYPE,UUID /dev/"$DRIVE_LABEL" | awk '$1=="part"{print $2}' | tr -d -)
+    UUID_boot=$(lsblk -no TYPE,UUID /dev/sda1 | awk '$1=="part"{print $2}' | tr -d -)
     cat << EOF | tee -a grub-pre.cfg > /dev/null
-insmod all_video
-set gfxmode=auto
-terminal_input console
-terminal_output gfxterm
-set crypto_uuid=$UUID
-cryptomount -u $UUID
-set root=crypto0
-set prefix=(crypto0)/boot/grub
+cryptomount -u $UUID_boot
+set prefix=($UUID_root/$UUID_boot)/grub
+set root=$UUID_root/$UUID_boot
 insmod normal
 normal
 EOF
-    grub-mkimage -p /boot/grub -O x86_64-efi -c grub-pre.cfg -o /tmp/grubx64.efi luks2 fat all_video jpeg png part_gpt gfxterm gfxmenu gfxterm_background cryptodisk gcry_rijndael pbkdf2 gcry_sha512 btrfs
+    grub-mkimage -p /boot/grub -O x86_64-efi -c grub-pre.cfg -o /tmp/grubx64.efi luks2 fat all_video jpeg png part_gpt gfxterm gfxmenu gfxterm_background cryptodisk gcry_rijndael gcry_sha512 btrfs
+    rm grub-pre.cfg
     install -v /tmp/grubx64.efi /boot/EFI/EFI/"$BOOTLOADER_label"/grubx64.efi
   fi
   echo
