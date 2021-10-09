@@ -229,9 +229,9 @@
 
   more locals.txt
   echo
-  print blue "Which languages do you wish to generate? Please follow the example below: " LANGUAGE_how_many
+  print blue "Which languages do you wish to generate? Please follow the example below; by default UTF-8 languages will be generated: "
   echo
-  print purple "Example: da_DK.UTF-8 en_GB.UTF-8 en_US.UTF-8"
+  print purple "Example: da_DK en_GB en_US"
   echo
   read -rp "Languages: " LANGUAGES 
   IFS=' ' read -ra LANGUAGES_array <<< "$LANGUAGES"
@@ -320,6 +320,7 @@
     VALID_ENTRY_user_check_username=false # Necessary for trying again
     print blue "Can I suggest a username for a new user?"
     read -rp "Username: " USERNAME
+    echo
     until [ "$VALID_ENTRY_user_check_username" == "true" ]; do 
       read -rp "You have chosen \""$USERNAME"\" as username. Type \"YES\" if correct or \"NO\" if not: " USER_check
       echo
@@ -561,21 +562,24 @@ EOF
   done
   print blue "The bootloader will be viewed as "$BOOTLOADER_label" in the BIOS"
   echo
-  grub-install --target=x86_64-efi --efi-directory=/boot/EFI --bootloader-id="$BOOTLOADER_label" --modules="luks2 fat all_video jpeg png gfxterm gfxmenu gfxterm_background part_gpt cryptodisk gcry_rijndael gcry_sha512 btrfs" --recheck
+  grub-install --target=x86_64-efi --efi-directory=/boot/EFI --bootloader-id="$BOOTLOADER_label" --modules="luks2 fat all_video jpeg png pbkdf2 gfxterm gfxmenu gfxterm_background part_gpt cryptodisk gcry_rijndael gcry_sha512 btrfs" --recheck
   if [ "$ENCRYPTION_choice" == "1" ]; then
     sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="lsm=landlock,lockdown,yama,apparmor,bpf\ loglevel=3\ quiet\ cryptdevice=\/dev\/'"$DRIVE_LABEL"':cryptroot:allow-discards\ root=\/dev\/mapper\/cryptroot\"/' /etc/default/grub
     sed -i -e "/GRUB_ENABLE_CRYPTODISK/s/^#//" /etc/default/grub
     touch grub-pre.cfg
-    UUID_root=$(lsblk -no TYPE,UUID /dev/"$DRIVE_LABEL" | awk '$1=="part"{print $2}' | tr -d -)
-    UUID_boot=$(lsblk -no TYPE,UUID /dev/sda1 | awk '$1=="part"{print $2}' | tr -d -)
+    UUID=$(lsblk -no TYPE,UUID /dev/"$DRIVE_LABEL" | awk '$1=="part"{print $2}' | tr -d -)
     cat << EOF | tee -a grub-pre.cfg > /dev/null
-cryptomount -u $UUID_boot
-set prefix=($UUID_root/$UUID_boot)/grub
-set root=$UUID_root/$UUID_boot
+insmod all_video
+set gfxmode=auto
+terminal_input console
+terminal_output gfxterm
+cryptomount -u $UUID
+set root=crypto0
+set prefix=(crypto0)/boot/grub
 insmod normal
 normal
 EOF
-    grub-mkimage -p /boot/grub -O x86_64-efi -c grub-pre.cfg -o /tmp/grubx64.efi luks2 fat all_video jpeg png part_gpt gfxterm gfxmenu gfxterm_background cryptodisk gcry_rijndael gcry_sha512 btrfs
+    grub-mkimage -p /boot/grub -O x86_64-efi -c grub-pre.cfg -o /tmp/grubx64.efi luks2 fat all_video jpeg png part_gpt gfxterm gfxmenu pbkdf2 gfxterm_background cryptodisk gcry_rijndael gcry_sha512 btrfs
     rm grub-pre.cfg
     install -v /tmp/grubx64.efi /boot/EFI/EFI/"$BOOTLOADER_label"/grubx64.efi
   fi
@@ -612,5 +616,8 @@ EOF
   more farewell.txt
   echo
   exit
-  umount -R /mnt
+  umount -f -R /mnt
+  echo
+  print yellow "You might want to delete /install_script "
+  echo
   exit
