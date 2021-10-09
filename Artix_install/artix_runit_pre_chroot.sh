@@ -218,7 +218,7 @@
     until [ "$VALID_ENTRY_drive_size_format" == "true" ] && [ "$VALID_ENTRY_drive_size" == "true" ]; do 
       VALID_ENTRY_drive_size_check=false # Necessary for trying again
       if [ "$drive" == "BOOT" ]; then
-        read -rp "Any favourite size for the "$drive"-partition in MB? Though minimum 256MB; only type the size without units: " drive_size
+        read -rp "Any favourite size for the "$drive"-partition in MB? Though minimum 261MB; only type the size without units: " drive_size
       else
         read -rp "Any favourite size for the "$drive"-partition in MB? Please only type the size without units: " drive_size
       fi
@@ -550,7 +550,7 @@
   cd /
   umount /mnt
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@ "$MOUNT" /mnt
-  mkdir -p /mnt/{boot,efi,home,srv,.snapshots,var/{abs,tmp,log,cache/pacman/pkg}}
+  mkdir -p /mnt/{boot,home,srv,.snapshots,var/{abs,tmp,log,cache/pacman/pkg}}
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@home "$MOUNT" /mnt/home
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_pkg "$MOUNT" /mnt/var/cache/pacman/pkg
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@var_log "$MOUNT" /mnt/var/log
@@ -559,7 +559,7 @@
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@srv "$MOUNT" /mnt/srv
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots "$MOUNT" /mnt/.snapshots
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@boot "$MOUNT" /mnt/boot
-  mkdir -p /mnt/.snapshots/{home,root,packages_list}
+  mkdir -p /mnt/{boot/EFI,.snapshots/{home,root,packages_list}}
   sync
   echo
   lines
@@ -569,7 +569,7 @@
 # Drive-mount
 
   cd "$BEGINNER_DIR" || exit
-  mount "$DRIVE_LABEL_boot" /mnt/efi
+  mount "$DRIVE_LABEL_boot" /mnt/EFI
   if [[ "$SWAP_choice" == "1" ]]; then
     swapon "$DRIVE_LABEL_swap"
   fi
@@ -608,12 +608,12 @@ EOF
   echo
   until [ "$FSTAB_proceed" == "true" ]; do 
     until [ "$VALID_ENTRY_fstab_check" == "true" ]; do 
-      read -rp "If you want to check that the UUIDs in fstab is correct, enter \"2\"; if not, enter \"1\": " FSTAB_check
+      read -rp "If you want to check whether the UUIDs in fstab is correct, enter \"YES\"; if not, enter \"NO\": " FSTAB_check
       echo
-      if [ "$FSTAB_check" == "1" ]; then
+      if [ "$FSTAB_check" == "NO" ]; then
         VALID_ENTRY_fstab_check=true
         FSTAB_proceed=true
-      elif [ "$FSTAB_check" == "2" ]; then
+      elif [ "$FSTAB_check" == "YES" ]; then
         VALID_ENTRY_fstab_check=true
         fdisk -l
         FSTAB_proceed=false
