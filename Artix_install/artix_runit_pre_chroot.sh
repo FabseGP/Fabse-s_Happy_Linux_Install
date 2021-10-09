@@ -552,6 +552,7 @@
   btrfs subvolume create @var_pkg
   btrfs subvolume create @.snapshots
   btrfs subvolume create @boot
+  btrfs subvolume create @grub
   cd /
   umount /mnt
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@ "$MOUNT" /mnt
@@ -564,7 +565,8 @@
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@srv "$MOUNT" /mnt/srv
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@.snapshots "$MOUNT" /mnt/.snapshots
   mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@boot "$MOUNT" /mnt/boot
-  mkdir -p /mnt/{boot/EFI,.snapshots/{home,root,packages_list}}
+  mkdir -p /mnt/{boot/{EFI,grub},.snapshots/{home,root,packages_list}}
+  mount -o noatime,nodiratime,compress=zstd,space_cache,ssd,subvol=@grub "$MOUNT" /mnt/boot/grub
   sync
   echo
   lines
