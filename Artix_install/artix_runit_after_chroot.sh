@@ -528,7 +528,7 @@ EOF
   sed -i 's/HOOKS=(base\ udev\ autodetect\ modconf\ block\ filesystems\ keyboard\ fsck)/HOOKS=(base\ udev\ keymap\ keyboard\ autodetect\ modconf\ block\ encrypt\ filesystems\ fsck)/' /etc/mkinitcpio.conf
   sed -i 's/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/' /etc/mkinitcpio.conf
   if [ "$ENCRYPTION_choice" == "1" ]; then
-    dd bs=512 count=4 if=/dev/random of=/.secret/crypto_keyfile.bin iflag=fullblock
+    dd bs=512 count=5 if=/dev/random of=/.secret/crypto_keyfile.bin iflag=fullblock
     chmod 600 /.secret/crypto_keyfile.bin
     chmod 600 /boot/initramfs-linux*
     echo
@@ -574,16 +574,17 @@ EOF
   echo
   grub-install --target=x86_64-efi --efi-directory=/boot/EFI --bootloader-id="$BOOTLOADER_label" --modules="luks2 fat all_video jpeg png pbkdf2 gettext gzio gfxterm gfxmenu gfxterm_background part_gpt cryptodisk gcry_rijndael gcry_sha512 btrfs" --recheck
   if [ "$ENCRYPTION_choice" == "1" ]; then
-    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="lsm=landlock,lockdown,yama,bpf\ loglevel=3\ quiet\ cryptdevice=\/dev\/'"$DRIVE_LABEL"':cryptroot:allow-discards\ root=\/dev\/mapper\/cryptroot"/' /etc/default/grub
+    UUID_1=$(lsblk -no TYPE,UUID /dev/"$DRIVE_LABEL" | awk '$1=="part"{print $2}')
+    UUID_2=$(lsblk -no TYPE,UUID /dev/"$DRIVE_LABEL" | awk '$1=="part"{print $2}' | tr -d -)
+    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="lsm=landlock,lockdown,yama,bpf\ loglevel=3\ quiet\ cryptdevice=UUID='"$UUID_1"':cryptroot:allow-discards\ root=UUID='"$UUID_1"'\ cryptkey=rootfs:/.secret"/' /etc/default/grub
     sed -i -e "/GRUB_ENABLE_CRYPTODISK/s/^#//" /etc/default/grub
     touch grub-pre.cfg
-    UUID=$(lsblk -no TYPE,UUID /dev/"$DRIVE_LABEL" | awk '$1=="part"{print $2}' | tr -d -)
     cat << EOF | tee -a grub-pre.cfg > /dev/null
 insmod all_video
 set gfxmode=auto
 terminal_input console
 terminal_output gfxterm
-cryptomount -u $UUID
+cryptomount -u $UUID_2
 set prefix='(crypto0)/@grub'
 set root='(crypto0)'
 insmod normal
