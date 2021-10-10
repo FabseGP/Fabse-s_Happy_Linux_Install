@@ -615,7 +615,7 @@ EOF
   sed -i '/swap/c\\/dev\/mapper\/swap  none   swap    defaults   0       0' /mnt/etc/fstab
   RAM_size="$((($(free -g | grep Mem: | awk '{print $2}') + 1) / 2))G" # tmpfs will fill half the RAM-size
   cat << EOF | tee -a /mnt/etc/fstab > /dev/null
-tmpfs	/tmp	tmpfs	rw_size=$RAM_size,nr_inodes=5k,noexec,nodev,nousid	0	0  
+tmpfs	/tmp	tmpfs	rw,size=$RAM_size,nr_inodes=5k,noexec,nodev,nosuid,mode=1700	0	0  
 EOF
   echo
   until [ "$FSTAB_proceed" == "true" ]; do 
