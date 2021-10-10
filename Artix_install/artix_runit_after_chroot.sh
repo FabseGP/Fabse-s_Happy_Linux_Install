@@ -471,10 +471,11 @@ EOF
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Setting NetworkManager + fcron to start on boot
+# Setting NetworkManager + fcron + chrony to start on boot
 
   ln -s /etc/runit/sv/NetworkManager /etc/runit/runsvdir/default
   ln -s /etc/runit/sv/fcron /etc/runit/runsvdir/default
+  ln -s /etc/runit/sv/chrony /etc/runit/runsvdir/default
   echo
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -571,9 +572,9 @@ EOF
   done
   print blue "The bootloader will be viewed as "$BOOTLOADER_label" in the BIOS"
   echo
-  grub-install --target=x86_64-efi --efi-directory=/boot/EFI --bootloader-id="$BOOTLOADER_label" --modules="luks2 fat all_video jpeg png pbkdf2 gfxterm gfxmenu gfxterm_background part_gpt cryptodisk gcry_rijndael gcry_sha512 btrfs" --recheck
+  grub-install --target=x86_64-efi --efi-directory=/boot/EFI --bootloader-id="$BOOTLOADER_label" --modules="luks2 fat all_video jpeg png pbkdf2 gettext gzio gfxterm gfxmenu gfxterm_background part_gpt cryptodisk gcry_rijndael gcry_sha512 btrfs" --recheck
   if [ "$ENCRYPTION_choice" == "1" ]; then
-    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="lsm=landlock,lockdown,yama,apparmor,bpf\ loglevel=3\ quiet\ cryptdevice=\/dev\/'"$DRIVE_LABEL"':cryptroot:allow-discards\ root=\/dev\/mapper\/cryptroot\"/' /etc/default/grub
+    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="lsm=landlock,lockdown,yama,bpf\ loglevel=3\ quiet\ cryptdevice=\/dev\/'"$DRIVE_LABEL"':cryptroot:allow-discards\ root=\/dev\/mapper\/cryptroot"/' /etc/default/grub
     sed -i -e "/GRUB_ENABLE_CRYPTODISK/s/^#//" /etc/default/grub
     touch grub-pre.cfg
     UUID=$(lsblk -no TYPE,UUID /dev/"$DRIVE_LABEL" | awk '$1=="part"{print $2}' | tr -d -)
@@ -583,12 +584,12 @@ set gfxmode=auto
 terminal_input console
 terminal_output gfxterm
 cryptomount -u $UUID
-set prefix='(crypto0)/@grub'
-set root='(crypto0)'
+set prefix=crypto0/@grub
+set root=crypto0
 insmod normal
 normal
 EOF
-    grub-mkimage -p '(crypto0)/@grub' -O x86_64-efi -c grub-pre.cfg -o /boot/EFI/EFI/"$BOOTLOADER_label"/grubx64.efi luks2 fat all_video jpeg png part_gpt gfxterm gfxmenu pbkdf2 gfxterm_background cryptodisk gcry_rijndael gcry_sha512 btrfs
+    grub-mkimage -p '(crypto0)/@grub' -O x86_64-efi -c grub-pre.cfg -o /boot/EFI/EFI/"$BOOTLOADER_label"/grubx64.efi luks2 fat all_video jpeg png pbkdf2 gettext gzio gfxterm gfxmenu gfxterm_background part_gpt cryptodisk gcry_rijndael gcry_sha512 btrfs
     rm grub-pre.cfg
   fi
   echo
@@ -602,8 +603,8 @@ EOF
 
 # Security enhancements + BTRFS-snapshot
 
-  cat << EOF | tee -a /etc/pam.d/system-login > /dev/null # 4 second delay, when system login failes
-auth optional pam_faildelay.so delay=4000000
+  cat << EOF | tee -a /etc/pam.d/system-login > /dev/null # 3 seconds delay, when system login failes
+auth optional pam_faildelay.so delay=3000000
 EOF
   mkdir /etc/pacman.d/hooks
   touch /etc/pacman.d/hooks/firejail.hook
