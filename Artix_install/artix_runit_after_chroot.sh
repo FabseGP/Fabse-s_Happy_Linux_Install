@@ -294,7 +294,7 @@
   echo
   until [ "$ROOT_proceed" == "true" ]; do 
     VALID_ENTRY_root_check=false # Necessary for trying again
-    read -rp "Any thoughts on a root-password? Please enter it here; it will later be hashed using libressl: " ROOT_passwd
+    read -rp "Any thoughts on a root-password? Please enter it here: " ROOT_passwd
     echo
     until [ "$VALID_ENTRY_root_check" == "true" ]; do 
       read -rp "You have chosen \""$ROOT_passwd"\" as the root-password. Type \"YES\" if fine or \"NO\" if you wish to change it: " ROOT_check
@@ -584,12 +584,12 @@ set gfxmode=auto
 terminal_input console
 terminal_output gfxterm
 cryptomount -u $UUID
-set prefix=crypto0/@grub
-set root=crypto0
+set prefix='(crypto0)/@grub'
+set root='(crypto0)'
 insmod normal
 normal
 EOF
-    grub-mkimage -p 'crypto0/@grub' -O x86_64-efi -c grub-pre.cfg -o /boot/EFI/EFI/"$BOOTLOADER_label"/grubx64.efi luks2 fat all_video jpeg png pbkdf2 gettext gzio gfxterm gfxmenu gfxterm_background part_gpt cryptodisk gcry_rijndael gcry_sha512 btrfs
+    grub-mkimage -p '(crypto0)/@grub' -O x86_64-efi -c grub-pre.cfg -o /boot/EFI/EFI/"$BOOTLOADER_label"/grubx64.efi luks2 fat all_video jpeg png pbkdf2 gettext gzio gfxterm gfxmenu gfxterm_background part_gpt cryptodisk gcry_rijndael gcry_sha512 btrfs
     rm grub-pre.cfg
   fi
   echo
