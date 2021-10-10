@@ -507,6 +507,9 @@
     print blue "Please have your encryption-password ready "
     echo
     cryptsetup luksFormat --batch-mode --verify-passphrase --type luks2 --pbkdf=pbkdf2 --pbkdf-force-iterations=500000 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL_primary" # --pbkdf=pbkdf2 --pbkdf-force-iterations=500000 due to GRUB lacking support for ARGON2d
+    echo
+    print yellow "And again to unlock the partition "
+    echo
     cryptsetup open "$DRIVE_LABEL_primary" cryptroot
     echo
   fi
