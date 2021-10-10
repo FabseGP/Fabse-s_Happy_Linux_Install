@@ -593,7 +593,7 @@
   elif grep -q AMD "/proc/cpuinfo"; then
     basestrap /mnt amd-ucode
   fi
-  basestrap /mnt fcron-runit cryptsetup-runit cryptsetup firejail libressl bat base base-devel neovim nano runit linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 cryptsetup realtime-privileges elogind-runit mkinitcpio artix-archlinux-support
+  basestrap /mnt fcron-runit chrony-runit cryptsetup-runit cryptsetup firejail libressl bat base base-devel neovim nano runit linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 cryptsetup realtime-privileges elogind-runit mkinitcpio artix-archlinux-support
   echo
   lines
   if [[ "$SWAP_choice" == "1" ]]; then
