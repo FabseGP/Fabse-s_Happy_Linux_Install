@@ -599,7 +599,7 @@
   if [[ "$SWAP_choice" == "1" ]]; then
     UUID_swap=$(lsblk -no TYPE,UUID "$DRIVE_LABEL_swap" | awk '$1=="part"{print $2}')
     cat << EOF | tee -a /mnt/etc/crypttab > /dev/null
-swap     UUID="$UUID_swap"  /dev/urandom  swap,offset=2048,cipher=aes-xts-plain64,size=512
+swap     UUID=$UUID_swap  /dev/urandom  swap,offset=2048,cipher=aes-xts-plain64,size=512
 EOF
   fi
 
