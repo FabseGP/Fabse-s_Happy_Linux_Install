@@ -329,7 +329,15 @@ EOF
     echo
     pacman -U --noconfirm paru-1.8.2-1-x86_64.pkg.tar.zst
     pacman -Syu --noconfirm
-    echo "alias yay=paru" >> /etc/profile
+    touch /etc/bash/bashrc
+    cat << EOF | tee -a /etc/bash/bashrc > /dev/null
+alias yay=paru
+EOF
+    cat << EOF | tee -a /etc/profile > /dev/null
+if [ -f /etc/bash/bashrc ]; then
+  . /etc/bash/bashrc
+fi
+EOF
     cd "$BEGINNER_DIR" || exit
     cp paru.conf /etc/paru.conf # Links sudo to doas + more
   fi
