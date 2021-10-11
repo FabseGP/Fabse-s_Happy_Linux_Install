@@ -23,16 +23,19 @@
   VALID_ENTRY_intro_check=""
   INTRO_proceed=""
 
+  ENCRYPTION_1=""
+  ENCRYPTION_2=""
+  ENCRYPTION_check=""
+  ENCRYPTION_confirm=""
+  ENCRYPTION_double_confirm=""
+
   WIFI_SSID=""
   WIFI_check=""
   VALID_ENTRY_wifi_check=""
   WIFI_proceed=""
   WIFI_ID=""
 
-  VALID_ENTRY_drive=""
-  VALID_ENTRY_drive_choice=""
   OUTPUT=""
-  DRIVE_check=""
   DRIVE_proceed=""
 
   drive=""
@@ -50,6 +53,7 @@
 
   DRIVE_choice=""
   VALID_ENTRY_drive_check=""
+  VALID_ENTRY_drive_confirm=""
 
   DRIVE_LABEL=""
   DRIVE_LABEL_boot=""
@@ -66,6 +70,7 @@
 
   DRIVE_LABEL_after_chroot=""
   ENCRYPTION_after_chroot=""
+  ENCRYPTION_PASSWD_after_chroot=""
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -298,6 +303,124 @@
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
+# Partitions; sizes and labels
+
+  swapoff -a
+  umount -R /mnt # In case of executing the script again
+  more partitions.txt
+  echo
+  fdisk -l
+  echo
+  until [ "$DRIVE_proceed" == "true" ]; do
+    VALID_ENTRY_drive_check=false # Neccessary for trying again
+    print blue "Which drive do you want to partition? Please only enter the part after \"/dev/\": " 
+    read -rp "Drive: " DRIVE_LABEL
+    OUTPUT=$(fdisk -l | sed -n "s/^.*\("$DRIVE_LABEL"\).*$/\1/p")
+    if [[ "$OUTPUT" == *"$DRIVE_LABEL"* ]]; then
+      until [ "$VALID_ENTRY_drive_confirm" == "true" ]; do  
+        if [ "$DRIVE_LABEL" == "nvme0n1" ]; then
+          DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL"p"1"
+          DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL"p"2"
+        else
+          DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
+          DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""2"
+        fi
+        until_loop_drive_size BOOT BOOT_size
+        until_loop_drive_name BOOT BOOT_label
+        if [ "$SWAP_choice" == "1" ]; then
+          until_loop_drive_size SWAP SWAP_size
+          until_loop_drive_name SWAP SWAP_label
+        fi
+        until_loop_drive_name primary PRIMARY_label
+        echo
+        print blue "You have chosen the following labels / sizes: "
+        echo
+        print green "Drive to partition = \"/dev/"$DRIVE_LABEL"\""
+        print green "BOOT_size = \""$BOOT_size"\" and BOOT_label = \""$BOOT_label"\""
+        if [ "$SWAP_choice" == "1" ]; then
+          print green "SWAP_size = \""$SWAP_size"\" and SWAP_label = \""$SWAP_label"\""
+        fi
+        print green "ROOT_label = \""$PRIMARY_label"\""
+        echo
+        until [ "$VALID_ENTRY_drive_check" == "true" ]; do 
+          read -rp "Is everything fine? Please type either \"YES\" or \"NO\": " DRIVE_choice
+          echo
+          if [ "$DRIVE_choice" == "YES" ]; then 
+            VALID_ENTRY_drive_check=true
+            VALID_ENTRY_drive_confirm=true
+            DRIVE_proceed=true
+          elif [ "$DRIVE_choice" == "NO" ]; then  
+            DRIVE_LABEL=""
+            BOOT_size=""
+            BOOT_label=""
+            SWAP_size=""
+            SWAP_label=""
+            PRIMARY_label=""
+            VALID_ENTRY_drive_check=true
+            VALID_ENTRY_drive_confirm=false
+            DRIVE_proceed=false
+            print cyan "Back to square one!"
+            echo
+          else
+            VALID_ENTRY_drive_check=false
+            print red "Invalid answer. Please try again"
+            echo
+          fi
+        done
+      done
+    else
+      echo
+      fdisk -l
+      echo
+      print red "Invalid drive. Please try again"
+      echo
+    fi
+  done
+  print yellow "Erasing your drive! This might take some time depending on your drive size - you are hereby permitted to exit using Ctrl+C"
+  echo
+  dd if=/dev/zero of=/dev/"$DRIVE_LABEL" bs=512 count=1 status=progress
+  echo
+  if [ "$ENCRYPTION_choice" == "1" ]; then
+    more encryption.txt
+    echo
+    until [ "$ENCRYPTION_check" == "YES" ]; do
+      ENCRYPTION_confirm=false # Neccessary for trying again
+      print blue "Because you seek encryption, please enter the encryption-password that you wish to use: "
+      read -rp "Encryption-password: " ENCRYPTION_1
+      print yellow "And again to confirm your choice: "
+      read -rp "Encryption-password: " ENCRYPTION_2
+      if [ "$ENCRYPTION_1" != "$ENCRYPTION_2" ]; then
+        print red "Sorry, you didn't enter the same password twice :("
+        ENCRYPTION_1=""
+        ENCRYPTION_2=""
+        ENCRYPTION_check=false
+        echo
+      elif [ "$ENCRYPTION_1" == "$ENCRYPTION_2" ]; then
+        until [ "$ENCRYPTION_confirm" == "YES" ]; do   
+          print purple "You have chosen \""$ENCRYPTION_2"\" as your encryption-password - if correct, please type \"YES\"; otherwise \"NO\": " ENCRYPTION_double_confirm
+          if [ "$ENCRYPTION_double_confirm" == "YES" ]; then
+            ENCRYPTION_confirm=true
+            ENCRYPTION_choice=true
+          elif [ "$ENCRYPTION_double_confirm" == "NO" ]; then
+            ENCRYPTION_confirm=true
+            ENCRYPTION_choice=false
+            print cyan "Back to square one!"
+            echo
+            ENCRYPTION_choice=true
+          else
+            ENCRYPTION_confirm=false
+            ENCRYPTION_choice=false
+            print red "Invalid answer. Please try again"
+            echo
+          fi
+        done
+      fi
+    done
+  fi
+  lines
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
 # Network-configuration
 
   if [ "$WIFI_choice" == "1" ]; then
@@ -355,141 +478,14 @@
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Partitions
+# Partitioning drives
 
-  swapoff -a
-  umount -R /mnt # In case of executing the script again
-  more partitions.txt
-  echo
-  fdisk -l
-  echo
-  until [ "$VALID_ENTRY_drive" == "true" ]; do
-    print blue "Which drive do you want to partition? Please only enter the part after \"/dev/\": " 
-    VALID_ENTRY_drive_choice=false # Necessary for trying again
-    read -rp "Drive: " DRIVE_LABEL
-    OUTPUT=$(fdisk -l | sed -n "s/^.*\("$DRIVE_LABEL"\).*$/\1/p")
-    if [[ "$OUTPUT" == *"$DRIVE_LABEL"* ]]; then 
-      until [ "$VALID_ENTRY_drive_choice" == "true" ]; do 
-        echo
-        read -rp "You have chosen \""$DRIVE_LABEL"\". Type \"YES\" if correct or \"NO\" if not: " DRIVE_check
-        echo
-        if [ "$DRIVE_check" == "NO" ]; then
-          print yellow "You'll get a new prompt"
-          echo
-          VALID_ENTRY_drive_choice=true
-          VALID_ENTRY_drive=false
-        elif [ "$DRIVE_check" == "YES" ]; then
-          VALID_ENTRY_drive_choice=true
-          VALID_ENTRY_drive=true
-        else
-          VALID_ENTRY_drive_choice=false
-          print red "Invalid answer. Please try again"
-          echo
-        fi
-      done
-    else
-      echo
-      fdisk -l
-      echo
-      print red "Invalid drive. Please try again"
-      echo
-    fi
-  done
-  print yellow "Erasing your drive! This might take some time depending on your drive size - you are hereby permitted to exit using Ctrl+C"
-  echo
-  dd if=/dev/zero of=/dev/"$DRIVE_LABEL" bs=512 count=1 status=progress
-  echo
   if [ "$SWAP_choice" == "2" ]; then
-    if [ "$DRIVE_LABEL" == "nvme0n1" ]; then
-      DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL"p"1"
-      DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL"p"2"
-    else
-      DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
-      DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""2"
-    fi
-    until [ "$DRIVE_proceed" == "true" ]; do 
-      until_loop_drive_size BOOT BOOT_size
-      until_loop_drive_name BOOT BOOT_label
-      until_loop_drive_name primary PRIMARY_label
-      echo
-      print blue "You have chosen the following labels / sizes: "
-      echo
-      print green "BOOT_size = \""$BOOT_size"\" and BOOT_label = \""$BOOT_label"\""
-      print green "ROOT_label = \""$PRIMARY_label"\""
-      echo
-      VALID_ENTRY_drive_check="" # Neccessary for trying again
-      until [ "$VALID_ENTRY_drive_check" == "true" ]; do 
-        read -rp "Is everything fine? Please type either \"YES\" or \"NO\": " DRIVE_choice
-        echo
-        if [ "$DRIVE_choice" == "YES" ]; then 
-          VALID_ENTRY_drive_check=true
-          DRIVE_proceed=true
-        elif [ "$DRIVE_choice" == "NO" ]; then  
-          BOOT_size=""
-          BOOT_label=""
-          PRIMARY_label=""
-          VALID_ENTRY_drive_check=true
-          DRIVE_proceed=false
-          print cyan "Back to square one!"
-          echo
-        else
-          VALID_ENTRY_drive_check=false
-          print red "Invalid answer. Please try again"
-          echo
-        fi
-      done
-    done
     parted --script -a optimal /dev/"$DRIVE_LABEL" \
       mklabel gpt \
       mkpart BOOT fat32 1MiB "$BOOT_size"MiB set 1 ESP on \
       mkpart PRIMARY btrfs "$BOOT_size"MiB 100%   
   elif [ "$SWAP_choice" == "1" ]; then
-    if [ "$DRIVE_LABEL" == "nvme0n1" ]; then
-      DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL"p"1"
-      DRIVE_LABEL_swap=/dev/"$DRIVE_LABEL"p"2"
-      DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL"p"3"
-    else
-      DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
-      DRIVE_LABEL_swap=/dev/"$DRIVE_LABEL""2"
-      DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""3"
-    fi
-    until [ "$DRIVE_proceed" == "true" ]; do 
-      until_loop_drive_size BOOT BOOT_size
-      until_loop_drive_name BOOT BOOT_label
-      until_loop_drive_size SWAP SWAP_size
-      until_loop_drive_name SWAP SWAP_label
-      until_loop_drive_name primary PRIMARY_label
-      echo
-      print blue "You have chosen the following labels / sizes: "
-      echo
-      print green "BOOT_size = \""$BOOT_size"\" and BOOT_label = \""$BOOT_label"\""
-      print green "SWAP_size = \""$SWAP_size"\" and SWAP_label = \""$SWAP_label"\""
-      print green "ROOT_label = \""$PRIMARY_label"\""
-      echo
-      VALID_ENTRY_drive_check="" # Neccessary for trying again
-      until [ "$VALID_ENTRY_drive_check" == "true" ]; do 
-        read -rp "Is everything fine? Please type either \"YES\" or \"NO\": " DRIVE_choice
-        echo
-        if [ "$DRIVE_choice" == "YES" ]; then 
-          VALID_ENTRY_drive_check=true
-          DRIVE_proceed=true
-        elif [ "$DRIVE_choice" == "NO" ]; then  
-          BOOT_size=""
-          BOOT_label=""
-          SWAP_size=""
-          SWAP_label=""
-          PRIMARY_label=""
-          VALID_ENTRY_drive_check=true
-          DRIVE_proceed=false
-          print cyan "Back to square one!"
-          echo
-        else
-          VALID_ENTRY_drive_check=false
-          print red "Invalid answer. Please try again"
-          echo
-        fi
-      done
-    done
     parted --script -a optimal /dev/"$DRIVE_LABEL" \
       mklabel gpt \
       mkpart BOOT fat32 1MiB "$BOOT_size"MiB set 1 ESP on \
@@ -503,16 +499,8 @@
 # ROOT-encryption
 
   if [ "$ENCRYPTION_choice" == "1" ]; then
-    more encryption.txt
-    echo
-    print blue "Please have your encryption-password ready "
-    echo
-    cryptsetup luksFormat --batch-mode --verify-passphrase --type luks2 --pbkdf=pbkdf2 --pbkdf-force-iterations=500000 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL_primary" # --pbkdf=pbkdf2 --pbkdf-force-iterations=500000 due to GRUB lacking support for ARGON2d
-    echo
-    print yellow "And again to unlock the partition "
-    echo
-    cryptsetup open "$DRIVE_LABEL_primary" cryptroot
-    lines
+    echo "$ENCRYPTION_2" | cryptsetup luksFormat --batch-mode --type luks2 --pbkdf=pbkdf2 --pbkdf-force-iterations=500000 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL_primary" # --pbkdf=pbkdf2 --pbkdf-force-iterations=500000 due to GRUB lacking support for ARGON2d
+    echo "$ENCRYPTION_2" | cryptsetup open "$DRIVE_LABEL_primary" cryptroot
   fi
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -590,9 +578,9 @@
 
   PACKAGES="fcron-runit chrony-runit cryptsetup-runit cryptsetup firejail libressl vim bat base base-devel neovim nano runit linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 cryptsetup realtime-privileges elogind-runit mkinitcpio artix-archlinux-support"
   if grep -q Intel "/proc/cpuinfo"; then # Poor soul :(
-    basestrap /mnt intel-ucode $PACKAGES
+    basestrap /mnt intel-ucode "$PACKAGES"
   elif grep -q AMD "/proc/cpuinfo"; then
-    basestrap /mnt amd-ucode $PACKAGES
+    basestrap /mnt amd-ucode "$PACKAGES"
   fi
   if [ "$SWAP_choice" == "1" ]; then
     UUID_swap=$(lsblk -no TYPE,UUID "$DRIVE_LABEL_swap" | awk '$1=="part"{print $2}')
@@ -660,7 +648,8 @@ EOF
   if [ "$ENCRYPTION_choice" == "1" ]; then
     DRIVE_LABEL_after_chroot="$DRIVE_LABEL_primary"
     ENCRYPTION_after_chroot="1"
+    ENCRYPTION_PASSWD_after_chroot="$ENCRYPTION_2"
   fi
   mkdir /mnt/install_script
   cp {artix_runit_pre_chroot.sh,artix_runit_after_chroot.sh,AUR.txt,farewell.txt,grub-btrfs-update.stop,packages.txt,hostname.txt,btrfs_snapshot.sh,users.txt,paru-1.8.2-1-x86_64.pkg.tar.zst,pacman.conf,paru.conf,GRUB.txt,initramfs.txt,locals.txt,time.txt} /mnt/install_script
-  artix-chroot /mnt /install_script/artix_runit_after_chroot.sh "$DRIVE_LABEL_after_chroot" "$ENCRYPTION_after_chroot"
+  artix-chroot /mnt /install_script/artix_runit_after_chroot.sh "$DRIVE_LABEL_after_chroot" "$ENCRYPTION_after_chroot" "$ENCRYPTION_PASSWD_after_chroot"
