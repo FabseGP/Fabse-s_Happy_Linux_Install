@@ -244,7 +244,7 @@
           print cyan "Back to square one!"
           echo
         else
-          VALID_ENTRY_all_check=true
+          VALID_ENTRY_all_check=false
           print red "Invalid answer. Please try again"
           echo
         fi
