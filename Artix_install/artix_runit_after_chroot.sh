@@ -332,6 +332,9 @@ EOF
     touch /etc/bash/bashrc
     cat << EOF | tee -a /etc/bash/bashrc > /dev/null
 alias yay=paru
+if [ -d "$HOME/.local/bin" ] ; then
+    PATH="$HOME/.local/bin:/usr/local/bin"
+fi
 EOF
     cat << EOF | tee -a /etc/profile > /dev/null
 if [ -f /etc/bash/bashrc ]; then
