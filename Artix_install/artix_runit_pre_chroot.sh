@@ -224,9 +224,9 @@
       fi
     done
     if [ "$drive" == "BOOT" ]; then
-      BOOT_size=$drive_size
+      BOOT_size="$drive_size"
     elif [ "$drive" == "SWAP" ]; then
-      SWAP_size=$((drive_size+BOOT_size))
+      SWAP_size="$drive_size"
     fi
     drive=""
     drive_size=""
