@@ -53,7 +53,6 @@
 
   DRIVE_choice=""
   VALID_ENTRY_drive_check=""
-  VALID_ENTRY_drive_confirm=""
 
   DRIVE_LABEL=""
   DRIVE_LABEL_boot=""
@@ -315,58 +314,55 @@
     VALID_ENTRY_drive_check=false # Neccessary for trying again
     print blue "Which drive do you want to partition? Please only enter the part after \"/dev/\": " 
     read -rp "Drive: " DRIVE_LABEL
+    echo
     OUTPUT=$(fdisk -l | sed -n "s/^.*\("$DRIVE_LABEL"\).*$/\1/p")
     if [[ "$OUTPUT" == *"$DRIVE_LABEL"* ]]; then
-      until [ "$VALID_ENTRY_drive_confirm" == "true" ]; do  
-        if [ "$DRIVE_LABEL" == "nvme0n1" ]; then
-          DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL"p"1"
-          DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL"p"2"
-        else
-          DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
-          DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""2"
-        fi
-        until_loop_drive_size BOOT BOOT_size
-        until_loop_drive_name BOOT BOOT_label
-        if [ "$SWAP_choice" == "1" ]; then
-          until_loop_drive_size SWAP SWAP_size
-          until_loop_drive_name SWAP SWAP_label
-        fi
-        until_loop_drive_name primary PRIMARY_label
+      if [ "$DRIVE_LABEL" == "nvme0n1" ]; then
+        DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL"p"1"
+        DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL"p"2"
+      else
+        DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
+        DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""2"
+      fi
+      until_loop_drive_size BOOT BOOT_size
+      until_loop_drive_name BOOT BOOT_label
+      if [ "$SWAP_choice" == "1" ]; then
+        until_loop_drive_size SWAP SWAP_size
+        until_loop_drive_name SWAP SWAP_label
+      fi
+      until_loop_drive_name primary PRIMARY_label
+      echo
+      print blue "You have chosen the following labels / sizes: "
+      echo
+      print green "Drive to partition = \"/dev/"$DRIVE_LABEL"\""
+      print green "BOOT_size = \""$BOOT_size"\" and BOOT_label = \""$BOOT_label"\""
+      if [ "$SWAP_choice" == "1" ]; then
+        print green "SWAP_size = \""$SWAP_size"\" and SWAP_label = \""$SWAP_label"\""
+      fi
+      print green "ROOT_label = \""$PRIMARY_label"\""
+      echo
+      until [ "$VALID_ENTRY_drive_check" == "true" ]; do 
+        read -rp "Is everything fine? Please type either \"YES\" or \"NO\": " DRIVE_choice
         echo
-        print blue "You have chosen the following labels / sizes: "
-        echo
-        print green "Drive to partition = \"/dev/"$DRIVE_LABEL"\""
-        print green "BOOT_size = \""$BOOT_size"\" and BOOT_label = \""$BOOT_label"\""
-        if [ "$SWAP_choice" == "1" ]; then
-          print green "SWAP_size = \""$SWAP_size"\" and SWAP_label = \""$SWAP_label"\""
-        fi
-        print green "ROOT_label = \""$PRIMARY_label"\""
-        echo
-        until [ "$VALID_ENTRY_drive_check" == "true" ]; do 
-          read -rp "Is everything fine? Please type either \"YES\" or \"NO\": " DRIVE_choice
+        if [ "$DRIVE_choice" == "YES" ]; then 
+          VALID_ENTRY_drive_check=true
+          DRIVE_proceed=true
+        elif [ "$DRIVE_choice" == "NO" ]; then  
+          DRIVE_LABEL=""
+          BOOT_size=""
+          BOOT_label=""
+          SWAP_size=""
+          SWAP_label=""
+          PRIMARY_label=""
+          VALID_ENTRY_drive_check=true
+          DRIVE_proceed=false
+          print cyan "Back to square one!"
           echo
-          if [ "$DRIVE_choice" == "YES" ]; then 
-            VALID_ENTRY_drive_check=true
-            VALID_ENTRY_drive_confirm=true
-            DRIVE_proceed=true
-          elif [ "$DRIVE_choice" == "NO" ]; then  
-            DRIVE_LABEL=""
-            BOOT_size=""
-            BOOT_label=""
-            SWAP_size=""
-            SWAP_label=""
-            PRIMARY_label=""
-            VALID_ENTRY_drive_check=true
-            VALID_ENTRY_drive_confirm=false
-            DRIVE_proceed=false
-            print cyan "Back to square one!"
-            echo
-          else
-            VALID_ENTRY_drive_check=false
-            print red "Invalid answer. Please try again"
-            echo
-          fi
-        done
+        else
+          VALID_ENTRY_drive_check=false
+          print red "Invalid answer. Please try again"
+          echo
+        fi
       done
     else
       echo
