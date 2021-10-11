@@ -348,9 +348,9 @@
       print blue "You have chosen the following labels / sizes: "
       echo
       print green "Drive to partition = \"/dev/"$DRIVE_LABEL"\""
-      print green "BOOT_size = \""$BOOT_size"\" and BOOT_label = \""$BOOT_label"\""
+      print green "BOOT_size = \""$BOOT_size"MB\" and BOOT_label = \""$BOOT_label"\""
       if [ "$SWAP_choice" == "1" ]; then
-        print green "SWAP_size = \""$SWAP_size"\" and SWAP_label = \""$SWAP_label"\""
+        print green "SWAP_size = \""$SWAP_size"MB\" and SWAP_label = \""$SWAP_label"\""
       fi
       print green "ROOT_label = \""$PRIMARY_label"\""
       echo
