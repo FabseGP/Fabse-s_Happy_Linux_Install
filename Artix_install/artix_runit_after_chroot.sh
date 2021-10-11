@@ -333,6 +333,7 @@ EOF
     cat << EOF | tee -a /etc/bash/bashrc > /dev/null
     
 alias yay=paru
+alias rm='rm -i'
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:/usr/local/bin"
 fi
