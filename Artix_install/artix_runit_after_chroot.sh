@@ -331,15 +331,19 @@ EOF
     pacman -Syu --noconfirm
     touch /etc/bash/bashrc
     cat << EOF | tee -a /etc/bash/bashrc > /dev/null
+    
 alias yay=paru
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:/usr/local/bin"
 fi
+
 EOF
     cat << EOF | tee -a /etc/profile > /dev/null
+    
 if [ -f /etc/bash/bashrc ]; then
   . /etc/bash/bashrc
 fi
+
 EOF
     cd "$BEGINNER_DIR" || exit
     cp paru.conf /etc/paru.conf # Links sudo to doas + more
