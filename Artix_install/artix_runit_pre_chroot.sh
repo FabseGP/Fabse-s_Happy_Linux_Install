@@ -661,5 +661,5 @@ EOF
     ENCRYPTION_PASSWD_after_chroot="$ENCRYPTION_2"
   fi
   mkdir /mnt/install_script
-  cp {artix_runit_pre_chroot.sh,artix_runit_after_chroot.sh,AUR.txt,farewell.txt,grub-btrfs-update.stop,packages.txt,summary.txt,hostname.txt,btrfs_snapshot.sh,users.txt,paru-1.8.2-1-x86_64.pkg.tar.zst,pacman.conf,paru.conf,GRUB.txt,initramfs.txt,locals.txt,time.txt} /mnt/install_script
+  cp {artix_runit_pre_chroot.sh,artix_runit_after_chroot.sh,AUR.txt,farewell.txt,grub-btrfs.sh,packages.txt,summary.txt,hostname.txt,btrfs_snapshot.sh,users.txt,paru-1.8.2-1-x86_64.pkg.tar.zst,pacman.conf,paru.conf,GRUB.txt,initramfs.txt,locals.txt,time.txt} /mnt/install_script
   artix-chroot /mnt /install_script/artix_runit_after_chroot.sh "$DRIVE_LABEL_after_chroot" "$ENCRYPTION_after_chroot" "$ENCRYPTION_PASSWD_after_chroot"
