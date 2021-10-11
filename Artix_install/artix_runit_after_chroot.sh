@@ -12,6 +12,7 @@
 
   DRIVE_LABEL="$1"
   ENCRYPTION_choice="$2"
+  ENCRYPTION_passwd="$3"
 
   CONFIRM_choices=""
   ALL_choices=""
@@ -220,10 +221,7 @@
             dd bs=512 count=6 if=/dev/random of=/.secret/crypto_keyfile.bin iflag=fullblock
             chmod 600 /.secret/crypto_keyfile.bin
             chmod 600 /boot/initramfs-linux*
-            echo
-            print yellow "Please have your encryption-key ready for adding a keyfile"
-            echo
-            cryptsetup luksAddKey "$DRIVE_LABEL" /.secret/crypto_keyfile.bin
+            echo "$ENCRYPTION_passwd" | cryptsetup luksAddKey "$DRIVE_LABEL" /.secret/crypto_keyfile.bin
             sed -i 's/FILES=()/FILES=(\/.secret\/crypto_keyfile.bin)/' /etc/mkinitcpio.conf
           fi
         elif [ "$ALL_choices" == "NO" ]; then  
@@ -443,7 +441,8 @@ Exec = /bin/bash -c 'firecfg >/dev/null 2>&1'
 EOF
   cd "$BEGINNER_DIR" || exit
   cp btrfs_snapshot.sh /.snapshots # Maximum 3 snapshots stored
-  chmod u+x /etc/cron.daily/btrfs_snapshot.sh
+  ln -s /.snapshots/btrfs_snapshot.sh /etc/cron.daily/btrfs_snapshot.sh
+  chmod u+x /etc/cron.daily/btrfs_snapshot.sh && chmod u+x /.snapshots/btrfs_snapshot.sh
   sed -i -e "/GRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETECTION/s/^#//" /etc/default/grub-btrfs/config
   cat << EOF | tee -a /etc/rc.shutdown > /dev/null
 # Adding BTRFS-snapshots to grub-menu
