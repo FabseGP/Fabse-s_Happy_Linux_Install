@@ -398,6 +398,7 @@
       read -rp "Encryption-password: " ENCRYPTION_1
       echo
       print yellow "And again to confirm your choice: "
+      echo
       read -rp "Encryption-password: " ENCRYPTION_2
       echo
       if [ "$ENCRYPTION_1" != "$ENCRYPTION_2" ]; then
