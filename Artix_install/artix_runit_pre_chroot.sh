@@ -308,21 +308,34 @@
   umount -R /mnt # In case of executing the script again
   more partitions.txt
   echo
-  fdisk -l
-  echo
+
   until [ "$DRIVE_proceed" == "true" ]; do
     VALID_ENTRY_drive_check=false # Neccessary for trying again
+    fdisk -l
+    echo
     print blue "Which drive do you want to partition? Please only enter the part after \"/dev/\": " 
     read -rp "Drive: " DRIVE_LABEL
     echo
     OUTPUT=$(fdisk -l | sed -n "s/^.*\("$DRIVE_LABEL"\).*$/\1/p")
     if [[ "$OUTPUT" == *"$DRIVE_LABEL"* ]]; then
       if [ "$DRIVE_LABEL" == "nvme0n1" ]; then
-        DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL"p"1"
-        DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL"p"2"
+        if [ "$SWAP_choice" == "1" ]; then
+          DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL"p"1"
+          DRIVE_LABEL_swap=/dev/"$DRIVE_LABEL"p"2"
+          DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL"p"3"
+        else
+          DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL"p"1"
+          DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL"p"2"
+        fi
       else
-        DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
-        DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""2"
+        if [ "$SWAP_choice" == "1" ]; then
+          DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
+          DRIVE_LABEL_swap=/dev/"$DRIVE_LABEL""2"
+          DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""3"
+        else
+          DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL""1"
+          DRIVE_LABEL_primary=/dev/"$DRIVE_LABEL""2"
+        fi
       fi
       until_loop_drive_size BOOT BOOT_size
       until_loop_drive_name BOOT BOOT_label
@@ -379,12 +392,14 @@
   if [ "$ENCRYPTION_choice" == "1" ]; then
     more encryption.txt
     echo
-    until [ "$ENCRYPTION_check" == "YES" ]; do
+    until [ "$ENCRYPTION_check" == "true" ]; do
       ENCRYPTION_confirm=false # Neccessary for trying again
       print blue "Because you seek encryption, please enter the encryption-password that you wish to use: "
       read -rp "Encryption-password: " ENCRYPTION_1
+      echo
       print yellow "And again to confirm your choice: "
       read -rp "Encryption-password: " ENCRYPTION_2
+      echo
       if [ "$ENCRYPTION_1" != "$ENCRYPTION_2" ]; then
         print red "Sorry, you didn't enter the same password twice :("
         ENCRYPTION_1=""
@@ -392,17 +407,16 @@
         ENCRYPTION_check=false
         echo
       elif [ "$ENCRYPTION_1" == "$ENCRYPTION_2" ]; then
-        until [ "$ENCRYPTION_confirm" == "YES" ]; do   
-          print purple "You have chosen \""$ENCRYPTION_2"\" as your encryption-password - if correct, please type \"YES\"; otherwise \"NO\": " ENCRYPTION_double_confirm
+        until [ "$ENCRYPTION_confirm" == "true" ]; do   
+          read -rp "You have chosen \""$ENCRYPTION_2"\" as your encryption-password - if correct, please type \"YES\"; otherwise \"NO\": " ENCRYPTION_double_confirm
           if [ "$ENCRYPTION_double_confirm" == "YES" ]; then
             ENCRYPTION_confirm=true
-            ENCRYPTION_choice=true
+            ENCRYPTION_check=true
           elif [ "$ENCRYPTION_double_confirm" == "NO" ]; then
             ENCRYPTION_confirm=true
-            ENCRYPTION_choice=false
+            ENCRYPTION_check=false
             print cyan "Back to square one!"
             echo
-            ENCRYPTION_choice=true
           else
             ENCRYPTION_confirm=false
             ENCRYPTION_choice=false
