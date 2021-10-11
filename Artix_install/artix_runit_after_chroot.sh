@@ -391,7 +391,7 @@ EOF
   echo
   grub-install --target=x86_64-efi --efi-directory=/boot/EFI --bootloader-id="$BOOTLOADER_label" --modules="luks2 fat all_video jpeg png pbkdf2 gettext gzio gfxterm gfxmenu gfxterm_background part_gpt cryptodisk gcry_rijndael gcry_sha512 btrfs" --recheck
   if [ "$ENCRYPTION_choice" == "1" ]; then
-    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="lsm=landlock,lockdown,yama,bpf\ loglevel=3\ quiet\ cryptdevice=UUID='"$UUID_1"':cryptroot:allow-discards\ root=\/dev\/mapper\/cryptroot\ cryptkey=rootfs:\/.secret\/crypto_keyfile.bin"/' /etc/default/grub
+    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="lsm=landlock,lockdown,apparmor,yama,bpf\ loglevel=3\ quiet\ cryptdevice=UUID='"$UUID_1"':cryptroot:allow-discards\ root=\/dev\/mapper\/cryptroot\ cryptkey=rootfs:\/.secret\/crypto_keyfile.bin"/' /etc/default/grub
     sed -i -e "/GRUB_ENABLE_CRYPTODISK/s/^#//" /etc/default/grub
     touch grub-pre.cfg
     cat << EOF | tee -a grub-pre.cfg > /dev/null
@@ -439,12 +439,16 @@ When = PostTransaction
 Depends = firejail
 Exec = /bin/bash -c 'firecfg >/dev/null 2>&1'
 EOF
+  cat << EOF | tee -a /etc/firejail/firejail.users > /dev/null
+"$USERNAME"
+EOF
   cd "$BEGINNER_DIR" || exit
   cp btrfs_snapshot.sh /.snapshots # Maximum 3 snapshots stored
   ln -s /.snapshots/btrfs_snapshot.sh /etc/cron.daily/btrfs_snapshot.sh
   chmod u+x /etc/cron.daily/btrfs_snapshot.sh && chmod u+x /.snapshots/btrfs_snapshot.sh
   sed -i -e "/GRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETECTION/s/^#//" /etc/default/grub-btrfs/config
-  cat << EOF | tee -a /etc/rc.shutdown > /dev/null
+  touch /etc/rc.shutdown
+  cat << EOF | tee -a /etc/rc.shutdown > /dev/null # Apparently /etc/rc.shutdown is recreated on first boot, so it has to be entered manually afterwards :(
 # Adding BTRFS-snapshots to grub-menu
 cd /etc/grub.d
 ./41_snapshots-btrfs
