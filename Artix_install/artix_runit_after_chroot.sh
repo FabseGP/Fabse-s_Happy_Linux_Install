@@ -440,7 +440,7 @@ Depends = firejail
 Exec = /bin/bash -c 'firecfg >/dev/null 2>&1'
 EOF
   cat << EOF | tee -a /etc/firejail/firejail.users > /dev/null
-"$USERNAME"
+$USERNAME
 EOF
   cd "$BEGINNER_DIR" || exit
   cp btrfs_snapshot.sh /.snapshots # Maximum 3 snapshots stored
