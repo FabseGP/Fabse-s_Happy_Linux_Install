@@ -143,11 +143,12 @@
       else
         VALUE_3="2"
         VALUE_2="1"
+      fi
       if [ "$type_choice" == "$VALUE_3" ]; then
         print yellow ""$1" will not be configured"
         echo
         VALID_ENTRY_choices=true
-      elif [ "$type_choice" == "$VALUE_2" ]; then
+      elif [[ "$type_choice" == "$VALUE_1" || "$type_choice" == "$VALUE_2" ]]; then
         print green ""$1" will be configured"
         echo
         VALID_ENTRY_choices=true
