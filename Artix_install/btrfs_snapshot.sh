@@ -17,3 +17,8 @@
   btrfs subvolume snapshot /home /.snapshots/backup-"$time_stamp"/home # home
   mkdir /.snapshots/backup-"$time_stamp"/packages_list
   pacman -Qqe > /.snapshots/backup-"$time_stamp"/packages_list/pkglist-"$time_stamp".txt
+
+# Updates grub-menu
+  cd /etc/grub.d
+  ./41_snapshots-btrfs
+  grub-mkconfig -o /boot/grub/grub.cfg
