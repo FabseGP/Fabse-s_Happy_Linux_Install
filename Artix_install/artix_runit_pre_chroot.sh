@@ -17,6 +17,7 @@
   SWAP_choice=""
   ENCRYPTION_choice=""
   WIFI_choice=""
+  INIT_choice=""
   INTRO_choice=""
 
   VALID_ENTRY_choices=""
@@ -127,7 +128,11 @@
     type="$1"
     type_choice="$2"
     until [ "$VALID_ENTRY_choices" == "true" ]; do 
-      read -rp "Do you plan to utilise "${type,,}"? Please type \"1\" for yes, \"2\" if not: " type_choice
+      if [ "$type" == "Init" ]; then
+        read -rp "Which init-system do you wish to use: \"runit\" (yaaay), \"openrc\" or \"s6\"? " type_choice
+      else 
+        read -rp "Do you plan to utilise "${type,,}"? Please type \"1\" for yes, \"2\" if not: " type_choice
+      fi
       echo
       if [ "$type_choice" == "2" ]; then
         print yellow ""$1" will not be configured"
@@ -276,7 +281,7 @@
     echo -n "WIFI = " && checkbox "$WIFI_choice"
     echo -n "SWAP = " && checkbox "$SWAP_choice"
     echo -n "ENCRYPTION = " && checkbox "$ENCRYPTION_choice"
-    echo -n "Init = " && checkbox "$INIT_choice"
+    echo "Init = \""$INIT_choice"\""
     echo
     print white "Where [X] = YES and [ ] = NO"
     echo
