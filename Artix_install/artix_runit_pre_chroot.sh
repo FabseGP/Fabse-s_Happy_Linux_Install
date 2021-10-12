@@ -151,7 +151,7 @@
         VALID_ENTRY_choices=true
       elif [[ "$type_choice" == "$VALUE_1" || "$type_choice" == "$VALUE_2" ]]; then
         if [ "$type" == "Init" ]; then
-          print green ""$type_choice" will be configured"
+          print green ""${type_choice^}" will be configured"
         else
           print green ""$1" will be configured"
         fi
@@ -297,7 +297,7 @@
     echo -n "WIFI = " && checkbox "$WIFI_choice"
     echo -n "SWAP = " && checkbox "$SWAP_choice"
     echo -n "ENCRYPTION = " && checkbox "$ENCRYPTION_choice"
-    echo "Init = \""$INIT_choice"\""
+    echo "Init = \""${INIT_choice^}"\""
     echo
     print white "Where [X] = YES and [ ] = NO"
     echo
