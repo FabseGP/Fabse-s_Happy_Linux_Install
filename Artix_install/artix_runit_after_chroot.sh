@@ -336,12 +336,9 @@ EOF
     pacman -U --noconfirm paru-1.8.2-1-x86_64.pkg.tar.zst
     pacman -Syu --noconfirm
     touch /etc/profile.d/alias.sh
-    cat << EOF | tee -a /etc/profile.d/alias.sh > /dev/null    
+    cat << EOF | tee -a /etc/environment > /dev/null    
 alias yay=paru
 alias rm='rm -i'
-if [ -d "$HOME/.local/bin" ] ; then
-    PATH="$HOME/.local/bin:/usr/local/bin"
-fi
 EOF
     chmod u+x /etc/profile.d/alias.sh
     cd "$BEGINNER_DIR" || exit
