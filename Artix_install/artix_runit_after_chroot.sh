@@ -372,10 +372,12 @@ EOF
     ln -s /etc/runit/sv/NetworkManager /etc/runit/runsvdir/default
     ln -s /etc/runit/sv/fcron /etc/runit/runsvdir/default
     ln -s /etc/runit/sv/chrony /etc/runit/runsvdir/default
+    ln -s /etc/runit/sv/dhcpcd /etc/runit/runsvdir/default
   elif [ "$INIT" == "openrc" ]; then
     rc-update add NetworkManager
     rc-update add fcron 
     rc-update add chrony
+    rc-update add dhcpcd
   fi
   
   echo
