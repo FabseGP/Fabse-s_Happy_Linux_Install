@@ -49,6 +49,7 @@
   VALID_ENTRY_drive_size_format=""
   BOOT_size=""
   SWAP_size=""
+  SWAP_size_real=""
 
   VALID_ENTRY_drive_name=""
   BOOT_label=""
@@ -244,6 +245,7 @@
       BOOT_size="$drive_size"
     elif [ "$drive" == "SWAP" ]; then
       SWAP_size="$drive_size"
+      SWAP_size_real=$("$drive_size"+"$BOOT_size")
     fi
     drive=""
     drive_size=""
@@ -518,7 +520,7 @@
     parted --script -a optimal /dev/"$DRIVE_LABEL" \
       mklabel gpt \
       mkpart BOOT fat32 1MiB "$BOOT_size"MiB set 1 ESP on \
-      mkpart SWAP linux-swap "$BOOT_size"MiB "$SWAP_size"MiB  \
+      mkpart SWAP linux-swap "$BOOT_size"MiB "$SWAP_size_real"MiB  \
       mkpart PRIMARY btrfs "$SWAP_size"MiB 100%      
   fi
   lines
