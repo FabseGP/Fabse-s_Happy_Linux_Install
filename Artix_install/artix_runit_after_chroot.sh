@@ -335,14 +335,15 @@ EOF
     echo
     pacman -U --noconfirm paru-1.8.2-1-x86_64.pkg.tar.zst
     pacman -Syu --noconfirm
-    touch /etc/profile.d/alias
-    cat << EOF | tee -a /etc/profile.d/alias > /dev/null    
+    touch /etc/profile.d/alias.sh
+    cat << EOF | tee -a /etc/profile.d/alias.sh > /dev/null    
 alias yay=paru
 alias rm='rm -i'
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:/usr/local/bin"
 fi
 EOF
+    chmod u+x /etc/profile.d/alias.sh
     cd "$BEGINNER_DIR" || exit
     cp paru.conf /etc/paru.conf # Links sudo to doas + more
   fi
