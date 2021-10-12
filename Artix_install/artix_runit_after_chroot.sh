@@ -167,7 +167,7 @@
     # Packages
     more packages.txt
     echo
-    print blue "If you wish to install any packages now (all separated by space), please type them now - otherwise press enter: "
+    print blue "If you wish to install any packages now (all separated by space and not from AUR), please type them now - otherwise press enter: "
     read -rp "Packages: " PACKAGES
     lines
     # Sudo vs Opendoas
@@ -357,7 +357,7 @@ EOF
 
 # Choice of DE/VM, Wayland/Xorg and other packages/services
 
-  paru --noconfim --useask -S "$PACKAGES"
+  pacman --noconfim --useask -S "$PACKAGES"
   lines
 
 #----------------------------------------------------------------------------------------------------------------------------------
