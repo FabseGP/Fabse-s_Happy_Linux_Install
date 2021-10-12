@@ -609,9 +609,9 @@
 # Base-install + encrypted swap (if swap is chosen)
 
   if [ "$INIT_choice" == "runit" ]; then
-    PACKAGES="fcron-runit dhcpcd-runit chrony-runit cryptsetup-runit cryptsetup firejail libressl vim bat base base-devel neovim nano runit linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 realtime-privileges elogind-runit mkinitcpio artix-archlinux-support"
+    PACKAGES="fcron-runit dhcpcd-runit chrony-runit cryptsetup-runit cryptsetup libressl vim bat base base-devel neovim nano runit linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 realtime-privileges elogind-runit mkinitcpio artix-archlinux-support"
   elif [ "$INIT_choice" == "openrc" ]; then
-    PACKAGES="fcron-openrc dhcpcd-openrc chrony-openrc cryptsetup-openrc cryptsetup firejail libressl vim bat base base-devel neovim nano openrc linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-openrc grub os-prober efibootmgr sudo btrfs-progs git bc lz4 realtime-privileges elogind-openrc mkinitcpio artix-archlinux-support"
+    PACKAGES="fcron-openrc dhcpcd-openrc chrony-openrc cryptsetup-openrc cryptsetup libressl vim bat base base-devel neovim nano openrc linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-openrc grub os-prober efibootmgr sudo btrfs-progs git bc lz4 realtime-privileges elogind-openrc mkinitcpio artix-archlinux-support"
   fi
   if grep -q Intel "/proc/cpuinfo"; then # Poor soul :(
     basestrap /mnt intel-ucode $PACKAGES
