@@ -467,9 +467,7 @@ $USERNAME
 EOF
   cd "$BEGINNER_DIR" || exit
   cp btrfs_snapshot.sh /.snapshots # Maximum 3 snapshots stored
-  cp grub-btrfs.sh /.snapshots # Updates GRUB to show snapshots at boot
   ln -s /.snapshots/btrfs_snapshot.sh /etc/cron.daily/btrfs_snapshot.sh
-  ln -s /.snapshots/grub-btrfs.sh /etc/cron.daily/grub-btrfs.sh
   chmod u+x /etc/cron.daily/* && chmod u+x /.snapshots/*
   sed -i -e "/GRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETECTION/s/^#//" /etc/default/grub-btrfs/config
   sed -i 's/02/13/g' /var/spool/fcron/systab.orig # Taking daily snapshots at 13:00:00
