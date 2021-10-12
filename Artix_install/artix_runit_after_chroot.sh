@@ -13,6 +13,7 @@
   DRIVE_LABEL="$1"
   ENCRYPTION_choice="$2"
   ENCRYPTION_passwd="$3"
+  INIT="$4"
 
   CONFIRM_choices=""
   ALL_choices=""
@@ -310,8 +311,11 @@
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Setting up hostname
-
+  
   echo "$HOSTNAME" >> /etc/hostname
+  if [ "$INIT" == "openrc" ]; then
+    echo "hostname='"$HOSTNAME"'" >> /etc/conf.d/hostname
+  fi
   cat << EOF | tee -a /etc/hosts > /dev/null
 127.0.0.1 localhost
 ::1 localhost
