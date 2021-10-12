@@ -523,7 +523,7 @@
       mklabel gpt \
       mkpart BOOT fat32 1MiB "$BOOT_size"MiB set 1 ESP on \
       mkpart SWAP linux-swap "$BOOT_size"MiB "$SWAP_size_real"MiB  \
-      mkpart PRIMARY btrfs "$SWAP_size"MiB 100%      
+      mkpart PRIMARY btrfs "$SWAP_size_real"MiB 100%      
   fi
   lines
 
