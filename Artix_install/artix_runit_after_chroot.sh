@@ -480,6 +480,7 @@ EOF
   if [ "$INIT" == "openrc" ]; then
     sed -i 's/#rc_parallel="NO"/rc_parallel="YES"/g' /etc/rc.conf
     sed -i 's/#unicode="NO"/unicode="YES"/g' /etc/rc.conf
+    sed -i 's/#rc_depend_strict="YES"/rc_depend_strict="NO"/g' /etc/rc.conf
   fi
     
 #----------------------------------------------------------------------------------------------------------------------------------
