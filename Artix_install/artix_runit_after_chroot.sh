@@ -444,27 +444,6 @@ EOF
   cat << EOF | tee -a /etc/pam.d/system-login > /dev/null # 3 seconds delay, when system login failes
 auth optional pam_faildelay.so delay=3000000
 EOF
-  mkdir /etc/pacman.d/hooks
-  touch /etc/pacman.d/hooks/firejail.hook
-  cat << EOF | tee -a /etc/pacman.d/hooks/firejail.hook > /dev/null
-[Trigger]
-Type = Path
-Operation = Install
-Operation = Upgrade
-Operation = Remove
-Target = usr/bin/*
-Target = usr/local/bin/*
-Target = usr/share/applications/*.desktop
-
-[Action]
-Description = Configure symlinks in /usr/local/bin based on firecfg.config...
-When = PostTransaction
-Depends = firejail
-Exec = /bin/bash -c 'firecfg >/dev/null 2>&1'
-EOF
-  cat << EOF | tee -a /etc/firejail/firejail.users > /dev/null
-$USERNAME
-EOF
   cd "$BEGINNER_DIR" || exit
   cp btrfs_snapshot.sh /.snapshots # Maximum 3 snapshots stored
   ln -s /.snapshots/btrfs_snapshot.sh /etc/cron.daily/btrfs_snapshot.sh
