@@ -482,8 +482,7 @@
   pacman-key --init
   pacman-key --populate archlinux artix
   cp pacman.conf /etc/pacman.conf
-  pacman -Syy
-  pacman -S --noconfirm parted zstd
+  pacman -Syy --noconfirm parted zstd
   lines
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -586,7 +585,7 @@
 
 # Base-install + encrypted swap (if swap is chosen)
 
-  PACKAGES="fcron-runit chrony-runit cryptsetup-runit cryptsetup firejail libressl vim bat base base-devel neovim nano runit linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 cryptsetup realtime-privileges elogind-runit mkinitcpio artix-archlinux-support"
+  PACKAGES="fcron-runit chrony-runit cryptsetup-runit cryptsetup firejail libressl vim bat base base-devel neovim nano runit linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 realtime-privileges elogind-runit mkinitcpio artix-archlinux-support"
   if grep -q Intel "/proc/cpuinfo"; then # Poor soul :(
     basestrap /mnt intel-ucode $PACKAGES
   elif grep -q AMD "/proc/cpuinfo"; then
@@ -631,7 +630,7 @@ EOF
           if [ "$FSTAB_confirm" == "NO" ]; then
             print cyan "Sorry, you have to execute the scipt again :("
             umount /mnt
-            cryptsetup close cryptroot
+            echo "$ENCRYPTION_2" | cryptsetup close cryptroot
             exit 1
           elif [ "$FSTAB_confirm" == "YES" ]; then
             VALID_ENTRY_fstab_confirm_check=true
