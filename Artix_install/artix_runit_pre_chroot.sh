@@ -149,6 +149,8 @@
       SWAP_choice="$type_choice"
     elif [ "$type" == "Encryption" ]; then
       ENCRYPTION_choice="$type_choice"
+    elif [ "$type" == "Init" ]; then
+      INIT_choice="$type_choice"
     fi
     type=""
     type_choice=""
@@ -268,11 +270,13 @@
     until_loop_intro WiFi WIFI_choice
     until_loop_intro Encryption ENCRYPTION_choice
     until_loop_intro SWAP SWAP_choice
+    until_loop_intro Init INIT_choice
     print blue "You have chosen the following options: "
     echo
     echo -n "WIFI = " && checkbox "$WIFI_choice"
     echo -n "SWAP = " && checkbox "$SWAP_choice"
     echo -n "ENCRYPTION = " && checkbox "$ENCRYPTION_choice"
+    echo -n "Init = " && checkbox "$INIT_choice"
     echo
     print white "Where [X] = YES and [ ] = NO"
     echo
@@ -286,6 +290,7 @@
           SWAP_choice=""
           ENCRYPTION_choice=""
           WIFI_choice=""
+          INIT_choice=""
           INTRO_choice=""
           VALID_ENTRY_intro_check=true
           INTRO_proceed=false
