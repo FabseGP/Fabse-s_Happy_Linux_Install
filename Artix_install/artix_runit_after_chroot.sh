@@ -288,8 +288,8 @@
   echo
   locale-gen
   echo
-  echo "export LANG="$LANGUAGE"" >> /etc/profile
-  echo "export LC_ALL="$LANGUAGE"" >> /etc/profile
+  echo "LANG="$LANGUAGE"" >> /etc/locale.conf
+  echo "LC_ALL="$LANGUAGE"" >> /etc/locale.conf
   lines
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -359,16 +359,23 @@ EOF
 
 # Choice of DE/VM, Wayland/Xorg and other packages/services
 
-  yay --noconfim --useask -S "$PACKAGES"
+  paru --noconfim --useask -S "$PACKAGES"
   lines
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Setting NetworkManager + fcron + chrony to start on boot
 
-  ln -s /etc/runit/sv/NetworkManager /etc/runit/runsvdir/default
-  ln -s /etc/runit/sv/fcron /etc/runit/runsvdir/default
-  ln -s /etc/runit/sv/chrony /etc/runit/runsvdir/default
+  if [ "$INIT" == "runit" ]; then
+    ln -s /etc/runit/sv/NetworkManager /etc/runit/runsvdir/default
+    ln -s /etc/runit/sv/fcron /etc/runit/runsvdir/default
+    ln -s /etc/runit/sv/chrony /etc/runit/runsvdir/default
+  elif [ "$INIT" == "openrc" ]; then
+    rc-update add NetworkManager
+    rc-update add fcron 
+    rc-update add chrony
+  fi
+  
   echo
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -469,7 +476,6 @@ EOF
   ln -s /.snapshots/grub-btrfs.sh /etc/cron.daily/grub-btrfs.sh
   chmod u+x /etc/cron.daily/* && chmod u+x /.snapshots/*
   sed -i -e "/GRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETECTION/s/^#//" /etc/default/grub-btrfs/config
-  touch /etc/rc.shutdown
   sed -i 's/02/13/g' /var/spool/fcron/systab.orig # Taking daily snapshots at 13:00:00
 
 #----------------------------------------------------------------------------------------------------------------------------------
