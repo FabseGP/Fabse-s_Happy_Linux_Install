@@ -595,7 +595,11 @@
 
 # Base-install + encrypted swap (if swap is chosen)
 
-  PACKAGES="fcron-runit chrony-runit cryptsetup-runit cryptsetup firejail libressl vim bat base base-devel neovim nano runit linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 realtime-privileges elogind-runit mkinitcpio artix-archlinux-support"
+  if [ "$INIT_choice" == "runit" ]; then
+    PACKAGES="fcron-runit chrony-runit cryptsetup-runit cryptsetup firejail libressl vim bat base base-devel neovim nano runit linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-runit grub os-prober efibootmgr sudo btrfs-progs git bc lz4 realtime-privileges elogind-runit mkinitcpio artix-archlinux-support"
+  elif [ "$INIT_choice" == "openrc" ]; then
+    PACKAGES="fcron-openrc chrony-openrc cryptsetup-openrc cryptsetup firejail libressl vim bat base base-devel neovim nano openrc linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-openrc grub os-prober efibootmgr sudo btrfs-progs git bc lz4 realtime-privileges elogind-openrc mkinitcpio artix-archlinux-support"
+  fi
   if grep -q Intel "/proc/cpuinfo"; then # Poor soul :(
     basestrap /mnt intel-ucode $PACKAGES
   elif grep -q AMD "/proc/cpuinfo"; then
@@ -671,4 +675,4 @@ EOF
   fi
   mkdir /mnt/install_script
   cp {artix_runit_pre_chroot.sh,artix_runit_after_chroot.sh,AUR.txt,farewell.txt,grub-btrfs.sh,packages.txt,summary.txt,hostname.txt,btrfs_snapshot.sh,users.txt,paru-1.8.2-1-x86_64.pkg.tar.zst,pacman.conf,paru.conf,GRUB.txt,initramfs.txt,locals.txt,time.txt} /mnt/install_script
-  artix-chroot /mnt /install_script/artix_runit_after_chroot.sh "$DRIVE_LABEL_after_chroot" "$ENCRYPTION_after_chroot" "$ENCRYPTION_PASSWD_after_chroot"
+  artix-chroot /mnt /install_script/artix_runit_after_chroot.sh "$DRIVE_LABEL_after_chroot" "$ENCRYPTION_after_chroot" "$ENCRYPTION_PASSWD_after_chroot" "$INIT_choice"
