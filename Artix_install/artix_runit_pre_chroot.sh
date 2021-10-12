@@ -411,8 +411,6 @@
       echo
     fi
   done
-  head -c 100000000 /dev/random > /dev/"$DRIVE_LABEL"; sync
-  echo
   if [ "$ENCRYPTION_choice" == "1" ]; then
     more encryption.txt
     echo
@@ -451,6 +449,7 @@
       fi
     done
   fi
+  head -c 100000000 /dev/random > /dev/"$DRIVE_LABEL"; sync
   lines
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -506,7 +505,7 @@
   pacman-key --init
   pacman-key --populate archlinux artix
   cp pacman.conf /etc/pacman.conf
-  pacman -Syy --noconfirm parted zstd
+  pacman -Syy --noconfirm parted
   lines
 
 #----------------------------------------------------------------------------------------------------------------------------------
