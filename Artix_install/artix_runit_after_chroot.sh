@@ -443,7 +443,7 @@ EOF
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Security enhancements + BTRFS-snapshot
+# Security enhancements + BTRFS-snapshot + OpenRC
 
   cat << EOF | tee -a /etc/pam.d/system-login > /dev/null # 3 seconds delay, when system login failes
 auth optional pam_faildelay.so delay=3000000
@@ -477,7 +477,11 @@ EOF
   chmod u+x /etc/cron.daily/* && chmod u+x /.snapshots/*
   sed -i -e "/GRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETECTION/s/^#//" /etc/default/grub-btrfs/config
   sed -i 's/02/13/g' /var/spool/fcron/systab.orig # Taking daily snapshots at 13:00:00
-
+  if [ "$INIT" == "openrc" ]; then
+    sed -i 's/#rc_parallel="NO"/rc_parallel="YES"/g' /etc/rc.conf
+    sed -i 's/#unicode="NO"/unicode="YES"/g' /etc/rc.conf
+  fi
+    
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Summary before restart
