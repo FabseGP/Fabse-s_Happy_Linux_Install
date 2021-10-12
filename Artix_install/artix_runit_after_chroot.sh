@@ -343,6 +343,13 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:/usr/local/bin"
 fi
 EOF
+    cat << EOF | tee -a /etc/bash/bashrc > /dev/null    
+alias yay=paru
+alias rm='rm -i'
+if [ -d "$HOME/.local/bin" ] ; then
+    PATH="$HOME/.local/bin:/usr/local/bin"
+fi
+EOF
     chmod u+x /etc/profile.d/alias.sh
     cd "$BEGINNER_DIR" || exit
     cp paru.conf /etc/paru.conf # Links sudo to doas + more
