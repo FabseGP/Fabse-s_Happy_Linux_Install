@@ -297,7 +297,9 @@
 # Setting up keymap
 
   echo "KEYMAP="$KEYMAP"" >> /etc/vconsole.conf
-  kbd_mode -u
+  if [ "$INIT" == "openrc" ]; then
+    echo "KEYMAP="$KEYMAP"" >> /etc/conf.d/keymaps
+  fi
   lines
 
 #----------------------------------------------------------------------------------------------------------------------------------
