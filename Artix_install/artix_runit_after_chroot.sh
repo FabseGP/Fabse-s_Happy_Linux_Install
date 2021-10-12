@@ -336,7 +336,14 @@ EOF
     pacman -U --noconfirm paru-1.8.2-1-x86_64.pkg.tar.zst
     pacman -Syu --noconfirm
     touch /etc/profile.d/alias.sh
-    cat << EOF | tee -a /etc/environment > /dev/null    
+    cat << EOF | tee -a /etc/profile.d/alias.sh > /dev/null    
+# Redirect yay to paru + making rm safer
+alias yay=paru
+alias rm='rm -i'
+EOF
+    touch /home/"$USERNAME"/.bashrc
+    cat << EOF | tee -a /home/"$USERNAME"/.bashrc > /dev/null    
+# Redirect yay to paru + making rm safer
 alias yay=paru
 alias rm='rm -i'
 EOF
