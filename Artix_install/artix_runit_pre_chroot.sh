@@ -292,7 +292,7 @@
           print cyan "Back to square one!"
           echo
         else
-          VALID_ENTRY_intro_check=true
+          VALID_ENTRY_intro_check=false
           print red "Invalid answer. Please try again"
           echo
         fi
@@ -420,7 +420,6 @@
             echo
           else
             ENCRYPTION_confirm=false
-            ENCRYPTION_choice=false
             print red "Invalid answer. Please try again"
             echo
           fi
