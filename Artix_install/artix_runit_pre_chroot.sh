@@ -407,9 +407,7 @@
       echo
     fi
   done
-  print yellow "Erasing your drive! This might take some time depending on your drive size - you are hereby permitted to exit using Ctrl+C"
-  echo
-  dd if=/dev/zero of=/dev/"$DRIVE_LABEL" bs=512 count=1 status=progress
+  head -c 100000000 /dev/random > /dev/"$DRIVE_LABEL"; sync
   echo
   if [ "$ENCRYPTION_choice" == "1" ]; then
     more encryption.txt
