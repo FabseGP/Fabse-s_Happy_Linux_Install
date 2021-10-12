@@ -20,6 +20,9 @@
   INIT_choice=""
   INTRO_choice=""
 
+  VALUE_1=""
+  VALUE_2=""
+  VALUE_3=""
   VALID_ENTRY_choices=""
   VALID_ENTRY_intro_check=""
   INTRO_proceed=""
@@ -129,16 +132,22 @@
     type_choice="$2"
     until [ "$VALID_ENTRY_choices" == "true" ]; do 
       if [ "$type" == "Init" ]; then
-        read -rp "Which init-system do you wish to use: \"runit\" (yaaay), \"openrc\" or \"s6\"? " type_choice
+        read -rp "Which init-system do you wish to use: \"runit\" (yaaay) or \"openrc\"? " type_choice
       else 
         read -rp "Do you plan to utilise "${type,,}"? Please type \"1\" for yes, \"2\" if not: " type_choice
       fi
       echo
-      if [ "$type_choice" == "2" ]; then
+      if [ "$type" == "Init" ]; then
+        VALUE_1="runit"
+        VALUE_2="openrc"
+      else
+        VALUE_3="2"
+        VALUE_2="1"
+      if [ "$type_choice" == "$VALUE_3" ]; then
         print yellow ""$1" will not be configured"
         echo
         VALID_ENTRY_choices=true
-      elif [ "$type_choice" == "1" ]; then
+      elif [ "$type_choice" == "$VALUE_2" ]; then
         print green ""$1" will be configured"
         echo
         VALID_ENTRY_choices=true
