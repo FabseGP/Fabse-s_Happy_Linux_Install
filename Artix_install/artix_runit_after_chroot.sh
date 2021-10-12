@@ -335,22 +335,13 @@ EOF
     echo
     pacman -U --noconfirm paru-1.8.2-1-x86_64.pkg.tar.zst
     pacman -Syu --noconfirm
-    touch /etc/bash/bashrc
-    cat << EOF | tee -a /etc/bash/bashrc > /dev/null
-    
+    touch /etc/profile.d/alias
+    cat << EOF | tee -a /etc/profile.d/alias > /dev/null    
 alias yay=paru
 alias rm='rm -i'
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:/usr/local/bin"
 fi
-
-EOF
-    cat << EOF | tee -a /etc/profile > /dev/null
-    
-if [ -f /etc/bash/bashrc ]; then
-  . /etc/bash/bashrc
-fi
-
 EOF
     cd "$BEGINNER_DIR" || exit
     cp paru.conf /etc/paru.conf # Links sudo to doas + more
@@ -397,7 +388,7 @@ EOF
     chmod -c 0400 /etc/doas.conf
   elif [ "$DOAS_choice" == "2" ]; then
     echo "%wheel ALL=(ALL) ALL" | (EDITOR="tee -a" visudo)
-    sed -i -e "/Sudo = doas/s/^#*/;/" /etc/doas.conf
+    sed -i -e "/Sudo = doas/s/^#*/;/" /etc/paru.conf
   fi 
   lines
 
