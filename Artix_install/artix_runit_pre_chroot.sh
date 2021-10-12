@@ -150,7 +150,11 @@
         echo
         VALID_ENTRY_choices=true
       elif [[ "$type_choice" == "$VALUE_1" || "$type_choice" == "$VALUE_2" ]]; then
-        print green ""$1" will be configured"
+        if [ "$type" == "Init" ]; then
+          print green ""$type_choice" will be configured"
+        else
+          print green ""$1" will be configured"
+        fi
         echo
         VALID_ENTRY_choices=true
       else
