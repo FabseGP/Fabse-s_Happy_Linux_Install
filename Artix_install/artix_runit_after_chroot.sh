@@ -428,7 +428,7 @@ insmod all_video
 set gfxmode=auto
 terminal_input console
 terminal_output gfxterm
-cryptomount -a
+cryptomount -u $UUID_2
 set prefix='(crypto0)/@grub'
 set root='(crypto0)'
 insmod normal
@@ -463,19 +463,8 @@ EOF
     
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Summary before restart
-
-  more summary.txt
-
-#----------------------------------------------------------------------------------------------------------------------------------
-
 # Farewell
 
   more farewell.txt
-  echo
-  exit
-  umount -R /mnt
-  echo
-  print yellow "You might want to delete /install_script "
   echo
   exit
