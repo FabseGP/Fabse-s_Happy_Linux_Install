@@ -46,6 +46,8 @@
   UUID_1=$(blkid -s UUID -o value "$DRIVE_LABEL")
   UUID_2=$(lsblk -no TYPE,UUID "$DRIVE_LABEL" | awk '$1=="part"{print $2}' | tr -d -)
 
+  CRONJOB_snapshots="0 13 * * * /.snapshots/btrfs_snapshot.sh" # Each day at 13:00 localtime
+
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Colors for the output
@@ -218,13 +220,6 @@
         if [ "$ALL_choices" == "YES" ]; then 
           VALID_ENTRY_all_check=true
           CONFIRM_choices=true
-          if [ "$ENCRYPTION_choice" == "1" ]; then
-            dd bs=512 count=6 if=/dev/random of=/.secret/crypto_keyfile.bin iflag=fullblock
-            chmod 600 /.secret/crypto_keyfile.bin
-            chmod 600 /boot/initramfs-linux*
-            echo "$ENCRYPTION_passwd" | cryptsetup luksAddKey "$DRIVE_LABEL" /.secret/crypto_keyfile.bin
-            sed -i 's/FILES=()/FILES=(\/.secret\/crypto_keyfile.bin)/' /etc/mkinitcpio.conf
-          fi
         elif [ "$ALL_choices" == "NO" ]; then  
           TIMEZONE_1=""
           TIMEZONE_2=""
@@ -402,6 +397,13 @@ EOF
 # Regenerating initramfs with encrypt-hook + keyfile
 
   more initramfs.txt
+  if [ "$ENCRYPTION_choice" == "1" ]; then
+    dd bs=512 count=6 if=/dev/random of=/.secret/crypto_keyfile.bin iflag=fullblock
+    chmod 600 /.secret/crypto_keyfile.bin
+    chmod 600 /boot/initramfs-linux*
+    echo "$ENCRYPTION_passwd" | cryptsetup luksAddKey "$DRIVE_LABEL" /.secret/crypto_keyfile.bin
+    sed -i 's/FILES=()/FILES=(\/.secret\/crypto_keyfile.bin)/' /etc/mkinitcpio.conf
+  fi
   sed -i 's/HOOKS=(base\ udev\ autodetect\ modconf\ block\ filesystems\ keyboard\ fsck)/HOOKS=(base\ udev\ keymap\ keyboard\ autodetect\ modconf\ block\ encrypt\ filesystems\ fsck)/' /etc/mkinitcpio.conf
   sed -i 's/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/' /etc/mkinitcpio.conf
   mkinitcpio -p linux-zen
@@ -426,7 +428,7 @@ insmod all_video
 set gfxmode=auto
 terminal_input console
 terminal_output gfxterm
-cryptomount -u $UUID_2
+cryptomount -a
 set prefix='(crypto0)/@grub'
 set root='(crypto0)'
 insmod normal
@@ -450,10 +452,9 @@ auth optional pam_faildelay.so delay=3000000
 EOF
   cd "$BEGINNER_DIR" || exit
   cp btrfs_snapshot.sh /.snapshots # Maximum 3 snapshots stored
-  ln -s /.snapshots/btrfs_snapshot.sh /etc/cron.daily/btrfs_snapshot.sh
-  chmod u+x /etc/cron.daily/* && chmod u+x /.snapshots/*
+  chmod u+x /.snapshots/*
   sed -i -e "/GRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETECTION/s/^#//" /etc/default/grub-btrfs/config
-  sed -i 's/02/13/g' /var/spool/fcron/systab.orig # Taking daily snapshots at 13:00:00
+  (fcrontab -u root -l; echo "$CRONJOB_snapshots" ) | fcrontab -u root -
   if [ "$INIT" == "openrc" ]; then
     sed -i 's/#rc_parallel="NO"/rc_parallel="YES"/g' /etc/rc.conf
     sed -i 's/#unicode="NO"/unicode="YES"/g' /etc/rc.conf
