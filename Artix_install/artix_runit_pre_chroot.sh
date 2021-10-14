@@ -286,7 +286,7 @@
     echo
     echo -n "SWAP = " && checkbox "$SWAP_choice"
     echo -n "ENCRYPTION = " && checkbox "$ENCRYPTION_choice"
-    echo "Init = \""${INIT_choice^}"\""
+    echo "Init = \""$INIT_choice"\""
     echo
     print white "Where [X] = YES and [ ] = NO"
     echo
