@@ -16,7 +16,6 @@
 
   SWAP_choice=""
   ENCRYPTION_choice=""
-  WIFI_choice=""
   INIT_choice=""
   INTRO_choice=""
 
@@ -32,12 +31,6 @@
   ENCRYPTION_check=""
   ENCRYPTION_confirm=""
   ENCRYPTION_double_confirm=""
-
-  WIFI_SSID=""
-  WIFI_check=""
-  VALID_ENTRY_wifi_check=""
-  WIFI_proceed=""
-  WIFI_ID=""
 
   OUTPUT=""
   DRIVE_proceed=""
@@ -163,9 +156,7 @@
         echo
       fi
     done
-    if [ "$type" == "WiFi" ]; then
-      WIFI_choice="$type_choice"
-    elif [ "$type" == "SWAP" ]; then
+    if [ "$type" == "SWAP" ]; then
       SWAP_choice="$type_choice"
     elif [ "$type" == "Encryption" ]; then
       ENCRYPTION_choice="$type_choice"
@@ -288,13 +279,11 @@
   echo
   until [ "$INTRO_proceed" == "true" ]; do 
     VALID_ENTRY_intro_check=false # Necessary for trying again
-    until_loop_intro WiFi WIFI_choice
     until_loop_intro Encryption ENCRYPTION_choice
     until_loop_intro SWAP SWAP_choice
     until_loop_intro Init INIT_choice
     print blue "You have chosen the following options: "
     echo
-    echo -n "WIFI = " && checkbox "$WIFI_choice"
     echo -n "SWAP = " && checkbox "$SWAP_choice"
     echo -n "ENCRYPTION = " && checkbox "$ENCRYPTION_choice"
     echo "Init = \""${INIT_choice^}"\""
@@ -310,7 +299,6 @@
         elif [ "$INTRO_choice" == "NO" ]; then  
           SWAP_choice=""
           ENCRYPTION_choice=""
-          WIFI_choice=""
           INIT_choice=""
           INTRO_choice=""
           VALID_ENTRY_intro_check=true
@@ -342,8 +330,8 @@
     print blue "Which drive do you want to partition? Please only enter the part after \"/dev/\": " 
     read -rp "Drive: " DRIVE_LABEL
     echo
-    OUTPUT=$(fdisk -l | sed -n "s/^.*\("$DRIVE_LABEL"\).*$/\1/p")
-    if [[ "$OUTPUT" == *"$DRIVE_LABEL"* ]]; then
+    OUTPUT=$(lsblk -do name)
+    if echo "$OUTPUT" | grep -w -q "$DRIVE_LABEL"; then
       if [ "$DRIVE_LABEL" == "nvme0n1" ]; then
         if [ "$SWAP_choice" == "1" ]; then
           DRIVE_LABEL_boot=/dev/"$DRIVE_LABEL"p"1"
@@ -454,51 +442,6 @@
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Network-configuration
-
-  if [ "$WIFI_choice" == "1" ]; then
-    more network.txt
-    echo
-    print blue "You're wifi-card is about to be activated"
-    echo
-    rfkill unblock wifi
-    connmanctl enable wifi
-    connmanctl scan wifi
-    connmanctl services
-    connmanctl services > wifi_list
-    connmanctl agent on
-    echo
-    until [ "$WIFI_proceed" == "true" ]; do 
-      VALID_ENTRY_wifi_check=false # Necessary for trying again
-      read -rp "Which WiFi-network from the list above should be connected to? " WIFI_SSID
-      echo
-      until [ "$VALID_ENTRY_wifi_check" == "true" ]; do 
-        read -rp "You have chosen "$WIFI_SSID". Type \"YES\" if correct or \"NO\" if not: " WIFI_check
-        echo
-        if [ "$WIFI_check" == "NO" ]; then
-          print yellow "You'll get a new prompt"
-          WIFI_SSID=""
-          WIFI_proceed=false
-          VALID_ENTRY_wifi_check=true
-          echo
-        elif [ "$WIFI_check" == "YES" ]; then
-          WIFI_proceed=true
-          VALID_ENTRY_wifi_check=true
-        else
-          VALID_ENTRY_wifi_check=false
-          print red "Invalid answer. Please try again"
-          echo
-        fi
-      done
-    done
-    WIFI_ID=$(sed -n "s //^.*$WIFI_SSID\s*\(\S*\)/\1/p" wifi_list)
-    rm wifi_list
-    connmanctl connect "$WIFI_ID" 
-    lines
-  fi
-
-#----------------------------------------------------------------------------------------------------------------------------------
-
 # Installing parted to format drives + support for zstd-compression + configuring Arch's repo
 
   pacman -S --noconfirm archlinux-keyring artix-keyring artix-archlinux-support
@@ -531,7 +474,7 @@
 # ROOT-encryption
 
   if [ "$ENCRYPTION_choice" == "1" ]; then
-    echo "$ENCRYPTION_2" | cryptsetup luksFormat --batch-mode --type luks2 --pbkdf=pbkdf2 --pbkdf-force-iterations=500000 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL_primary" # --pbkdf=pbkdf2 --pbkdf-force-iterations=500000 due to GRUB lacking support for ARGON2d
+    echo "$ENCRYPTION_2" | cryptsetup luksFormat --batch-mode --type luks2 --pbkdf=pbkdf2 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL_primary" # --pbkdf=pbkdf2 due to GRUB currently lacking support for ARGON2d
     echo "$ENCRYPTION_2" | cryptsetup open "$DRIVE_LABEL_primary" cryptroot
   fi
 
