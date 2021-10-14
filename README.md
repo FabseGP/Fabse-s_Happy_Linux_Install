@@ -5,10 +5,12 @@
 <Br>
 <h1>About this repo! 😎</h1>
 
-- Script to install Artix Linux with Runit; the script is dynamic in that sense that choices are giving during install
-- Installaton of certain packages + ZSH with PowerLevel10k-theme + GRUB-theme
-- Recovering KDE Plasma settings + Sway-config from backup
-- Setting Firefox- and Spotify-themes  
+- A interactive script to install Artix Linux with either OpenRC or Runit
+- Without modification, the following choices are always constant:
+  * Filesystem = btrfs with BTRFS-snapshots taken each day at 13:00 local time
+  * Repositories = galaxy (stable) + gremlins (testing) + multilib + arch
+  * NetworkManager + fcron + chrony + dhcpcd at boot
+  * IF CHOSEN: paru as AUR-helper, though with alias yay=paru
 
 <Br>
 <hr>
