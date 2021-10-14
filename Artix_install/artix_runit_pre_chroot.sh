@@ -632,3 +632,18 @@ EOF
   mkdir /mnt/install_script
   cp {artix_runit_pre_chroot.sh,artix_runit_after_chroot.sh,AUR.txt,farewell.txt,packages.txt,summary.txt,hostname.txt,btrfs_snapshot.sh,users.txt,paru-1.8.2-1-x86_64.pkg.tar.zst,pacman.conf,paru.conf,GRUB.txt,initramfs.txt,locals.txt,time.txt} /mnt/install_script
   artix-chroot /mnt /install_script/artix_runit_after_chroot.sh "$DRIVE_LABEL_after_chroot" "$ENCRYPTION_after_chroot" "$ENCRYPTION_PASSWD_after_chroot" "$INIT_choice"
+  echo
+  if [ "$ENCRYPTION_choice" == "1" ]; then
+    print yellow "Due to GRUB having limited support for LUKS2, which your partition has been encrypted with, you will enter grub-shell during boot."
+    print yellow "Though since a keyfile has been added to the partition, you only have to unlock the partition once with the following commands: "
+    echo
+    print white "\"cryptomount -a\" # Unlocks the encrypted partition; the reason is that /boot is encrypted too"
+    print white "\"normal\" # Your normal boot"
+    echo
+    print yellow "You might also want to delete /install_script"
+    echo
+  else
+    print yellow "You might want to delete /install_script "
+  fi
+  umount -R /mnt
+  exit
