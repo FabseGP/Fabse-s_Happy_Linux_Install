@@ -12,6 +12,25 @@
   * NetworkManager + fcron + chrony + dhcpcd at boot
   * IF CHOSEN: paru as AUR-helper, though with alias yay=paru
 
+In order to clone the repository, these commands must be used beforehand
+  - loadkeys YOUR_KEYMAP
+  - (If using ethernet, just skip these 'sub-commands' under this line)
+    - rfkill unblock wifi
+    - connmanctl
+    - enable wifi
+    - scan wifi
+    - services
+    - agent on
+    - connect YOUR_WIFI_ID # Remember that connmanctl has tab-completion regarding the WiFi-ID's; I didn't knew that for a lomg time :(
+    - exit
+  - pacman -Syy --noconfirm git && git clone https://github.com/FabseGP/Fabse-s_Happy_Linux_Install.git
+  - cd Fabse-s_Happy_Linux_Install/Artix_install
+  - chmod u+x artix_runit_*
+  - ./artix_runit_pre_chroot.sh
+
+  And off you go! 
+    
+
 <Br>
 <hr>
 <Br>
