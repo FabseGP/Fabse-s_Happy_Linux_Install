@@ -474,7 +474,7 @@
 # ROOT-encryption
 
   if [ "$ENCRYPTION_choice" == "1" ]; then
-    echo "$ENCRYPTION_2" | cryptsetup luksFormat --batch-mode --type luks2 --pbkdf=pbkdf2 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL_primary" # --pbkdf=pbkdf2 due to GRUB currently lacking support for ARGON2d
+    echo "$ENCRYPTION_2" | cryptsetup luksFormat --batch-mode --type luks2 --pbkdf=pbkdf2 --pbkdf-force-iterations=2000 --cipher aes-xts-plain64 --key-size 512 --hash sha512 --use-random "$DRIVE_LABEL_primary" # --pbkdf=pbkdf2 due to GRUB currently lacking support for ARGON2d
     echo "$ENCRYPTION_2" | cryptsetup open "$DRIVE_LABEL_primary" cryptroot
   fi
 
