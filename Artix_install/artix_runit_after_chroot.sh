@@ -42,11 +42,11 @@
   DOAS_choice=""
   VALID_ENTRY_DOAS_choice=""
 
+  SNAPSHOT_time=""
+
   BOOTLOADER_label=""
   UUID_1=$(blkid -s UUID -o value "$DRIVE_LABEL")
   UUID_2=$(lsblk -no TYPE,UUID "$DRIVE_LABEL" | awk '$1=="part"{print $2}' | tr -d -)
-
-  CRONJOB_snapshots="0 13 * * * /.snapshots/btrfs_snapshot.sh" # Each day at 13:00 localtime
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -186,6 +186,12 @@
       fi
     done
     lines
+    # BTRFS_snapshots
+    echo
+    print blue "By default a cronjob, which takes a snapshot of / and /home, but also updates grub-menu, will be executed each day at 13:00:00 local time. If you wish to change the time (only clock-hours), please follow the example below - if not, just press enter: "
+    print purple "Example: 12"
+    read -rp "Clock-hour: " SNAPSHOT_time
+    lines
     # Bootloader_ID
     read -rp "Any fitting name for the bootloader? " BOOTLOADER_label
     echo
@@ -207,6 +213,11 @@
       print green "No additional packages will be installed"
     else
       print green "PACKAGES = \""$PACKAGES"\""
+    fi
+    if [[ -z "$SNAPSHOT_time" ]]; then
+      print green "Snapshots will be taken daily at 13:00:00 local time"
+    else
+      print green "Snapshots will be taken daily at "$SNAPSHOT_time":00:00 local time"
     fi
     print green "BOOTLOADER_label = \""$BOOTLOADER_label"\""
     echo -n "AUR = " && checkbox "$AUR_choice"
@@ -230,6 +241,7 @@
           ROOT_passwd=""
           USERNAME=""
           PACKAGES=""
+          SNAPSHOT_time=""
           BOOTLOADER_label=""
           AUR_choice=""
           DOAS_choice=""
@@ -454,6 +466,11 @@ EOF
   cp btrfs_snapshot.sh /.snapshots # Maximum 3 snapshots stored
   chmod u+x /.snapshots/*
   sed -i -e "/GRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETECTION/s/^#//" /etc/default/grub-btrfs/config
+  if [[ -z "$SNAPSHOT_time" ]]; then
+    CRONJOB_snapshots="0 13 * * * /.snapshots/btrfs_snapshot.sh" # Each day at 13:00 local time
+  else
+    CRONJOB_snapshots="0 $SNAPSHOT_time * * * /.snapshots/btrfs_snapshot.sh"
+  fi
   (fcrontab -u root -l; echo "$CRONJOB_snapshots" ) | fcrontab -u root -
   if [ "$INIT" == "openrc" ]; then
     sed -i 's/#rc_parallel="NO"/rc_parallel="YES"/g' /etc/rc.conf
