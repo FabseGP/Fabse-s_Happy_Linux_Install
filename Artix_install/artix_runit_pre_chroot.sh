@@ -557,9 +557,9 @@
     PACKAGES="fcron-openrc dhcpcd-openrc chrony-openrc cryptsetup-openrc cryptsetup libressl vim bat base base-devel neovim nano openrc linux-zen zstd linux-zen-headers grub-btrfs linux-firmware networkmanager-openrc grub os-prober efibootmgr sudo btrfs-progs git bc lz4 realtime-privileges elogind-openrc mkinitcpio artix-archlinux-support"
   fi
   if grep -q Intel "/proc/cpuinfo"; then # Poor soul :(
-    basestrap /mnt intel-ucode $PACKAGES
+    basestrap /mnt intel-ucode $PACKAGES --needed
   elif grep -q AMD "/proc/cpuinfo"; then
-    basestrap /mnt amd-ucode $PACKAGES
+    basestrap /mnt amd-ucode $PACKAGES --needed
   fi
   if [ "$SWAP_choice" == "1" ]; then
     UUID_swap=$(lsblk -no TYPE,UUID "$DRIVE_LABEL_swap" | awk '$1=="part"{print $2}')
